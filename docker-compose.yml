@@ -1,0 +1,22 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: bookmemory-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bookmemory
+    ports:
+      - "5433:5432"
+    volumes:
+      - bookmemory_postgres:/var/lib/postgresql/data
+      - ./docker/db-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bookmemory"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  bookmemory_postgres:
+

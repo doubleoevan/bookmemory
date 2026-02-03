@@ -1,0 +1,9 @@
+{
+  "name": "bookmemory",
+  "private": true,
+  "packageManager": "pnpm@9.0.0",
+  "scripts": {
+    "dev:web": "pnpm --filter @bookmemory/web dev"
+  }
+}
+
