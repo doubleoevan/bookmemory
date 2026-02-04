@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "rootDir": ".",
+    "outDir": "dist",
+    "jsx": "react-jsx",
+    "declaration": true,
+    "declarationMap": true,
+    "emitDeclarationOnly": false,
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "types": []
+  },
+  "include": ["src", "**/*.ts", "**/*.tsx"],
+  "exclude": ["dist", "node_modules"]
+}

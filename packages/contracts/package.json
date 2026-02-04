@@ -1,0 +1,25 @@
+{
+  "name": "@bookmemory/contracts",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "openapi"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "lint": "eslint .",
+    "typecheck": "tsc -b --pretty false --noEmit",
+    "contracts:sync": "node ./scripts/sync-openapi.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
+    "typescript": "^5.6.0",
+    "typescript-eslint": "^8.46.4"
+  }
+}
