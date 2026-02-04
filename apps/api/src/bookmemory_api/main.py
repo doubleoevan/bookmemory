@@ -1,12 +1,14 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from starlette.middleware.sessions import SessionMiddleware
+
 from bookmemory_api.api.v1.router import router as v1_router
 from bookmemory_api.core.settings import settings
 
 
 def create_app() -> FastAPI:
-    """Create the FastAPI application instance."""
+    """Creates the FastAPI application instance."""
 
     app = FastAPI(title="BookMemory API")
 
@@ -19,12 +21,19 @@ def create_app() -> FastAPI:
     app.add_middleware(
         CORSMiddleware,
         allow_origins=allowed_origins,
-        allow_credentials=False,
+        allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
 
-    app.include_router(v1_router)
+    app.add_middleware(
+        SessionMiddleware,
+        secret_key=settings.session_middleware_secret,
+        same_site=settings.cookie_samesite,
+        https_only=settings.cookie_secure,
+    )
+
+    app.include_router(v1_router, prefix="/api/v1")
     return app
 
 

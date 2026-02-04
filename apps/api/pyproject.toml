@@ -3,11 +3,26 @@ name = "bookmemory-api"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
-  "fastapi==0.128.0",
-  "uvicorn[standard]==0.40.0",
-  "pydantic==2.12.5",
-  "pydantic-settings==2.12.0",
-  "SQLAlchemy[asyncio]==2.0.46",
-  "asyncpg==0.31.0",
-  "alembic==1.18.3",
+  # fastapi core
+  "fastapi>=0.128.0",
+  "uvicorn[standard]>=0.40.0",
+
+  # database
+  "pydantic>=2.12.5",
+  "asyncpg>=0.31.0",
+  "alembic>=1.18.3",
+
+  # http scraping
+  "httpx>=0.28.1",
+
+  # auth
+  "authlib>=1.3.0",
+  "itsdangerous>=2.2.0",
+
+  # settings
+  "python-dotenv>=1.0.1",
+
+  # utilities
+  "pydantic-settings>=2.12.0",
+  "SQLAlchemy[asyncio]>=2.0.46",
 ]

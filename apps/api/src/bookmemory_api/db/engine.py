@@ -4,7 +4,7 @@ from bookmemory_api.core.settings import settings
 
 
 def create_engine() -> AsyncEngine:
-    """Create the global async SQLAlchemy engine."""
+    """Creates the global async SQLAlchemy engine."""
     return create_async_engine(
         settings.database_url,
         pool_pre_ping=True,

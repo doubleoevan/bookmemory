@@ -11,7 +11,7 @@ async_session_factory = async_sessionmaker(
 )
 
 
-async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
-    """Yield an AsyncSession for each request."""
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
+    """Yields an AsyncSession for each request."""
     async with async_session_factory() as session:
         yield session
