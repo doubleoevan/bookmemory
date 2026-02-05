@@ -51,7 +51,9 @@
     },
     "/api/v1/db/ping": {
       "get": {
-        "tags": ["db"],
+        "tags": [
+          "db"
+        ],
         "summary": "Db Ping",
         "operationId": "db_ping_api_v1_db_ping_get",
         "responses": {
@@ -72,7 +74,9 @@
     },
     "/api/v1/auth/google/start": {
       "get": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "Google Start",
         "description": "Redirects user to Google for login.",
         "operationId": "google_start_api_v1_auth_google_start_get",
@@ -90,7 +94,9 @@
     },
     "/api/v1/auth/google/callback": {
       "get": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "Google Callback",
         "description": "Logs the user in with Google and starts a session.",
         "operationId": "google_callback_api_v1_auth_google_callback_get",
@@ -108,7 +114,9 @@
     },
     "/api/v1/auth/logout": {
       "post": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "Logout",
         "description": "Revokes the session in the DB and clears the cookie.",
         "operationId": "logout_api_v1_auth_logout_post",
@@ -126,7 +134,9 @@
     },
     "/api/v1/users/me": {
       "get": {
-        "tags": ["users"],
+        "tags": [
+          "users"
+        ],
         "summary": "Me",
         "description": "Returns the logged-in user's profile.",
         "operationId": "me_api_v1_users_me_get",
@@ -174,7 +184,9 @@
     },
     "/api/v1/bookmarks": {
       "post": {
-        "tags": ["bookmarks"],
+        "tags": [
+          "bookmarks"
+        ],
         "summary": "Create Bookmark",
         "operationId": "create_bookmark_api_v1_bookmarks_post",
         "parameters": [
@@ -229,7 +241,9 @@
         }
       },
       "get": {
-        "tags": ["bookmarks"],
+        "tags": [
+          "bookmarks"
+        ],
         "summary": "Get Bookmarks",
         "operationId": "get_bookmarks_api_v1_bookmarks_get",
         "parameters": [
@@ -254,7 +268,10 @@
             "in": "query",
             "required": false,
             "schema": {
-              "enum": ["keyword", "semantic"],
+              "enum": [
+                "keyword",
+                "semantic"
+              ],
               "type": "string",
               "default": "keyword",
               "title": "Search Mode"
@@ -277,7 +294,10 @@
             "in": "query",
             "required": false,
             "schema": {
-              "enum": ["any", "all"],
+              "enum": [
+                "any",
+                "all"
+              ],
               "type": "string",
               "default": "any",
               "title": "Tag Mode"
@@ -302,9 +322,11 @@
               "type": "integer",
               "maximum": 100,
               "minimum": 1,
-              "default": 20,
+              "description": "Page size limit",
+              "default": 50,
               "title": "Limit"
-            }
+            },
+            "description": "Page size limit"
           },
           {
             "name": "offset",
@@ -313,9 +335,11 @@
             "schema": {
               "type": "integer",
               "minimum": 0,
+              "description": "Page offset",
               "default": 0,
               "title": "Offset"
-            }
+            },
+            "description": "Page offset"
           },
           {
             "name": "bookmemory_session",
@@ -340,9 +364,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "additionalProperties": true,
-                  "title": "Response Get Bookmarks Api V1 Bookmarks Get"
+                  "$ref": "#/components/schemas/LimitOffsetPage_BookmarkResponse_"
                 }
               }
             }
@@ -406,7 +428,9 @@
           }
         },
         "type": "object",
-        "required": ["title"],
+        "required": [
+          "title"
+        ],
         "title": "BookmarkCreateRequest"
       },
       "BookmarkResponse": {
@@ -540,7 +564,11 @@
           }
         },
         "type": "object",
-        "required": ["id", "email", "created_at"],
+        "required": [
+          "id",
+          "email",
+          "created_at"
+        ],
         "title": "CurrentUser"
       },
       "HTTPValidationError": {
@@ -556,6 +584,40 @@
         "type": "object",
         "title": "HTTPValidationError"
       },
+      "LimitOffsetPage_BookmarkResponse_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BookmarkResponse"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "title": "Total"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "title": "Limit"
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0,
+            "title": "Offset"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
+        "title": "LimitOffsetPage[BookmarkResponse]"
+      },
       "TagResponse": {
         "properties": {
           "id": {
@@ -569,7 +631,10 @@
           }
         },
         "type": "object",
-        "required": ["id", "name"],
+        "required": [
+          "id",
+          "name"
+        ],
         "title": "TagResponse"
       },
       "ValidationError": {
@@ -598,7 +663,11 @@
           }
         },
         "type": "object",
-        "required": ["loc", "msg", "type"],
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
         "title": "ValidationError"
       }
     }

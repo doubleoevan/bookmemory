@@ -1,9 +1,13 @@
 from __future__ import annotations
 
-from typing import Any, List, Optional, Literal
+from typing import cast, List, Optional, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi_pagination import LimitOffsetPage
+from fastapi_pagination.limit_offset import LimitOffsetParams
+from fastapi_pagination.ext.sqlalchemy import apaginate
+
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -142,7 +146,7 @@ async def create_bookmark(
     return _to_bookmark_response(new_bookmark)
 
 
-@router.get("", response_model=dict)
+@router.get("", response_model=LimitOffsetPage[BookmarkResponse])
 async def get_bookmarks(
     session: AsyncSession = Depends(get_db),
     current_user: CurrentUser = Depends(get_current_user),
@@ -155,7 +159,7 @@ async def get_bookmarks(
     ),
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-) -> dict[str, Any]:
+) -> LimitOffsetPage[BookmarkResponse]:
     # filter bookmarks by user ID
     user_id: UUID = current_user.id
     select_bookmarks_statement = (
@@ -232,20 +236,13 @@ async def get_bookmarks(
             Bookmark.updated_at.desc()
         )
 
-    # paginate bookmarks
-    count_bookmarks_statement = select(func.count()).select_from(
-        select_bookmarks_statement.subquery()
+    # select and return a page of bookmarks
+    return cast(
+        LimitOffsetPage[BookmarkResponse],
+        await apaginate(
+            session,
+            select_bookmarks_statement,
+            params=LimitOffsetParams(limit=limit, offset=offset),
+            transformer=lambda items: [_to_bookmark_response(b) for b in items],
+        ),
     )
-    total = (await session.execute(count_bookmarks_statement)).scalar_one()
-
-    # select and return bookmarks
-    select_bookmarks_statement = select_bookmarks_statement.limit(limit).offset(offset)
-    bookmarks = (await session.execute(select_bookmarks_statement)).scalars().all()
-    return {
-        "items": [
-            _to_bookmark_response(bookmark).model_dump() for bookmark in bookmarks
-        ],
-        "total": total,
-        "limit": limit,
-        "offset": offset,
-    }

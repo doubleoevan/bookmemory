@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_pagination import add_pagination
 
 from starlette.middleware.sessions import SessionMiddleware
 
@@ -32,6 +33,7 @@ def create_app() -> FastAPI:
     )
 
     app.include_router(v1_router, prefix="/api/v1")
+    add_pagination(app)
     return app
 
 
