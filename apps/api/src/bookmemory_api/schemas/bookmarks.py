@@ -27,6 +27,11 @@ class TagResponse(BaseModel):
     name: str
 
 
+class TagCountResponse(BaseModel):
+    name: str
+    count: int
+
+
 class BookmarkResponse(BaseModel):
     id: UUID
     user_id: UUID
