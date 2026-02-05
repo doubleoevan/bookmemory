@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@bookmemory/ui";
 import { CircleUserRoundIcon, LogOut } from "lucide-react";
-import { useCurrentUser } from "@/auth/useCurrentUser";
+import { useCurrentUser } from "@/features/logins/hooks/useCurrentUser";
 import { useTheme } from "@/providers/theme";
 
 export default function UserMenu() {
@@ -44,16 +44,16 @@ export default function UserMenu() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Settings" className="rounded-full">
+        <Button variant="ghost" size="icon" aria-label="User Menu" className="rounded-full">
           {user?.picture_url ? (
             <Avatar className="h-8 w-8">
               <AvatarImage src={user.picture_url} alt={user.name ?? "User"} />
               <AvatarFallback>
-                <CircleUserRoundIcon className="h-4 w-4" />
+                <CircleUserRoundIcon className="h-8 w-8" />
               </AvatarFallback>
             </Avatar>
           ) : (
-            <CircleUserRoundIcon className="h-4 w-4" />
+            <CircleUserRoundIcon className="h-8 w-8" />
           )}
           <span className="sr-only">User Menu</span>
         </Button>

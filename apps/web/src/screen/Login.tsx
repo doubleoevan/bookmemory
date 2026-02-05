@@ -1,11 +1,13 @@
 import { Button } from "@bookmemory/ui";
-import { GoogleLoginIcon } from "@/components/GoogleLoginIcon";
+import { GoogleLoginIcon } from "@/features/logins/components/GoogleLoginIcon";
 
 export function Login() {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4">
+      <h1 className="text-3xl">Save bookmarks. Search intelligently.</h1>
+
       <Button
         onClick={() => {
           window.location.href = `${API_BASE_URL}/api/v1/auth/google/start`;
