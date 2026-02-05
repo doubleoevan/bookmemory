@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from bookmemory_api.core.settings import settings
 from bookmemory_api.db.session import get_db
-from bookmemory_api.models.user import User
+from bookmemory_api.db.models.user import User
 from bookmemory_api.services.auth.sessions import get_valid_session
 
 _UNAUTHENTICATED = HTTPException(

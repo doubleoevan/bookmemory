@@ -7,7 +7,7 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bookmemory_api.core.settings import settings
-from bookmemory_api.models.session import Session
+from bookmemory_api.db.models.session import Session
 
 
 def _utc_now() -> datetime:

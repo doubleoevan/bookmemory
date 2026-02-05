@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends
 
 from bookmemory_api.api.dependencies.auth import get_current_user
-from bookmemory_api.models.user import User
+from bookmemory_api.db.models.user import User
 from bookmemory_api.schemas.user import CurrentUser
 
 router = APIRouter(prefix="/users", tags=["users"])

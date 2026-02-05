@@ -3,7 +3,7 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bookmemory_api.models.user import User
+from bookmemory_api.db.models.user import User
 
 
 async def get_or_create_user_from_oauth(

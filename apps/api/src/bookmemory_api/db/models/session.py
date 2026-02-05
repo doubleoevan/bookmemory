@@ -7,7 +7,7 @@ from sqlalchemy import DateTime, ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
-from bookmemory_api.db.base import Base
+from bookmemory_api.db.models.base import Base
 
 
 class Session(Base):
