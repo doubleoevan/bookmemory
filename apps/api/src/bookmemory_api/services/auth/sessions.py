@@ -35,18 +35,14 @@ async def create_session(db: AsyncSession, user_id: uuid.UUID) -> Session:
 async def revoke_session(db: AsyncSession, session_id: uuid.UUID) -> None:
     """Marks a session as revoked when a user logs out, but keeps the row for debugging purposes."""
     await db.execute(
-        update(Session)
-        .where(Session.id == session_id)
-        .values(revoked_at=_utc_now())
+        update(Session).where(Session.id == session_id).values(revoked_at=_utc_now())
     )
     await db.commit()
 
 
 async def get_valid_session(db: AsyncSession, session_id: uuid.UUID) -> Session | None:
     """Only return a session if it is not revoked or expired."""
-    result = await db.execute(
-        select(Session).where(Session.id == session_id)
-    )
+    result = await db.execute(select(Session).where(Session.id == session_id))
     session = result.scalar_one_or_none()
     if session is None:
         return None

@@ -19,7 +19,9 @@ _UNAUTHENTICATED = HTTPException(
 
 async def get_current_user(
     db: AsyncSession = Depends(get_db),
-    session_cookie: str | None = Cookie(default=None, alias=settings.session_cookie_name),
+    session_cookie: str | None = Cookie(
+        default=None, alias=settings.session_cookie_name
+    ),
 ) -> User:
     """Returns the logged-in user from the HttpOnly session cookie."""
     if not session_cookie:

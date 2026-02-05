@@ -21,7 +21,11 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 def _google_oauth_is_configured() -> bool:
-    return bool(settings.google_client_id and settings.google_client_secret and settings.google_redirect_uri)
+    return bool(
+        settings.google_client_id
+        and settings.google_client_secret
+        and settings.google_redirect_uri
+    )
 
 
 @lru_cache(maxsize=1)
@@ -37,7 +41,9 @@ async def google_start(request: Request) -> Response:
         raise HTTPException(status_code=501, detail="Google OAuth is not configured")
 
     oauth = _get_oauth()
-    response = await oauth.google.authorize_redirect(request, settings.google_redirect_uri)
+    response = await oauth.google.authorize_redirect(
+        request, settings.google_redirect_uri
+    )
     return cast(Response, response)
 
 
@@ -61,7 +67,9 @@ async def google_callback(
     auth_subject = userinfo.get("sub")
     email = userinfo.get("email")
     if not auth_subject or not email:
-        return RedirectResponse(url=f"{settings.web_base_url}/login?error=missing_profile")
+        return RedirectResponse(
+            url=f"{settings.web_base_url}/login?error=missing_profile"
+        )
 
     user = await get_or_create_user_from_oauth(
         db,

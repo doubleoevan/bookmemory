@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     cors_origins: str = "http://localhost:5174"
 
     # database settings
-    database_url: str = "" # must exist in the .env file with no default
+    database_url: str = ""  # must exist in the .env file with no default
 
     # Google OAuth settings
     google_client_id: str = ""

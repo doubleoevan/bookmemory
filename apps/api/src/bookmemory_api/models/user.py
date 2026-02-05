@@ -35,9 +35,7 @@ class User(Base):
         nullable=False,
     )
 
-    __table_args__ = (
-        UniqueConstraint("auth_provider", "auth_subject"),
-    )
+    __table_args__ = (UniqueConstraint("auth_provider", "auth_subject"),)
 
     def _to_user_dict(self) -> dict[str, Any]:
         """Returns data shared by all users."""

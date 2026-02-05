@@ -13,9 +13,7 @@ def create_app() -> FastAPI:
     app = FastAPI(title="BookMemory API")
 
     allowed_origins = [
-        origin.strip()
-        for origin in settings.cors_origins.split(",")
-        if origin.strip()
+        origin.strip() for origin in settings.cors_origins.split(",") if origin.strip()
     ]
 
     app.add_middleware(

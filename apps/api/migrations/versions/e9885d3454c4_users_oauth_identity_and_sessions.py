@@ -5,6 +5,7 @@ Revises: 67c92d1920eb
 Create Date: 2026-02-03 15:46:52.757741
 
 """
+
 from typing import Sequence, Union
 
 import sqlalchemy as sa
@@ -44,14 +45,22 @@ def upgrade() -> None:
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_sessions_expires_at"), "sessions", ["expires_at"], unique=False)
+    op.create_index(
+        op.f("ix_sessions_expires_at"), "sessions", ["expires_at"], unique=False
+    )
     op.create_index(op.f("ix_sessions_user_id"), "sessions", ["user_id"], unique=False)
 
-    op.add_column("users", sa.Column("auth_provider", sa.String(length=50), nullable=False))
-    op.add_column("users", sa.Column("auth_subject", sa.String(length=255), nullable=False))
+    op.add_column(
+        "users", sa.Column("auth_provider", sa.String(length=50), nullable=False)
+    )
+    op.add_column(
+        "users", sa.Column("auth_subject", sa.String(length=255), nullable=False)
+    )
     op.add_column("users", sa.Column("email", sa.String(length=320), nullable=False))
     op.add_column("users", sa.Column("name", sa.String(length=255), nullable=True))
-    op.add_column("users", sa.Column("picture_url", sa.String(length=2048), nullable=True))
+    op.add_column(
+        "users", sa.Column("picture_url", sa.String(length=2048), nullable=True)
+    )
     op.create_index(op.f("ix_users_email"), "users", ["email"], unique=False)
     op.create_unique_constraint(
         "uq_users_auth_provider_subject",

@@ -20,7 +20,7 @@ async def get_or_create_user_from_oauth(
         select(User).where(
             User.auth_provider == auth_provider,
             User.auth_subject == auth_subject,
-            )
+        )
     )
     user = result.scalar_one_or_none()
 
