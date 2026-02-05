@@ -1,11 +1,11 @@
 {
-  "files": [],
-  "references": [
-    {
-      "path": "./tsconfig.app.json"
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
     },
-    {
-      "path": "./tsconfig.node.json"
-    }
-  ]
+    "types": ["vite/client"]
+  },
+  "include": ["src"]
 }

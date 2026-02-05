@@ -3,16 +3,46 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./*": "./src/*"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./styles.css": "./src/styles.css"
+  },
+  "files": [
+    "dist"
+  ],
+  "peerDependencies": {
+    "react": "^18.3.0 || ^19.0.0",
+    "react-dom": "^18.3.0 || ^19.0.0"
+  },
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "clean": "rm -rf dist",
+    "component:add": "pnpm dlx shadcn@latest add"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.5",
+    "@types/react-dom": "^19.2.3",
+    "lucide-react": "^0.563.0",
+    "tsup": "^8.5.1",
+    "typescript": "~5.9.3"
   },
   "dependencies": {
+    "@radix-ui/react-avatar": "^1.1.11",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
-    "next-themes": "^0.4.6",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0"
   }
