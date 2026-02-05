@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+from typing import cast
+
 import uuid
 from functools import lru_cache
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+from authlib.integrations.starlette_client import OAuth
 
 from bookmemory_api.core.cookies import clear_session_cookie, set_session_cookie
 from bookmemory_api.core.settings import settings
@@ -22,7 +25,7 @@ def _google_oauth_is_configured() -> bool:
 
 
 @lru_cache(maxsize=1)
-def _get_oauth():
+def _get_oauth() -> OAuth:
     # built lazily + cached
     return build_oauth()
 
@@ -34,7 +37,8 @@ async def google_start(request: Request) -> Response:
         raise HTTPException(status_code=501, detail="Google OAuth is not configured")
 
     oauth = _get_oauth()
-    return await oauth.google.authorize_redirect(request, settings.google_redirect_uri)
+    response = await oauth.google.authorize_redirect(request, settings.google_redirect_uri)
+    return cast(Response, response)
 
 
 @router.get("/google/callback")

@@ -3,5 +3,5 @@ from fastapi import APIRouter
 router = APIRouter()
 
 @router.get("/version")
-def version() -> dict:
+def version() -> dict[str, str]:
     return {"version": "0.1.0"}

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import datetime
+from typing import Any
 
 from sqlalchemy import DateTime, String, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import UUID
@@ -38,7 +39,7 @@ class User(Base):
         UniqueConstraint("auth_provider", "auth_subject"),
     )
 
-    def _to_user_dict(self) -> dict:
+    def _to_user_dict(self) -> dict[str, Any]:
         """Returns data shared by all users."""
         return {
             "id": str(self.id),
@@ -48,11 +49,11 @@ class User(Base):
             "created_at": self.created_at,
         }
 
-    def to_current_user_dict(self) -> dict:
+    def to_current_user_dict(self) -> dict[str, Any]:
         """Returns current user data."""
         return self._to_user_dict()
 
-    def to_admin_user_dict(self) -> dict:
+    def to_admin_user_dict(self) -> dict[str, Any]:
         """Returns admin user data."""
         return {
             **self._to_user_dict(),
