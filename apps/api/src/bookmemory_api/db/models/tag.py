@@ -9,6 +9,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from bookmemory_api.db.models.base import Base
+from bookmemory_api.db.models.bookmark_tag import bookmark_tags
+
 
 if TYPE_CHECKING:
     from bookmemory_api.db.models.bookmark import Bookmark
@@ -46,7 +48,7 @@ class Tag(Base):
 
     bookmarks: Mapped[List["Bookmark"]] = relationship(
         "Bookmark",
-        secondary="bookmark_tags",
+        secondary=bookmark_tags,
         back_populates="tags",
         lazy="selectin",
     )

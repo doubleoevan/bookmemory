@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 
 from bookmemory_api.api.dependencies.auth import get_current_user
 from bookmemory_api.db.models.user import User
-from bookmemory_api.schemas.user import CurrentUser
+from bookmemory_api.schemas.users import CurrentUser
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -15,7 +15,7 @@ async def me(
 ) -> CurrentUser:
     """Returns the logged-in user's profile."""
     return CurrentUser(
-        id=str(user.id),
+        id=user.id,
         email=user.email,
         name=user.name,
         picture_url=user.picture_url,
