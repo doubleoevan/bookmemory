@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup
-from readability import Document
+from readability import Document  # type: ignore[import-untyped]
 
 logger = logging.getLogger(__name__)
 
