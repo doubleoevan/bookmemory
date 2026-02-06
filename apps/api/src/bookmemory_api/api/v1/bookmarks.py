@@ -8,12 +8,15 @@ from fastapi_pagination import LimitOffsetPage
 from fastapi_pagination.limit_offset import LimitOffsetParams
 from fastapi_pagination.ext.sqlalchemy import apaginate
 
+import sqlalchemy as sa
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from bookmemory_api.db.models.bookmark import Bookmark, BookmarkStatus, BookmarkType
 from bookmemory_api.db.models.tag import Tag
+from bookmemory_api.db.models.bookmark import IngestMethod
+from bookmemory_api.db.models.bookmark_chunk import BookmarkChunk
 from bookmemory_api.db.session import get_db
 from bookmemory_api.schemas.users import CurrentUser
 from bookmemory_api.schemas.bookmarks import (
@@ -24,6 +27,9 @@ from bookmemory_api.schemas.bookmarks import (
 
 from bookmemory_api.api.dependencies.auth import get_current_user
 
+from bookmemory_api.services.ingestion.http_fetch import fetch_html, FetchError
+from bookmemory_api.services.ingestion.html_extract import extract_content
+from bookmemory_api.services.ingestion.text_chunk import chunk_text
 
 router = APIRouter(prefix="/bookmarks", tags=["bookmarks"])
 
@@ -121,7 +127,7 @@ async def create_bookmark(
         description=(payload.description.strip() if payload.description else None),
         type=BookmarkType(payload.type),
         url=(payload.url.strip() if payload.url else None),
-        status=BookmarkStatus.pending,
+        status=BookmarkStatus.created,
     )
     session.add(bookmark)
 
@@ -137,12 +143,12 @@ async def create_bookmark(
     await session.commit()
 
     # return the newly created bookmark
-    select_bookmark_statment = (
+    select_bookmark_statdment = (
         select(Bookmark)
         .where(and_(Bookmark.id == bookmark.id, Bookmark.user_id == user_id))
         .options(selectinload(Bookmark.tags))
     )
-    new_bookmark = (await session.execute(select_bookmark_statment)).scalar_one()
+    new_bookmark = (await session.execute(select_bookmark_statdment)).scalar_one()
     return _to_bookmark_response(new_bookmark)
 
 
@@ -246,3 +252,85 @@ async def get_bookmarks(
             transformer=lambda items: [_to_bookmark_response(b) for b in items],
         ),
     )
+
+
+@router.post("/{bookmark_id}/load", response_model=BookmarkResponse)
+async def load_bookmark(
+    bookmark_id: UUID,
+    session: AsyncSession = Depends(get_db),
+    current_user: CurrentUser = Depends(get_current_user),
+) -> BookmarkResponse:
+    user_id: UUID = current_user.id
+
+    # get the bookmark from the database
+    select_bookmark_statement = (
+        select(Bookmark)
+        .where(and_(Bookmark.id == bookmark_id, Bookmark.user_id == user_id))
+        .options(selectinload(Bookmark.tags))
+    )
+    bookmark = (await session.execute(select_bookmark_statement)).scalar_one_or_none()
+    if bookmark is None:
+        raise HTTPException(status_code=404, detail="bookmark not found")
+
+    # verify that the bookmark is a link
+    if bookmark.type != BookmarkType.link:
+        raise HTTPException(
+            status_code=422, detail="only link bookmarks can be ingested in v1"
+        )
+
+    # verify that the bookmark has a URL
+    if not bookmark.url or bookmark.url.strip() == "":
+        raise HTTPException(status_code=422, detail="bookmark url is missing")
+
+    # update the status to loading during ingestion
+    # and delete any existing chunks for re-ingesting
+    bookmark.status = BookmarkStatus.loading
+    bookmark.ingest_method = IngestMethod.http
+    await session.execute(
+        sa.delete(BookmarkChunk).where(BookmarkChunk.bookmark_id == bookmark.id)
+    )
+    await session.commit()
+
+    try:
+        # scrape the HTML and extract the title and content
+        fetched_html = await fetch_html(url=bookmark.url)
+        extracted_content = extract_content(html=fetched_html.html, url=bookmark.url)
+
+        # only overwrite the title if it looks like a default
+        current_title = (bookmark.title or "").strip()
+        if current_title == "" or current_title == (bookmark.url or "").strip():
+            bookmark.title = extracted_content.title.strip() or bookmark.title
+
+        # save the content and its chunks
+        bookmark.content = extracted_content.text
+        chunks = chunk_text(text=extracted_content.text)
+        for idx, chunk in enumerate(chunks):
+            session.add(
+                BookmarkChunk(
+                    bookmark_id=bookmark.id,
+                    chunk_index=idx,
+                    text=chunk,
+                    embedding=None,
+                )
+            )
+
+        # update the bookmark status
+        bookmark.status = BookmarkStatus.ready
+        await session.commit()
+
+    except FetchError as error:
+        await session.rollback()
+        bookmark.status = BookmarkStatus.failed
+        await session.commit()
+        raise HTTPException(status_code=502, detail=f"fetch failed: {error}") from error
+    except Exception as error:
+        await session.rollback()
+        bookmark.status = BookmarkStatus.failed
+        await session.commit()
+        raise HTTPException(
+            status_code=500, detail=f"load failed: {error}"
+        ) from error
+
+    # return the updated bookmark
+    updated_bookmark = (await session.execute(select_bookmark_statement)).scalar_one()
+    return _to_bookmark_response(updated_bookmark)

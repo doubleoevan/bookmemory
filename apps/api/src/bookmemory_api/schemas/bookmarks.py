@@ -44,3 +44,10 @@ class BookmarkResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
     tags: List[TagResponse]
+
+
+class BookmarkSearchResult(BaseModel):
+    bookmark: BookmarkResponse
+    snippet: str
+    score: float | None = None  # only for semantic
+    chunk_id: UUID | None = None  # optional for debugging

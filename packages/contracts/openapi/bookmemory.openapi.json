@@ -51,7 +51,9 @@
     },
     "/api/v1/db/ping": {
       "get": {
-        "tags": ["db"],
+        "tags": [
+          "db"
+        ],
         "summary": "Db Ping",
         "operationId": "db_ping_api_v1_db_ping_get",
         "responses": {
@@ -72,7 +74,9 @@
     },
     "/api/v1/auth/google/start": {
       "get": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "Google Start",
         "description": "Redirects user to Google for login.",
         "operationId": "google_start_api_v1_auth_google_start_get",
@@ -90,7 +94,9 @@
     },
     "/api/v1/auth/google/callback": {
       "get": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "Google Callback",
         "description": "Logs the user in with Google and starts a session.",
         "operationId": "google_callback_api_v1_auth_google_callback_get",
@@ -108,7 +114,9 @@
     },
     "/api/v1/auth/logout": {
       "post": {
-        "tags": ["auth"],
+        "tags": [
+          "auth"
+        ],
         "summary": "Logout",
         "description": "Revokes the session in the DB and clears the cookie.",
         "operationId": "logout_api_v1_auth_logout_post",
@@ -126,7 +134,9 @@
     },
     "/api/v1/users/me": {
       "get": {
-        "tags": ["users"],
+        "tags": [
+          "users"
+        ],
         "summary": "Me",
         "description": "Returns the logged-in user's profile.",
         "operationId": "me_api_v1_users_me_get",
@@ -174,7 +184,9 @@
     },
     "/api/v1/bookmarks": {
       "post": {
-        "tags": ["bookmarks"],
+        "tags": [
+          "bookmarks"
+        ],
         "summary": "Create Bookmark",
         "operationId": "create_bookmark_api_v1_bookmarks_post",
         "parameters": [
@@ -229,7 +241,9 @@
         }
       },
       "get": {
-        "tags": ["bookmarks"],
+        "tags": [
+          "bookmarks"
+        ],
         "summary": "Get Bookmarks",
         "operationId": "get_bookmarks_api_v1_bookmarks_get",
         "parameters": [
@@ -254,7 +268,10 @@
             "in": "query",
             "required": false,
             "schema": {
-              "enum": ["keyword", "semantic"],
+              "enum": [
+                "keyword",
+                "semantic"
+              ],
               "type": "string",
               "default": "keyword",
               "title": "Search Mode"
@@ -277,7 +294,10 @@
             "in": "query",
             "required": false,
             "schema": {
-              "enum": ["any", "all"],
+              "enum": [
+                "any",
+                "all"
+              ],
               "type": "string",
               "default": "any",
               "title": "Tag Mode"
@@ -362,9 +382,70 @@
         }
       }
     },
+    "/api/v1/bookmarks/{bookmark_id}/load": {
+      "post": {
+        "tags": [
+          "bookmarks"
+        ],
+        "summary": "Load Bookmark",
+        "operationId": "load_bookmark_api_v1_bookmarks__bookmark_id__load_post",
+        "parameters": [
+          {
+            "name": "bookmark_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Bookmark Id"
+            }
+          },
+          {
+            "name": "bookmemory_session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bookmemory Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookmarkResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/tags": {
       "get": {
-        "tags": ["tags"],
+        "tags": [
+          "tags"
+        ],
         "summary": "Get Tags",
         "operationId": "get_tags_api_v1_tags_get",
         "parameters": [
@@ -459,7 +540,9 @@
           }
         },
         "type": "object",
-        "required": ["title"],
+        "required": [
+          "title"
+        ],
         "title": "BookmarkCreateRequest"
       },
       "BookmarkResponse": {
@@ -593,7 +676,11 @@
           }
         },
         "type": "object",
-        "required": ["id", "email", "created_at"],
+        "required": [
+          "id",
+          "email",
+          "created_at"
+        ],
         "title": "CurrentUser"
       },
       "HTTPValidationError": {
@@ -635,7 +722,12 @@
           }
         },
         "type": "object",
-        "required": ["items", "total", "limit", "offset"],
+        "required": [
+          "items",
+          "total",
+          "limit",
+          "offset"
+        ],
         "title": "LimitOffsetPage[BookmarkResponse]"
       },
       "TagCountResponse": {
@@ -650,7 +742,10 @@
           }
         },
         "type": "object",
-        "required": ["name", "count"],
+        "required": [
+          "name",
+          "count"
+        ],
         "title": "TagCountResponse"
       },
       "TagResponse": {
@@ -666,7 +761,10 @@
           }
         },
         "type": "object",
-        "required": ["id", "name"],
+        "required": [
+          "id",
+          "name"
+        ],
         "title": "TagResponse"
       },
       "ValidationError": {
@@ -695,7 +793,11 @@
           }
         },
         "type": "object",
-        "required": ["loc", "msg", "type"],
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
         "title": "ValidationError"
       }
     }

@@ -1,5 +1,17 @@
 #!/bin/sh
-. "$(dirname "$0")/_/husky.sh"
+set -e
 
 pnpm format
 pnpm lint
+
+echo "🔎 Checking contracts are in sync..."
+pnpm contracts:sync
+
+if ! git diff --quiet; then
+  echo ""
+  echo "❌ Contracts are out of sync."
+  echo "➡️ Run pnpm contracts:sync and commit the changes."
+  echo ""
+  git status --short
+  exit 1
+fi

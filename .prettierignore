@@ -1,3 +1,20 @@
+# Python / type-check caches
+.mypy_cache
+**/.mypy_cache
+
+# Python bytecode
+__pycache__
+**/__pycache__
+
+# Virtual environments
+.venv
+**/.venv
+
+# Node
 dist
 node_modules
+build
 pnpm-lock.yaml
+
+# OS junk
+.DS_Store

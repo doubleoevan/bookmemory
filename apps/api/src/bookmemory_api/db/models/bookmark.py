@@ -24,7 +24,9 @@ class BookmarkType(str, enum.Enum):
 
 
 class BookmarkStatus(str, enum.Enum):
-    pending = "pending"
+    created = "created"  # saved but not loaded yet
+    loading = "loading"  # fetching + extracting + chunking
+    processing = "processing"  # AI work (summaries, embeddings)
     ready = "ready"
     failed = "failed"
 
@@ -74,15 +76,15 @@ class Bookmark(Base):
     # nullable summary created by AI provider
     summary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
-    # pending, ready, failed
+    # created, loading, processing, ready, failed
     status: Mapped[BookmarkStatus] = mapped_column(
         Enum(BookmarkStatus, name="bookmark_status"),
         nullable=False,
-        default=BookmarkStatus.pending,
+        default=BookmarkStatus.created,
         index=True,
     )
 
-    # http or playwright for links, read for a file, manual for note
+    # http or playwright for links, read for files, manual for notes
     ingest_method: Mapped[Optional[IngestMethod]] = mapped_column(
         Enum(IngestMethod, name="ingest_method"),
         nullable=True,
