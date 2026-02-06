@@ -591,7 +591,7 @@
             "type": "string",
             "title": "Status"
           },
-          "ingest_method": {
+          "load_method": {
             "anyOf": [
               {
                 "type": "string"
@@ -600,7 +600,7 @@
                 "type": "null"
               }
             ],
-            "title": "Ingest Method"
+            "title": "Load Method"
           },
           "created_at": {
             "type": "string",
@@ -629,7 +629,7 @@
           "type",
           "url",
           "status",
-          "ingest_method",
+          "load_method",
           "created_at",
           "updated_at",
           "tags"

@@ -104,8 +104,8 @@ def _to_bookmark_response(bookmark: Bookmark) -> BookmarkResponse:
         type=bookmark.type.value,
         url=bookmark.url,
         status=bookmark.status.value,
-        ingest_method=(
-            bookmark.ingest_method.value if bookmark.ingest_method else None
+        load_method=(
+            bookmark.load_method.value if bookmark.load_method else None
         ),
         created_at=bookmark.created_at,
         updated_at=bookmark.updated_at,
@@ -285,7 +285,7 @@ async def load_bookmark(
     # update the status to loading during ingestion
     # and delete any existing chunks for re-ingesting
     bookmark.status = BookmarkStatus.loading
-    bookmark.ingest_method = IngestMethod.http
+    bookmark.load_method = IngestMethod.http
     await session.execute(
         sa.delete(BookmarkChunk).where(BookmarkChunk.bookmark_id == bookmark.id)
     )
@@ -327,9 +327,7 @@ async def load_bookmark(
         await session.rollback()
         bookmark.status = BookmarkStatus.failed
         await session.commit()
-        raise HTTPException(
-            status_code=500, detail=f"load failed: {error}"
-        ) from error
+        raise HTTPException(status_code=500, detail=f"load failed: {error}") from error
 
     # return the updated bookmark
     updated_bookmark = (await session.execute(select_bookmark_statement)).scalar_one()

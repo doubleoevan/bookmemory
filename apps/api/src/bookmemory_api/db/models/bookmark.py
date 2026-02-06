@@ -85,8 +85,8 @@ class Bookmark(Base):
     )
 
     # http or playwright for links, read for files, manual for notes
-    ingest_method: Mapped[Optional[IngestMethod]] = mapped_column(
-        Enum(IngestMethod, name="ingest_method"),
+    load_method: Mapped[Optional[IngestMethod]] = mapped_column(
+        Enum(IngestMethod, name="load_method"),
         nullable=True,
     )
 

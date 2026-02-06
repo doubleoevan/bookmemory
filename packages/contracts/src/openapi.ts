@@ -230,8 +230,8 @@ export interface components {
             url: string | null;
             /** Status */
             status: string;
-            /** Ingest Method */
-            ingest_method: string | null;
+            /** Load Method */
+            load_method: string | null;
             /**
              * Created At
              * Format: date-time

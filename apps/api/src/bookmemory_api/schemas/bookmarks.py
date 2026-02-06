@@ -40,7 +40,7 @@ class BookmarkResponse(BaseModel):
     type: str
     url: Optional[str]
     status: str
-    ingest_method: Optional[str]
+    load_method: Optional[str]
     created_at: datetime
     updated_at: datetime
     tags: List[TagResponse]
