@@ -30,7 +30,7 @@ class BookmarkChunk(Base):
     # deterministic order of chunks within a bookmark
     chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    # raw text content of the chunk produced during http ingestion
+    # raw text content of the chunk produced during http extraction
     text: Mapped[str] = mapped_column(Text, nullable=False)
 
     # vector embedding generated asynchronously with OpenAI text-embedding-3-small

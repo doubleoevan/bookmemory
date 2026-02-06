@@ -1,15 +1,13 @@
 ## BookMemory API
 
-### Run locally from the terminal
+### Run from the terminal
 
 ```bash
-source .venv/bin/activate
-uvicorn bookmemory_api.main:app --reload --app-dir src
-```
+# one-time setup
+make dev-setup
 
-### Or from your IDE
-
-```bash
+# activate .venv and run with reload
 source .venv/bin/activate
-python -m bookmemory_api
+make run
+
 ```

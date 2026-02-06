@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Optional
 
 import httpx
 
@@ -23,7 +24,26 @@ class FetchResult:
 
 
 class FetchError(Exception):
-    pass
+    """Custom error with an optional HTTP status code."""
+
+    def __init__(self, message: str, *, status_code: Optional[int] = None):
+        super().__init__(message)
+        self.status_code = status_code
+
+    def __str__(self) -> str:
+        if self.status_code is None:
+            return super().__str__()
+        return f"{super().__str__()} (status={self.status_code})"
+
+
+def _has_html(content: bytes) -> bool:
+    # check if content looks like HTML
+    head = content[:2048].lstrip().lower()
+    return (
+        head.startswith(b"<!doctype html")
+        or head.startswith(b"<html")
+        or b"<head" in head
+    )
 
 
 async def fetch_html(
@@ -51,19 +71,24 @@ async def fetch_html(
 
         # validate the response
         if response.status_code >= 400:
-            raise FetchError(f"bad status: {response.status_code}")
+            raise FetchError(
+                f"bad status: {response.status_code}",
+                status_code=response.status_code,
+            )
+
+        # validate the content length
+        content = response.content
+        if not content:
+            raise FetchError("empty response body")
 
         # validate the content type
         content_type = (
             (response.headers.get("content-type") or "").split(";")[0].strip().lower()
         )
         if content_type and content_type not in SUPPORTED_CONTENT_TYPES:
-            raise FetchError(f"unsupported content-type: {content_type}")
+            if not _has_html(content):
+                raise FetchError(f"unsupported content-type: {content_type}")
 
-        # validate the content length
-        content = response.content
-        if content is None:
-            raise FetchError("empty response body")
         if len(content) > max_bytes:
             raise FetchError(
                 f"response too large: {len(content)} bytes (max {max_bytes})"

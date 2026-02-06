@@ -3,6 +3,8 @@ from __future__ import annotations
 from typing import cast, List, Optional, Literal
 from uuid import UUID
 
+import anyio
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi_pagination import LimitOffsetPage
 from fastapi_pagination.limit_offset import LimitOffsetParams
@@ -13,11 +15,17 @@ from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from bookmemory_api.db.models.bookmark import Bookmark, BookmarkStatus, BookmarkType
-from bookmemory_api.db.models.tag import Tag
-from bookmemory_api.db.models.bookmark import LoadMethod
+from bookmemory_api.db.models.bookmark import (
+    Bookmark,
+    BookmarkStatus,
+    BookmarkType,
+    LoadMethod,
+)
 from bookmemory_api.db.models.bookmark_chunk import BookmarkChunk
+from bookmemory_api.db.models.tag import Tag
+
 from bookmemory_api.db.session import get_db
+
 from bookmemory_api.schemas.users import CurrentUser
 from bookmemory_api.schemas.bookmarks import (
     BookmarkCreateRequest,
@@ -27,18 +35,46 @@ from bookmemory_api.schemas.bookmarks import (
 
 from bookmemory_api.api.dependencies.auth import get_current_user
 
-from bookmemory_api.services.ingestion.http_fetch import fetch_html, FetchError
-from bookmemory_api.services.ingestion.html_extract import extract_content
-from bookmemory_api.services.ingestion.text_chunk import chunk_text
+from bookmemory_api.services.extraction.http_fetch import fetch_html, FetchError
+from bookmemory_api.services.extraction.html_extract import extract_content
+from bookmemory_api.services.extraction.text_chunk import chunk_text
+from bookmemory_api.services.extraction.playwright_fetch import (
+    PlaywrightFetchError,
+    fetch_rendered_html,
+)
+
+MINIMUM_HTTP_LENGTH = (
+    600  # switch to playwright if the extracted http length falls below a threshold
+)
+MAXIMUM_CONTENT_LENGTH = 250_000
+MAXIMUM_FETCH_SECONDS = 35.0
+
+# limit concurrent HTTP fetches to avoid tying up API workers
+CONCURRENT_HTTP_FETCH_LIMIT = anyio.Semaphore(20)
+CONCURRENT_PLAYWRIGHT_FETCH_LIMIT = anyio.Semaphore(
+    2
+)  # playwright uses a lot of resources
 
 router = APIRouter(prefix="/bookmarks", tags=["bookmarks"])
 
 
+def _trim_extracted_text(text: str) -> str:
+    trimmed = (text or "").strip()
+    if len(trimmed) > MAXIMUM_CONTENT_LENGTH:
+        return trimmed[:MAXIMUM_CONTENT_LENGTH]
+    return trimmed
+
+
+def _should_fallback_to_playwright(*, extracted_text: str) -> bool:
+    """Returns true if the extracted text is too short"""
+    return len((extracted_text or "").strip()) < MINIMUM_HTTP_LENGTH
+
+
 def _normalize_tag_names(tag_names: list[str]) -> list[str]:
-    # trim whitespace from tag names
+    # trim whitespace from bookmark tag names
     trimmed_tags = [name.strip() for name in tag_names if name.strip()]
 
-    # remove duplicate tags
+    # remove duplicate bookmark tags
     unique_tags: set[str] = set()
     normalized_tags: list[str] = []
     for name in trimmed_tags:
@@ -279,61 +315,118 @@ async def load_bookmark(
         .where(and_(Bookmark.id == bookmark_id, Bookmark.user_id == user_id))
         .options(selectinload(Bookmark.tags))
     )
+    # verify that the bookmark exists
     bookmark = (await session.execute(select_bookmark_statement)).scalar_one_or_none()
     if bookmark is None:
         raise HTTPException(status_code=404, detail="bookmark not found")
 
-    # verify that the bookmark is a link
-    if bookmark.type != BookmarkType.link:
-        raise HTTPException(
-            status_code=422, detail="only link bookmarks can be ingested in v1"
-        )
+    # do nothing for bookmark types that don't require loading
+    if bookmark.type != BookmarkType.link and bookmark.type != BookmarkType.file:
+        return _to_bookmark_response(bookmark)
 
     # verify that the bookmark has a URL
     if not bookmark.url or bookmark.url.strip() == "":
         raise HTTPException(status_code=422, detail="bookmark url is missing")
 
-    # update the status to loading during ingestion
-    # and delete any existing chunks for re-ingesting
-    bookmark.status = BookmarkStatus.loading
-    bookmark.load_method = LoadMethod.http
+    # TODO: load a bookmark file from an s3 url
+    if bookmark.type == BookmarkType.file:
+        return _to_bookmark_response(bookmark)  # TODO: _to_file_response(bookmark)
+
+    # delete any existing chunks to be replaced
+    # and update the status to loading during extraction
     await session.execute(
         sa.delete(BookmarkChunk).where(BookmarkChunk.bookmark_id == bookmark.id)
     )
+    bookmark.status = BookmarkStatus.loading
+    bookmark.load_method = LoadMethod.http
     await session.commit()
 
+    # attempt to load the content with http and fallback to playwright if necessary
     try:
-        # scrape the HTML and extract the title and content
-        fetched_html = await fetch_html(url=bookmark.url)
-        extracted_content = extract_content(html=fetched_html.html, url=bookmark.url)
+        with anyio.fail_after(MAXIMUM_FETCH_SECONDS):
+            try:
+                # use semaphore to limit concurrent HTTP fetches
+                async with CONCURRENT_HTTP_FETCH_LIMIT:
+                    fetched_html = await fetch_html(url=bookmark.url)
 
-        # only overwrite the title if it looks like a default
-        current_title = (bookmark.title or "").strip()
-        if current_title == "" or current_title == (bookmark.url or "").strip():
-            bookmark.title = extracted_content.title.strip() or bookmark.title
-
-        # save the content and its chunks
-        bookmark.content = extracted_content.text
-        chunks = chunk_text(text=extracted_content.text)
-        for idx, chunk in enumerate(chunks):
-            session.add(
-                BookmarkChunk(
-                    bookmark_id=bookmark.id,
-                    chunk_index=idx,
-                    text=chunk,
-                    embedding=None,
+                # extract the content from the fetched HTML
+                extracted_content = extract_content(
+                    html=fetched_html.html, url=bookmark.url
                 )
-            )
+                extracted_title = extracted_content.title
+                extracted_text = _trim_extracted_text(extracted_content.text)
+
+                # fallback to playwright if the extracted text is less than a threshold
+                if _should_fallback_to_playwright(extracted_text=extracted_text):
+                    raise FetchError("extracted text too small; likely JS-heavy")
+
+            except FetchError as http_error:
+                # retry with playwright if the content is blocked or dynamically rendered
+                can_try_playwright_status = http_error.status_code in {401, 403, 429}
+                can_try_playwright_message = (
+                    "content-type" in str(http_error).lower()
+                    or "js-heavy" in str(http_error).lower()
+                    or "too small" in str(http_error).lower()
+                )
+                if not (can_try_playwright_status or can_try_playwright_message):
+                    raise
+
+                # use semaphore to aggressively limit resource-heavy concurrent playwright fetches
+                async with CONCURRENT_PLAYWRIGHT_FETCH_LIMIT:
+                    rendered = await fetch_rendered_html(url=bookmark.url)
+
+                # extract the content from the fetched HTML
+                extracted_content = extract_content(
+                    html=rendered.html, url=rendered.url
+                )
+                extracted_title = extracted_content.title
+                extracted_text = _trim_extracted_text(extracted_content.text)
+
+                # update the load method to playwright
+                bookmark.load_method = LoadMethod.playwright
+
+            # update the title if it is valid
+            if extracted_title and extracted_title.strip():
+                bookmark.title = extracted_title.strip()
+
+            # save the content and its chunks
+            bookmark.content = extracted_text or ""
+            chunks = chunk_text(text=bookmark.content)
+            for idx, chunk in enumerate(chunks):
+                session.add(
+                    BookmarkChunk(
+                        bookmark_id=bookmark.id,
+                        chunk_index=idx,
+                        text=chunk,
+                        embedding=None,
+                    )
+                )
 
         # update the bookmark status
         bookmark.status = BookmarkStatus.ready
         await session.commit()
+
+    except anyio.TimeoutError as error:
+        await session.rollback()
+        bookmark.status = BookmarkStatus.failed
+        await session.commit()
+        raise HTTPException(
+            status_code=504,
+            detail=f"load timed out after {MAXIMUM_FETCH_SECONDS}s",
+        ) from error
+
+    except PlaywrightFetchError as error:
+        await session.rollback()
+        bookmark.status = BookmarkStatus.failed
+        await session.commit()
+        raise HTTPException(status_code=502, detail=f"load failed: {error}") from error
 
     except FetchError as error:
         await session.rollback()
         bookmark.status = BookmarkStatus.failed
         await session.commit()
         raise HTTPException(status_code=502, detail=f"fetch failed: {error}") from error
+
     except Exception as error:
         await session.rollback()
         bookmark.status = BookmarkStatus.failed

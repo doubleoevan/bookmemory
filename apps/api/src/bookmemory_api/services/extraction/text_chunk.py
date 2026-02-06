@@ -40,9 +40,18 @@ def chunk_text(
         nonlocal buffer, buffer_length
         if not buffer:
             return
-        chunk = PARAGRAPH_SEPARATOR.join(buffer).strip()
-        if chunk:
-            chunks.append(chunk)
+
+        # normalize the buffer contents and merge adjacent blank lines
+        buffer_chunk = PARAGRAPH_SEPARATOR.join(buffer).strip()
+        buffer_chunk = re.sub(
+            r"\n[ \t]*\n(?:[ \t]*\n)+",
+            PARAGRAPH_SEPARATOR,
+            buffer_chunk,
+        )
+
+        # add the buffer chunk if it isn't empty
+        if buffer_chunk:
+            chunks.append(buffer_chunk)
         buffer = []
         buffer_length = 0
 

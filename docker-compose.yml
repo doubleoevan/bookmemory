@@ -17,5 +17,21 @@ services:
       timeout: 5s
       retries: 20
 
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: bookmemory-api
+    env_file:
+      - .env
+    environment:
+      # reach postgres by service name for docker networking
+      DATABASE_URL: ${DATABASE_URL:-postgresql+asyncpg://postgres:postgres@db:5432/bookmemory}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   bookmemory_postgres:

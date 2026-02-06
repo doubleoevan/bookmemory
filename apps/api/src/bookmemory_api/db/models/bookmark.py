@@ -70,7 +70,7 @@ class Bookmark(Base):
     # nullable for note or file
     url: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
-    # content scraped from a link or file at ingestion time, manually entered for note
+    # content scraped from a link or file at extraction time, manually entered for note
     content: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     # nullable summary created by AI provider
