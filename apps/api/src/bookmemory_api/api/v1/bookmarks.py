@@ -15,7 +15,7 @@ from sqlalchemy.orm import selectinload
 
 from bookmemory_api.db.models.bookmark import Bookmark, BookmarkStatus, BookmarkType
 from bookmemory_api.db.models.tag import Tag
-from bookmemory_api.db.models.bookmark import IngestMethod
+from bookmemory_api.db.models.bookmark import LoadMethod
 from bookmemory_api.db.models.bookmark_chunk import BookmarkChunk
 from bookmemory_api.db.session import get_db
 from bookmemory_api.schemas.users import CurrentUser
@@ -104,9 +104,7 @@ def _to_bookmark_response(bookmark: Bookmark) -> BookmarkResponse:
         type=bookmark.type.value,
         url=bookmark.url,
         status=bookmark.status.value,
-        load_method=(
-            bookmark.load_method.value if bookmark.load_method else None
-        ),
+        load_method=(bookmark.load_method.value if bookmark.load_method else None),
         created_at=bookmark.created_at,
         updated_at=bookmark.updated_at,
         tags=[TagResponse(id=tag.id, name=tag.name) for tag in bookmark.tags],
@@ -119,36 +117,49 @@ async def create_bookmark(
     session: AsyncSession = Depends(get_db),
     current_user: CurrentUser = Depends(get_current_user),
 ) -> BookmarkResponse:
-    # add the bookmark to be saved
+    # create the tags
     user_id: UUID = current_user.id
-    bookmark = Bookmark(
-        user_id=user_id,
-        title=payload.title.strip(),
-        description=(payload.description.strip() if payload.description else None),
-        type=BookmarkType(payload.type),
-        url=(payload.url.strip() if payload.url else None),
-        status=BookmarkStatus.created,
-    )
-    session.add(bookmark)
-
-    # add the tags to the bookmark
     tags = await _get_or_create_tags(
         session=session,
         user_id=user_id,
         tag_names=payload.tags,
     )
-    bookmark.tags = tags
 
-    # save the bookmark and tags to get a bookmark ID
+    # validate required bookmark fields
+    title = (payload.title or "").strip()
+    if title == "":
+        raise HTTPException(status_code=422, detail="title is required")
+    bookmark_type = BookmarkType(payload.type)
+    if bookmark_type == BookmarkType.link:
+        url = (payload.url or "").strip()
+        if url == "":
+            raise HTTPException(
+                status_code=422,
+                detail="url is required for link bookmarks",
+            )
+    else:
+        url = None  # url should be None unless the bookmark is a link
+
+    # create the bookmark
+    bookmark = Bookmark(
+        user_id=user_id,
+        title=title,
+        description=(payload.description.strip() if payload.description else None),
+        type=bookmark_type,
+        url=url,
+        status=BookmarkStatus.created,
+        tags=tags,
+    )
+    session.add(bookmark)
     await session.commit()
 
     # return the newly created bookmark
-    select_bookmark_statdment = (
+    select_bookmark_statement = (
         select(Bookmark)
         .where(and_(Bookmark.id == bookmark.id, Bookmark.user_id == user_id))
         .options(selectinload(Bookmark.tags))
     )
-    new_bookmark = (await session.execute(select_bookmark_statdment)).scalar_one()
+    new_bookmark = (await session.execute(select_bookmark_statement)).scalar_one()
     return _to_bookmark_response(new_bookmark)
 
 
@@ -285,7 +296,7 @@ async def load_bookmark(
     # update the status to loading during ingestion
     # and delete any existing chunks for re-ingesting
     bookmark.status = BookmarkStatus.loading
-    bookmark.load_method = IngestMethod.http
+    bookmark.load_method = LoadMethod.http
     await session.execute(
         sa.delete(BookmarkChunk).where(BookmarkChunk.bookmark_id == bookmark.id)
     )

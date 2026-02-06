@@ -31,7 +31,7 @@ class BookmarkStatus(str, enum.Enum):
     failed = "failed"
 
 
-class IngestMethod(str, enum.Enum):
+class LoadMethod(str, enum.Enum):
     http = "http"
     playwright = "playwright"
     read = "read"
@@ -85,8 +85,8 @@ class Bookmark(Base):
     )
 
     # http or playwright for links, read for files, manual for notes
-    load_method: Mapped[Optional[IngestMethod]] = mapped_column(
-        Enum(IngestMethod, name="load_method"),
+    load_method: Mapped[Optional[LoadMethod]] = mapped_column(
+        Enum(LoadMethod, name="load_method"),
         nullable=True,
     )
 
