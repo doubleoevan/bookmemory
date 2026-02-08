@@ -40,4 +40,4 @@ test:
 
 # run the api locally
 run:
-	uvicorn bookmemory_api.main:app --reload
+	uvicorn bookmemory.main:app --reload

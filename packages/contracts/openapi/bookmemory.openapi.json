@@ -8,6 +8,7 @@
     "/api/v1/health": {
       "get": {
         "summary": "Health",
+        "description": "Checks if the API is up and running.",
         "operationId": "health_api_v1_health_get",
         "responses": {
           "200": {
@@ -30,6 +31,7 @@
     "/api/v1/version": {
       "get": {
         "summary": "Version",
+        "description": "Returns the API version.",
         "operationId": "version_api_v1_version_get",
         "responses": {
           "200": {
@@ -55,6 +57,7 @@
           "db"
         ],
         "summary": "Db Ping",
+        "description": "Checks if the database is up and running.",
         "operationId": "db_ping_api_v1_db_ping_get",
         "responses": {
           "200": {
@@ -118,7 +121,7 @@
           "auth"
         ],
         "summary": "Logout",
-        "description": "Revokes the session in the DB and clears the cookie.",
+        "description": "Revokes the session in the DB and clears the session cookie.",
         "operationId": "logout_api_v1_auth_logout_post",
         "responses": {
           "200": {
@@ -137,9 +140,9 @@
         "tags": [
           "users"
         ],
-        "summary": "Me",
+        "summary": "Get Authenticated User",
         "description": "Returns the logged-in user's profile.",
-        "operationId": "me_api_v1_users_me_get",
+        "operationId": "get_authenticated_user_api_v1_users_me_get",
         "parameters": [
           {
             "name": "bookmemory_session",
@@ -182,13 +185,13 @@
         }
       }
     },
-    "/api/v1/bookmarks": {
+    "/api/v1/bookmarks/": {
       "post": {
         "tags": [
           "bookmarks"
         ],
         "summary": "Create Bookmark",
-        "operationId": "create_bookmark_api_v1_bookmarks_post",
+        "operationId": "create_bookmark_api_v1_bookmarks__post",
         "parameters": [
           {
             "name": "bookmemory_session",
@@ -245,7 +248,7 @@
           "bookmarks"
         ],
         "summary": "Get Bookmarks",
-        "operationId": "get_bookmarks_api_v1_bookmarks_get",
+        "operationId": "get_bookmarks_api_v1_bookmarks__get",
         "parameters": [
           {
             "name": "query",
@@ -261,20 +264,6 @@
                 }
               ],
               "title": "Query"
-            }
-          },
-          {
-            "name": "search_mode",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "enum": [
-                "keyword",
-                "semantic"
-              ],
-              "type": "string",
-              "default": "keyword",
-              "title": "Search Mode"
             }
           },
           {
@@ -296,10 +285,11 @@
             "schema": {
               "enum": [
                 "any",
-                "all"
+                "all",
+                "ignore"
               ],
               "type": "string",
-              "default": "any",
+              "default": "ignore",
               "title": "Tag Mode"
             }
           },
@@ -308,9 +298,12 @@
             "in": "query",
             "required": false,
             "schema": {
+              "enum": [
+                "alphabetical",
+                "recent"
+              ],
               "type": "string",
-              "pattern": "^(alphabetical|recent|relevance)$",
-              "default": "alphabetical",
+              "default": "recent",
               "title": "Sort"
             }
           },
@@ -365,6 +358,65 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/LimitOffsetPage_BookmarkResponse_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bookmarks/{bookmark_id}": {
+      "get": {
+        "tags": [
+          "bookmarks"
+        ],
+        "summary": "Get Bookmark",
+        "operationId": "get_bookmark_api_v1_bookmarks__bookmark_id__get",
+        "parameters": [
+          {
+            "name": "bookmark_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Bookmark Id"
+            }
+          },
+          {
+            "name": "bookmemory_session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bookmemory Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookmarkResponse"
                 }
               }
             }
@@ -441,12 +493,166 @@
         }
       }
     },
+    "/api/v1/bookmarks/{bookmark_id}/related": {
+      "get": {
+        "tags": [
+          "bookmarks"
+        ],
+        "summary": "Get Related Bookmarks",
+        "operationId": "get_related_bookmarks_api_v1_bookmarks__bookmark_id__related_get",
+        "parameters": [
+          {
+            "name": "bookmark_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Bookmark Id"
+            }
+          },
+          {
+            "name": "tag_mode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "enum": [
+                "any",
+                "all",
+                "ignore"
+              ],
+              "type": "string",
+              "default": "ignore",
+              "title": "Tag Mode"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 20,
+              "minimum": 1,
+              "default": 10,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "bookmemory_session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bookmemory Session"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookmarkSearchResponse"
+                  },
+                  "title": "Response Get Related Bookmarks Api V1 Bookmarks  Bookmark Id  Related Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/bookmarks/search": {
+      "post": {
+        "tags": [
+          "bookmarks"
+        ],
+        "summary": "Search Bookmarks",
+        "operationId": "search_bookmarks_api_v1_bookmarks_search_post",
+        "parameters": [
+          {
+            "name": "bookmemory_session",
+            "in": "cookie",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Bookmemory Session"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookmarkSearchRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BookmarkSearchResponse"
+                  },
+                  "title": "Response Search Bookmarks Api V1 Bookmarks Search Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/tags": {
       "get": {
         "tags": [
           "tags"
         ],
         "summary": "Get Tags",
+        "description": "Returns user tags mapped to their bookmarks count.",
         "operationId": "get_tags_api_v1_tags_get",
         "parameters": [
           {
@@ -509,6 +715,10 @@
             "type": "string",
             "title": "Title"
           },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
           "url": {
             "anyOf": [
               {
@@ -520,17 +730,6 @@
             ],
             "title": "Url"
           },
-          "description": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Description"
-          },
           "tags": {
             "items": {
               "type": "string"
@@ -541,7 +740,8 @@
         },
         "type": "object",
         "required": [
-          "title"
+          "title",
+          "description"
         ],
         "title": "BookmarkCreateRequest"
       },
@@ -635,6 +835,91 @@
           "tags"
         ],
         "title": "BookmarkResponse"
+      },
+      "BookmarkSearchRequest": {
+        "properties": {
+          "query": {
+            "type": "string",
+            "minLength": 1,
+            "title": "Query"
+          },
+          "limit": {
+            "type": "integer",
+            "maximum": 50,
+            "minimum": 1,
+            "title": "Limit",
+            "default": 20
+          },
+          "tags": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tags"
+          },
+          "tag_mode": {
+            "type": "string",
+            "enum": [
+              "any",
+              "all",
+              "ignore"
+            ],
+            "title": "Tag Mode",
+            "default": "ignore"
+          }
+        },
+        "type": "object",
+        "required": [
+          "query"
+        ],
+        "title": "BookmarkSearchRequest"
+      },
+      "BookmarkSearchResponse": {
+        "properties": {
+          "bookmark": {
+            "$ref": "#/components/schemas/BookmarkResponse"
+          },
+          "snippet": {
+            "type": "string",
+            "title": "Snippet"
+          },
+          "score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Score"
+          },
+          "chunk_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chunk Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "bookmark",
+          "snippet"
+        ],
+        "title": "BookmarkSearchResponse"
       },
       "CurrentUser": {
         "properties": {

@@ -23,6 +23,6 @@ RUN python -m playwright install --with-deps chromium
 EXPOSE 8000
 
 # run the API and bind to all interfaces
-CMD ["python", "-m", "uvicorn", "bookmemory_api.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "uvicorn", "bookmemory.main:app", "--host", "0.0.0.0", "--port", "8000"]
 
 
