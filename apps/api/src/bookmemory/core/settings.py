@@ -42,10 +42,8 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     openai_embedding_model: str = "text-embedding-3-small"
     openai_embedding_dim: int = 1536
-
-    # Embedding concurrency limits
-    embed_max_concurrency: int = 4
-    embed_batch_size: int = 64
+    openai_embed_max_concurrency: int = 4
+    openai_embed_batch_size: int = 64
 
     # Fetching concurrency limits
     http_fetch_max_concurrency: int = 20

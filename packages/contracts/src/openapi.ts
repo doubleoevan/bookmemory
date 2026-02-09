@@ -287,6 +287,8 @@ export interface components {
             title: string;
             /** Description */
             description: string | null;
+            /** Summary */
+            summary: string | null;
             /** Type */
             type: string;
             /** Url */

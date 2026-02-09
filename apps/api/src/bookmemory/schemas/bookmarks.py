@@ -18,6 +18,7 @@ def to_bookmark_response(bookmark: Bookmark) -> BookmarkResponse:
         user_id=bookmark.user_id,
         title=bookmark.title,
         description=bookmark.description,
+        summary=bookmark.summary,
         type=bookmark.type.value,
         url=bookmark.url,
         status=bookmark.status.value,
@@ -59,6 +60,7 @@ class BookmarkResponse(BaseModel):
     user_id: UUID
     title: str
     description: Optional[str]
+    summary: Optional[str]
     type: str
     url: Optional[str]
     status: str
@@ -72,4 +74,20 @@ class BookmarkSearchResponse(BaseModel):
     bookmark: BookmarkResponse
     snippet: str
     score: float | None = None  # only for semantic
-    chunk_id: UUID | None = None  # optional for debugging
+    chunk_id: UUID | None = (
+        None  # optional for debugging: the chunk embedding that matched a semantic query
+    )
+
+
+class BookmarkPreviewRequest(BaseModel):
+    type: str = Field(default="link")
+    url: str
+
+
+class BookmarkPreviewResponse(BaseModel):
+    type: str
+    url: str
+    title: str
+    description: str | None = None
+    load_method: str | None = None
+    content_preview: str | None = None  # sample of extracted text for debugging

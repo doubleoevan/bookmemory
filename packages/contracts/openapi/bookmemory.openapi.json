@@ -772,6 +772,17 @@
             ],
             "title": "Description"
           },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
           "type": {
             "type": "string",
             "title": "Type"
@@ -826,6 +837,7 @@
           "user_id",
           "title",
           "description",
+          "summary",
           "type",
           "url",
           "status",

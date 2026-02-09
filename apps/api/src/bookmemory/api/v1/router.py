@@ -6,9 +6,10 @@ from bookmemory.api.v1 import (
     db,
     auth,
     users,
-    bookmarks,
     tags,
 )
+
+from bookmemory.api.v1.bookmarks.router import router as bookmarks_router
 
 # register all top-level routes
 router = APIRouter()
@@ -17,5 +18,5 @@ router.include_router(version.router)
 router.include_router(db.router)
 router.include_router(auth.router)
 router.include_router(users.router)
-router.include_router(bookmarks.router)
+router.include_router(bookmarks_router)
 router.include_router(tags.router)
