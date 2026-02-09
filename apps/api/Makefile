@@ -1,4 +1,10 @@
+# declare makefile targets
 .PHONY: dev lint lint-fix format format-check typecheck check test run playwright
+
+# configure python virtual environment
+VENV := .venv
+PYTHON := $(VENV)/bin/python
+PIP := $(PYTHON) -m pip
 
 # install all dev dependencies
 dev-setup: dev playwright

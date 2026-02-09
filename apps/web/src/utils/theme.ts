@@ -1,6 +1,6 @@
 export type Theme = "light" | "dark";
 
-export const THEME_STORAGE_KEY: string = "chatwar.theme";
+export const THEME_STORAGE_KEY: string = "bookmemory.theme";
 
 /**
  * Saves the user's theme to localStorage

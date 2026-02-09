@@ -11,9 +11,9 @@ export function Header() {
       >
         {/* logo */}
         <Link
-          to="/chat"
+          to="/"
           className="flex items-center gap-2 font-semibold hover:opacity-90"
-          aria-label="Go to chat"
+          aria-label="Go to Bookmarks Home"
         >
           <BookMemoryIcon />
           <span>BookMemory</span>

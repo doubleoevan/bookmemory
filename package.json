@@ -15,6 +15,9 @@
     "dev:db": "docker compose up -d db",
     "db:down": "docker compose down",
     "db:reset": "docker compose down -v && docker compose up -d db",
+    "db:migrate": "cd apps/api && alembic revision --autogenerate -m",
+    "db:upgrade": "cd apps/api && alembic upgrade head",
+    "db:downgrade": "cd apps/api && alembic downgrade -1",
     "contracts:sync": "pnpm -C packages/contracts contracts:sync",
     "component:add": "pnpm -C packages/ui component:add",
     "prepare": "husky"

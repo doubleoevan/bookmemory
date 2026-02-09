@@ -1,13 +1,16 @@
 ## BookMemory API
 
-### Run from the terminal
+This is the backend API for BookMemory.
+
+### Getting Started
 
 ```bash
 # one-time setup
 make dev-setup
 
-# activate .venv and run with reload
-source .venv/bin/activate
+# run the API with reload
 make run
 
 ```
+
+See the [Makefile](./Makefile) for additional commands.
