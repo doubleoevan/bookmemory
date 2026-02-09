@@ -13,4 +13,4 @@ make run
 
 ```
 
-See the [Makefile](./Makefile) for additional commands.
+See the [Makefile](Makefile) for additional commands.
