@@ -8,7 +8,7 @@ from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from bookmemory.core.tags import normalize_tags
+from bookmemory.services.tags.normalize_tags import normalize_tags
 from bookmemory.db.models.bookmark import Bookmark, BookmarkStatus
 from bookmemory.db.models.bookmark_chunk import BookmarkChunk
 from bookmemory.db.models.tag import Tag

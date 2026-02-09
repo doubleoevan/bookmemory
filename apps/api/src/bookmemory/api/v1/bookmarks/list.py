@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from bookmemory.services.auth.users import get_current_user
-from bookmemory.core.tags import normalize_tags
+from bookmemory.services.tags.normalize_tags import normalize_tags
 from bookmemory.db.models.bookmark import Bookmark
 from bookmemory.schemas.bookmarks import to_bookmark_response, TagMode
 from bookmemory.db.models.tag import Tag

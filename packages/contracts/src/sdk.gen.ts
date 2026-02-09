@@ -2,7 +2,7 @@
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { CreateBookmarkApiV1BookmarksPostData, CreateBookmarkApiV1BookmarksPostErrors, CreateBookmarkApiV1BookmarksPostResponses, DbPingApiV1DbPingGetData, DbPingApiV1DbPingGetResponses, GetAuthenticatedUserApiV1UsersMeGetData, GetAuthenticatedUserApiV1UsersMeGetErrors, GetAuthenticatedUserApiV1UsersMeGetResponses, GetBookmarkApiV1BookmarksBookmarkIdGetData, GetBookmarkApiV1BookmarksBookmarkIdGetErrors, GetBookmarkApiV1BookmarksBookmarkIdGetResponses, GetBookmarksApiV1BookmarksGetData, GetBookmarksApiV1BookmarksGetErrors, GetBookmarksApiV1BookmarksGetResponses, GetRelatedBookmarksApiV1BookmarksBookmarkIdRelatedGetData, GetRelatedBookmarksApiV1BookmarksBookmarkIdRelatedGetErrors, GetRelatedBookmarksApiV1BookmarksBookmarkIdRelatedGetResponses, GetTagsApiV1TagsGetData, GetTagsApiV1TagsGetErrors, GetTagsApiV1TagsGetResponses, GoogleCallbackApiV1AuthGoogleCallbackGetData, GoogleCallbackApiV1AuthGoogleCallbackGetResponses, GoogleStartApiV1AuthGoogleStartGetData, GoogleStartApiV1AuthGoogleStartGetResponses, HealthApiV1HealthGetData, HealthApiV1HealthGetResponses, LoadBookmarkApiV1BookmarksBookmarkIdLoadPostData, LoadBookmarkApiV1BookmarksBookmarkIdLoadPostErrors, LoadBookmarkApiV1BookmarksBookmarkIdLoadPostResponses, LogoutApiV1AuthLogoutPostData, LogoutApiV1AuthLogoutPostResponses, PreviewBookmarkApiV1BookmarksPreviewPostData, PreviewBookmarkApiV1BookmarksPreviewPostErrors, PreviewBookmarkApiV1BookmarksPreviewPostResponses, SearchBookmarksApiV1BookmarksSearchPostData, SearchBookmarksApiV1BookmarksSearchPostErrors, SearchBookmarksApiV1BookmarksSearchPostResponses, StreamBookmarkSummaryApiV1BookmarksBookmarkIdSummaryPostData, StreamBookmarkSummaryApiV1BookmarksBookmarkIdSummaryPostErrors, StreamBookmarkSummaryApiV1BookmarksBookmarkIdSummaryPostResponses, VersionApiV1VersionGetData, VersionApiV1VersionGetResponses } from './types.gen';
+import type { CreateBookmarkApiV1BookmarksPostData, CreateBookmarkApiV1BookmarksPostErrors, CreateBookmarkApiV1BookmarksPostResponses, DbPingApiV1DbPingGetData, DbPingApiV1DbPingGetResponses, DeleteBookmarkApiV1BookmarksBookmarkIdDeleteData, DeleteBookmarkApiV1BookmarksBookmarkIdDeleteErrors, DeleteBookmarkApiV1BookmarksBookmarkIdDeleteResponses, GetAuthenticatedUserApiV1UsersMeGetData, GetAuthenticatedUserApiV1UsersMeGetErrors, GetAuthenticatedUserApiV1UsersMeGetResponses, GetBookmarkApiV1BookmarksBookmarkIdGetData, GetBookmarkApiV1BookmarksBookmarkIdGetErrors, GetBookmarkApiV1BookmarksBookmarkIdGetResponses, GetBookmarksApiV1BookmarksGetData, GetBookmarksApiV1BookmarksGetErrors, GetBookmarksApiV1BookmarksGetResponses, GetRelatedBookmarksApiV1BookmarksBookmarkIdRelatedGetData, GetRelatedBookmarksApiV1BookmarksBookmarkIdRelatedGetErrors, GetRelatedBookmarksApiV1BookmarksBookmarkIdRelatedGetResponses, GetTagsApiV1TagsGetData, GetTagsApiV1TagsGetErrors, GetTagsApiV1TagsGetResponses, GoogleCallbackApiV1AuthGoogleCallbackGetData, GoogleCallbackApiV1AuthGoogleCallbackGetResponses, GoogleStartApiV1AuthGoogleStartGetData, GoogleStartApiV1AuthGoogleStartGetResponses, HealthApiV1HealthGetData, HealthApiV1HealthGetResponses, LoadBookmarkApiV1BookmarksBookmarkIdLoadPostData, LoadBookmarkApiV1BookmarksBookmarkIdLoadPostErrors, LoadBookmarkApiV1BookmarksBookmarkIdLoadPostResponses, LogoutApiV1AuthLogoutPostData, LogoutApiV1AuthLogoutPostResponses, PreviewBookmarkApiV1BookmarksPreviewPostData, PreviewBookmarkApiV1BookmarksPreviewPostErrors, PreviewBookmarkApiV1BookmarksPreviewPostResponses, SearchBookmarksApiV1BookmarksSearchPostData, SearchBookmarksApiV1BookmarksSearchPostErrors, SearchBookmarksApiV1BookmarksSearchPostResponses, StreamBookmarkSummaryApiV1BookmarksBookmarkIdSummaryPostData, StreamBookmarkSummaryApiV1BookmarksBookmarkIdSummaryPostErrors, StreamBookmarkSummaryApiV1BookmarksBookmarkIdSummaryPostResponses, UpdateBookmarkApiV1BookmarksBookmarkIdPatchData, UpdateBookmarkApiV1BookmarksBookmarkIdPatchErrors, UpdateBookmarkApiV1BookmarksBookmarkIdPatchResponses, VersionApiV1VersionGetData, VersionApiV1VersionGetResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean> = Options2<TData, ThrowOnError> & {
     /**
@@ -97,9 +97,26 @@ export const createBookmarkApiV1BookmarksPost = <ThrowOnError extends boolean = 
 });
 
 /**
+ * Delete Bookmark
+ */
+export const deleteBookmarkApiV1BookmarksBookmarkIdDelete = <ThrowOnError extends boolean = false>(options: Options<DeleteBookmarkApiV1BookmarksBookmarkIdDeleteData, ThrowOnError>) => (options.client ?? client).delete<DeleteBookmarkApiV1BookmarksBookmarkIdDeleteResponses, DeleteBookmarkApiV1BookmarksBookmarkIdDeleteErrors, ThrowOnError>({ url: '/api/v1/bookmarks/{bookmark_id}', ...options });
+
+/**
  * Get Bookmark
  */
 export const getBookmarkApiV1BookmarksBookmarkIdGet = <ThrowOnError extends boolean = false>(options: Options<GetBookmarkApiV1BookmarksBookmarkIdGetData, ThrowOnError>) => (options.client ?? client).get<GetBookmarkApiV1BookmarksBookmarkIdGetResponses, GetBookmarkApiV1BookmarksBookmarkIdGetErrors, ThrowOnError>({ url: '/api/v1/bookmarks/{bookmark_id}', ...options });
+
+/**
+ * Update Bookmark
+ */
+export const updateBookmarkApiV1BookmarksBookmarkIdPatch = <ThrowOnError extends boolean = false>(options: Options<UpdateBookmarkApiV1BookmarksBookmarkIdPatchData, ThrowOnError>) => (options.client ?? client).patch<UpdateBookmarkApiV1BookmarksBookmarkIdPatchResponses, UpdateBookmarkApiV1BookmarksBookmarkIdPatchErrors, ThrowOnError>({
+    url: '/api/v1/bookmarks/{bookmark_id}',
+    ...options,
+    headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+    }
+});
 
 /**
  * Load Bookmark

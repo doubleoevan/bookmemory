@@ -176,6 +176,28 @@ export type BookmarkSearchResponse = {
 };
 
 /**
+ * BookmarkUpdateRequest
+ */
+export type BookmarkUpdateRequest = {
+    /**
+     * Title
+     */
+    title?: string | null;
+    /**
+     * Description
+     */
+    description?: string | null;
+    /**
+     * Url
+     */
+    url?: string | null;
+    /**
+     * Tags
+     */
+    tags?: Array<string> | null;
+};
+
+/**
  * CurrentUser
  */
 export type CurrentUser = {
@@ -510,6 +532,36 @@ export type CreateBookmarkApiV1BookmarksPostResponses = {
 
 export type CreateBookmarkApiV1BookmarksPostResponse = CreateBookmarkApiV1BookmarksPostResponses[keyof CreateBookmarkApiV1BookmarksPostResponses];
 
+export type DeleteBookmarkApiV1BookmarksBookmarkIdDeleteData = {
+    body?: never;
+    path: {
+        /**
+         * Bookmark Id
+         */
+        bookmark_id: string;
+    };
+    query?: never;
+    url: '/api/v1/bookmarks/{bookmark_id}';
+};
+
+export type DeleteBookmarkApiV1BookmarksBookmarkIdDeleteErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteBookmarkApiV1BookmarksBookmarkIdDeleteError = DeleteBookmarkApiV1BookmarksBookmarkIdDeleteErrors[keyof DeleteBookmarkApiV1BookmarksBookmarkIdDeleteErrors];
+
+export type DeleteBookmarkApiV1BookmarksBookmarkIdDeleteResponses = {
+    /**
+     * Successful Response
+     */
+    200: BookmarkResponse;
+};
+
+export type DeleteBookmarkApiV1BookmarksBookmarkIdDeleteResponse = DeleteBookmarkApiV1BookmarksBookmarkIdDeleteResponses[keyof DeleteBookmarkApiV1BookmarksBookmarkIdDeleteResponses];
+
 export type GetBookmarkApiV1BookmarksBookmarkIdGetData = {
     body?: never;
     path: {
@@ -539,6 +591,36 @@ export type GetBookmarkApiV1BookmarksBookmarkIdGetResponses = {
 };
 
 export type GetBookmarkApiV1BookmarksBookmarkIdGetResponse = GetBookmarkApiV1BookmarksBookmarkIdGetResponses[keyof GetBookmarkApiV1BookmarksBookmarkIdGetResponses];
+
+export type UpdateBookmarkApiV1BookmarksBookmarkIdPatchData = {
+    body: BookmarkUpdateRequest;
+    path: {
+        /**
+         * Bookmark Id
+         */
+        bookmark_id: string;
+    };
+    query?: never;
+    url: '/api/v1/bookmarks/{bookmark_id}';
+};
+
+export type UpdateBookmarkApiV1BookmarksBookmarkIdPatchErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateBookmarkApiV1BookmarksBookmarkIdPatchError = UpdateBookmarkApiV1BookmarksBookmarkIdPatchErrors[keyof UpdateBookmarkApiV1BookmarksBookmarkIdPatchErrors];
+
+export type UpdateBookmarkApiV1BookmarksBookmarkIdPatchResponses = {
+    /**
+     * Successful Response
+     */
+    200: BookmarkResponse;
+};
+
+export type UpdateBookmarkApiV1BookmarksBookmarkIdPatchResponse = UpdateBookmarkApiV1BookmarksBookmarkIdPatchResponses[keyof UpdateBookmarkApiV1BookmarksBookmarkIdPatchResponses];
 
 export type LoadBookmarkApiV1BookmarksBookmarkIdLoadPostData = {
     body?: never;

@@ -92,3 +92,10 @@ class BookmarkPreviewResponse(BaseModel):
     load_method: str | None = None
     preview_method: str | None = None
     content_preview: str | None = None  # sample of extracted text for debugging
+
+
+class BookmarkUpdateRequest(BaseModel):
+    title: Optional[str] = Field(default=None, max_length=512)
+    description: Optional[str] = None
+    url: Optional[str] = None
+    tags: Optional[List[str]] = None
