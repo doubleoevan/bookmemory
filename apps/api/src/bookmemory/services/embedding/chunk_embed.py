@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from typing import List
 
-from bookmemory.services.ai.providers import get_ai_provider, AIProviderType
+from bookmemory.core.settings import settings
+
+from bookmemory.services.ai.providers import get_ai_provider
 
 
 async def embed_chunks(chunks: List[str]) -> List[list[float]]:
@@ -18,6 +20,6 @@ async def embed_chunks(chunks: List[str]) -> List[list[float]]:
     if len(normalized_chunks) == 0:
         return []
 
-    # return embedding vectors for each chunk
-    provider = get_ai_provider(provider_type=AIProviderType.openai)
+    # generate and return embedding vectors for each chunk
+    provider = get_ai_provider(settings.embedding_provider)
     return await provider.embed_chunks(normalized_chunks)

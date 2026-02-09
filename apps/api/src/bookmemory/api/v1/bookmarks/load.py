@@ -85,25 +85,26 @@ async def load_bookmark(
         if bookmark.type == BookmarkType.link:
             assert bookmark.url is not None
             with anyio.fail_after(MAXIMUM_FETCH_SECONDS):
-                extracted_text, method_used = await extract_content(url=bookmark.url)
+                extracted_content = await extract_content(url=bookmark.url)
+                content = extracted_content.content or ""
+                load_method = extracted_content.load_method
         # TODO: extract file content from the s3 url for a bookmark file
         elif bookmark.type == BookmarkType.file:
             assert bookmark.url is not None
-            extracted_text = bookmark.description or bookmark.title
-            method_used = LoadMethod.read
+            content = bookmark.description or bookmark.title or ""
+            load_method = LoadMethod.read
         # use manually provided content for a bookmark note
         elif bookmark.type == BookmarkType.note:
-            extracted_text = bookmark.content or bookmark.description or bookmark.title
-            method_used = LoadMethod.manual
+            content = bookmark.content or bookmark.description or bookmark.title or ""
+            load_method = LoadMethod.manual
         else:
             raise HTTPException(
                 status_code=422, detail="unsupported bookmark type for load"
             )
 
         # set the bookmark content and load method
-        content = extracted_text or ""
         bookmark.content = content
-        bookmark.load_method = method_used
+        bookmark.load_method = load_method
 
         # return the bookmark with a status to no_content if the content was empty or too short
         if _is_content_low(content):

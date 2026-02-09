@@ -144,6 +144,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/bookmarks/preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Preview Bookmark */
+        post: operations["preview_bookmark_api_v1_bookmarks_preview_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/bookmarks/": {
         parameters: {
             query?: never;
@@ -230,6 +247,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/bookmarks/{bookmark_id}/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Stream Bookmark Summary */
+        post: operations["stream_bookmark_summary_api_v1_bookmarks__bookmark_id__summary_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/tags": {
         parameters: {
             query?: never;
@@ -270,6 +304,33 @@ export interface components {
             url?: string | null;
             /** Tags */
             tags?: string[];
+        };
+        /** BookmarkPreviewRequest */
+        BookmarkPreviewRequest: {
+            /**
+             * Type
+             * @default link
+             */
+            type: string;
+            /** Url */
+            url: string;
+        };
+        /** BookmarkPreviewResponse */
+        BookmarkPreviewResponse: {
+            /** Type */
+            type: string;
+            /** Url */
+            url: string;
+            /** Title */
+            title: string;
+            /** Description */
+            description?: string | null;
+            /** Load Method */
+            load_method?: string | null;
+            /** Preview Method */
+            preview_method?: string | null;
+            /** Content Preview */
+            content_preview?: string | null;
         };
         /** BookmarkResponse */
         BookmarkResponse: {
@@ -565,6 +626,41 @@ export interface operations {
             };
         };
     };
+    preview_bookmark_api_v1_bookmarks_preview_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: {
+                bookmemory_session?: string | null;
+            };
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookmarkPreviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookmarkPreviewResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_bookmarks_api_v1_bookmarks__get: {
         parameters: {
             query?: {
@@ -764,6 +860,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BookmarkSearchResponse"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    stream_bookmark_summary_api_v1_bookmarks__bookmark_id__summary_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                bookmark_id: string;
+            };
+            cookie?: {
+                bookmemory_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */

@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-import enum
 import uuid
+from enum import Enum
+from dataclasses import dataclass
 from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Index, String, Text, func
+from sqlalchemy import DateTime, Enum as SAEnum, ForeignKey, Index, String, Text, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -17,13 +18,13 @@ if TYPE_CHECKING:
     from bookmemory.db.models.tag import Tag
 
 
-class BookmarkType(str, enum.Enum):
+class BookmarkType(str, Enum):
     link = "link"
     note = "note"
     file = "file"
 
 
-class BookmarkStatus(str, enum.Enum):
+class BookmarkStatus(str, Enum):
     created = "created"  # saved but not loaded yet
     loading = "loading"  # fetching + extracting + chunking
     processing = "processing"  # AI work: embedding + summarizing
@@ -32,11 +33,23 @@ class BookmarkStatus(str, enum.Enum):
     failed = "failed"
 
 
-class LoadMethod(str, enum.Enum):
+class PreviewMethod(str, Enum):
+    content = "content"
+    web = "web"
+
+
+class LoadMethod(str, Enum):
     http = "http"
     playwright = "playwright"
     read = "read"
     manual = "manual"
+
+
+@dataclass(frozen=True)
+class ExtractedContent:
+    title: str
+    content: str
+    load_method: LoadMethod
 
 
 class Bookmark(Base):
@@ -57,7 +70,7 @@ class Bookmark(Base):
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     type: Mapped[BookmarkType] = mapped_column(
-        Enum(BookmarkType, name="bookmark_type"),
+        SAEnum(BookmarkType, name="bookmark_type"),
         nullable=False,
         default=BookmarkType.link,
     )
@@ -67,14 +80,14 @@ class Bookmark(Base):
     summary: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
 
     status: Mapped[BookmarkStatus] = mapped_column(
-        Enum(BookmarkStatus, name="bookmark_status"),
+        SAEnum(BookmarkStatus, name="bookmark_status"),
         nullable=False,
         default=BookmarkStatus.created,
         index=True,
     )
 
     load_method: Mapped[Optional[LoadMethod]] = mapped_column(
-        Enum(LoadMethod, name="load_method"),
+        SAEnum(LoadMethod, name="load_method"),
         nullable=True,
     )
 

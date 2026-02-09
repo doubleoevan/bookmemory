@@ -90,4 +90,5 @@ class BookmarkPreviewResponse(BaseModel):
     title: str
     description: str | None = None
     load_method: str | None = None
+    preview_method: str | None = None
     content_preview: str | None = None  # sample of extracted text for debugging

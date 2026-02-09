@@ -1,15 +1,18 @@
 from __future__ import annotations
 
-from enum import Enum
-from typing import Protocol
+from typing import Protocol, AsyncIterator, Literal
 
+from bookmemory.db.models.bookmark import Bookmark, PreviewMethod
 
-class AIProviderType(str, Enum):
-    openai = "openai"
+AIProviderType = Literal["openai"]
 
 
 class AIProvider(Protocol):
     async def embed_chunks(self, chunks: list[str]) -> list[list[float]]: ...
+    async def generate_description(
+        self, *, bookmark: Bookmark
+    ) -> tuple[str, PreviewMethod]: ...
+    def stream_summary(self, *, bookmark: Bookmark) -> AsyncIterator[str]: ...
 
 
 _providers: dict[AIProviderType, AIProvider] = {}
@@ -22,9 +25,11 @@ def get_ai_provider(provider_type: AIProviderType) -> AIProvider:
         return _providers[provider_type]
 
     # update the cache and return a new provider instance
-    if provider_type == AIProviderType.openai:
-        from bookmemory.services.ai.openai import OpenAIProvider
+    if provider_type == "openai":
+        from bookmemory.services.ai.openai.provider import OpenAIProvider
 
         provider = OpenAIProvider()
         _providers[provider_type] = provider
         return provider
+
+    raise ValueError(f"Unsupported AI provider: {provider_type}")

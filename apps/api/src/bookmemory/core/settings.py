@@ -3,6 +3,8 @@ from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from bookmemory.services.ai.providers import AIProviderType
+
 BASE_DIR = Path(__file__).resolve().parents[3]  # apps/api/
 
 
@@ -31,19 +33,26 @@ class Settings(BaseSettings):
     google_redirect_uri: str = ""
 
     # session cookie settings
-    session_middleware_secret: str = "change-me"
     session_cookie_name: str = "bookmemory_session"
     session_ttl_days: int = 7
     cookie_secure: bool = False
     cookie_samesite: Literal["lax", "strict", "none"] = "lax"
     cookie_domain: str | None = None
 
+    # ai provider settings
+    embedding_provider: AIProviderType = "openai"
+    description_provider: AIProviderType = "openai"
+    summary_provider: AIProviderType = "openai"
+
     # OpenAI settings
     openai_api_key: str = ""
     openai_embedding_model: str = "text-embedding-3-small"
     openai_embedding_dim: int = 1536
-    openai_embed_max_concurrency: int = 4
+    openai_embed_max_concurrency: int = 6
     openai_embed_batch_size: int = 64
+    openai_chat_model: str = "gpt-5.2"
+    openai_description_max_concurrency: int = 4
+    openai_summary_max_concurrency: int = 1
 
     # Fetching concurrency limits
     http_fetch_max_concurrency: int = 20

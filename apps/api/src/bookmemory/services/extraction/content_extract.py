@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from bookmemory.db.models.bookmark import LoadMethod
+from bookmemory.db.models.bookmark import LoadMethod, ExtractedContent
 from bookmemory.services.extraction.http_fetch import FetchError, fetch_html
 from bookmemory.services.extraction.html_extract import extract_html
 from bookmemory.services.extraction.playwright_fetch import (
@@ -25,21 +25,26 @@ def _should_fallback_to_playwright(*, extracted_text: str) -> bool:
     return len((extracted_text or "").strip()) < MINIMUM_HTTP_LENGTH
 
 
-async def extract_content(*, url: str) -> tuple[str, LoadMethod]:
+async def extract_content(*, url: str) -> ExtractedContent:
     """
     Returns extracted HTML content from a URL.
     Use playwright if the site is JS-heavy or blocked and content was too small.
     """
-    # try to fetch the content with HTTP first
+    # try to fetch the extracted content with HTTP
     try:
         fetched_html = await fetch_html(url=url)
         extracted_content = extract_html(html=fetched_html.html, url=url)
         text = _trim_extracted_text(extracted_content.text)
+        title = _trim_extracted_text(extracted_content.title)
 
         if _should_fallback_to_playwright(extracted_text=text):
             raise FetchError("extracted text too small; likely JS-heavy")
 
-        return text, LoadMethod.http
+        return ExtractedContent(
+            title=title,
+            content=text,
+            load_method=LoadMethod.http,
+        )
 
     except FetchError as http_error:
         # retry the fetch with playwright if an error suggests that the site is JS-heavy or blocked
@@ -53,8 +58,13 @@ async def extract_content(*, url: str) -> tuple[str, LoadMethod]:
         if not (can_try_playwright_status or can_try_playwright_message):
             raise
 
-        # fetch and return the content with playwright
+        # fetch and return the extracted content with playwright
         rendered_html = await fetch_rendered_html(url=url)
         extracted_content = extract_html(html=rendered_html.html, url=rendered_html.url)
         text = _trim_extracted_text(extracted_content.text)
-        return text, LoadMethod.playwright
+        title = _trim_extracted_text(extracted_content.title)
+        return ExtractedContent(
+            title=title,
+            content=text,
+            load_method=LoadMethod.playwright,
+        )
