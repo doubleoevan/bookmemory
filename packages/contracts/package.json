@@ -16,15 +16,13 @@
     "build": "tsc -b",
     "lint": "eslint .",
     "typecheck": "tsc -b --pretty false --noEmit",
-    "contracts:generate": "openapi-typescript ./openapi/bookmemory.openapi.json -o ./src/openapi.ts",
-    "contracts:sync": "node ./scripts/sync-openapi.mjs",
-    "contracts:refresh": "pnpm contracts:sync && pnpm contracts:generate"
+    "contracts:sync": "node ./scripts/sync-openapi.mjs && openapi-ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@hey-api/openapi-ts": "0.92.3",
     "eslint": "^9.39.1",
     "globals": "^16.5.0",
-    "openapi-typescript": "^7.10.1",
     "typescript": "^5.6.0",
     "typescript-eslint": "^8.46.4"
   }

@@ -37,8 +37,8 @@ export default [
     },
   },
 
-  // ignore build output
+  // ignore build and generated output
   {
-    ignores: ["dist/**", "openapi/**"],
+    ignores: ["dist/**", "openapi/**", "**/*.gen.ts"],
   },
 ];
