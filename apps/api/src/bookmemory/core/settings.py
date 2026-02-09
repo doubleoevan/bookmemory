@@ -50,7 +50,7 @@ class Settings(BaseSettings):
     openai_embedding_dim: int = 1536
     openai_embed_max_concurrency: int = 6
     openai_embed_batch_size: int = 64
-    openai_chat_model: str = "gpt-5.2"
+    openai_chat_model: str = "gpt-5-mini"
     openai_description_max_concurrency: int = 4
     openai_summary_max_concurrency: int = 1
 

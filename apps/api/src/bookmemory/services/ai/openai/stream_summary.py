@@ -22,10 +22,11 @@ SUMMARY_SYSTEM_PROMPT = (
     "Use web search to read the page and fill in missing context; "
     "use the provided extracted content as a fallback if the page cannot be retrieved. "
     "If the extracted content conflicts with the page, prefer the page. "
+    "Be clear and concise. "
     "Plain text only (no markdown, no quotes, no emojis). "
-    "Do not provide safety advice or checklists."
+    "Do not provide safety advice or checklists. "
     "Do not include links or URLs. "
-    "Do not include citations or parentheses source notes."
+    "Do not include citations or parentheses source notes. "
 )
 
 
