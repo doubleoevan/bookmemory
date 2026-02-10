@@ -4,15 +4,15 @@
   "version": "0.0.0",
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "dev": "pnpm -r --parallel dev",
-    "dev:full": "pnpm build && pnpm -C apps/web preview",
+    "dev": "pnpm -C apps/web dev",
+    "dev:mock": "pnpm -C apps/web dev:mock",
+    "dev:api": "make -C apps/api run",
+    "dev:full": "concurrently -n api,js -c auto \"pnpm dev:api\" \"pnpm -r --parallel dev\"",
     "build": "pnpm -r build",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "format": "prettier --write .",
     "clean": "pnpm -r clean",
-    "dev:api": "pnpm -C apps/api dev",
-    "dev:web": "pnpm -C apps/web dev",
     "dev:db": "docker compose up -d db",
     "db:down": "docker compose down",
     "db:reset": "docker compose down -v && docker compose up -d db",
@@ -24,6 +24,7 @@
     "prepare": "husky"
   },
   "devDependencies": {
+    "concurrently": "^9.2.1",
     "globals": "^16.5.0",
     "husky": "^9.1.7",
     "prettier": "^3.8.1"

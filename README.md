@@ -50,9 +50,10 @@ Services:
 ### Run services individually
 
 ```bash
-pnpm dev:web:mock
-pnpm dev:web:localserver
-pnpm dev:api
+pnpm dev       # web app (expects local API to already be running)
+pnpm dev:mock  # web app with mock service workers (no API needed)
+pnpm dev:api   # local API server
+pnpm dev:full  # web app + local API + watchers
 ```
 
 ## Database

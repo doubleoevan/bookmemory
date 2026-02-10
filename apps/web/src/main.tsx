@@ -8,10 +8,9 @@ import "@bookmemory/ui/styles.css";
 import { enableApi } from "@/api/client";
 
 // enable the mock service worker in dev or the API client
+enableApi();
 if (import.meta.env.DEV) {
   await enableMocks();
-} else {
-  enableApi();
 }
 
 // bootstrap Google Analytics in prod
