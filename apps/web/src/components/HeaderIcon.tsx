@@ -1,14 +1,14 @@
 import { cn } from "@bookmemory/ui";
 import darkIconUrl from "@/assets/icons/bookmemory-dark.svg";
 import lightIconUrl from "@/assets/icons/bookmemory-light.svg";
-import { useTheme } from "@/providers/theme";
+import { useTheme } from "@/app/theme";
 
 type BookMemoryIconProps = {
   className?: string;
   size?: number;
 };
 
-export function BookMemoryIcon({ className, size = 20 }: BookMemoryIconProps) {
+export function HeaderIcon({ className, size = 20 }: BookMemoryIconProps) {
   const { theme } = useTheme();
   const iconUrl = theme === "dark" ? darkIconUrl : lightIconUrl;
   return (

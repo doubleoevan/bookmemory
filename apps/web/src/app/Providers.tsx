@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { BrowserRouter } from "react-router-dom";
-import { RouteAnalytics } from "@/providers/RouteAnalytics";
-import { ThemeProvider } from "@/providers/theme";
+import { RouteAnalytics } from "@/app/RouteAnalytics";
+import { ThemeProvider } from "@/app/theme";
 
 /** App context providers */
 export function AppProviders({ children }: { children: ReactNode }) {

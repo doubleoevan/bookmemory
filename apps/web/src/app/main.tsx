@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { AppProviders } from "@/providers/Providers";
-import App from "@/App";
+import { AppProviders } from "@/app/Providers";
+import App from "@/app/App";
 import { enableMocks } from "@/mocks";
 import "@/index.css";
 import "@bookmemory/ui/styles.css";

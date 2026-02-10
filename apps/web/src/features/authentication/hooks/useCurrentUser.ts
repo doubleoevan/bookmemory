@@ -9,7 +9,7 @@ type CurrentUserState =
   | { status: "signed_in"; user: CurrentUser; message?: undefined };
 
 export function useCurrentUser(): CurrentUserState {
-  const [state, setState] = useState<CurrentUserState>({ status: "loading" });
+  const [userState, setUserState] = useState<CurrentUserState>({ status: "loading" });
 
   useEffect(() => {
     let isMounted = true;
@@ -21,23 +21,23 @@ export function useCurrentUser(): CurrentUserState {
           return;
         }
 
-        setState({ status: "signed_in", user });
+        setUserState({ status: "signed_in", user });
       } catch (error) {
         if (!isMounted) {
           return;
         }
 
         if (error instanceof Response && error.status === 401) {
-          setState({ status: "signed_out" });
+          setUserState({ status: "signed_out" });
           return;
         }
 
         if (error instanceof Response) {
-          setState({ status: "error", message: `Request failed: ${error.status}` });
+          setUserState({ status: "error", message: `Request failed: ${error.status}` });
           return;
         }
 
-        setState({ status: "error", message: "Network error" });
+        setUserState({ status: "error", message: "Network error" });
       }
     }
 
@@ -47,5 +47,5 @@ export function useCurrentUser(): CurrentUserState {
     };
   }, []);
 
-  return state;
+  return userState;
 }

@@ -8,8 +8,8 @@ import {
   storeTheme,
   type Theme,
   THEME_STORAGE_KEY,
-} from "@/utils/theme";
-import { ThemeContext } from "@/providers/theme/ThemeContext";
+} from "@/app/theme/themeStorage";
+import { ThemeContext } from "@/app/theme/ThemeContext";
 
 export type ThemeState = { theme: Theme };
 type ThemeAction = { type: "SET_THEME"; theme: Theme } | { type: "SYSTEM_THEME_UPDATED" };

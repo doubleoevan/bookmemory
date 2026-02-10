@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import UserMenu from "@/components/UserMenu";
-import { BookMemoryIcon } from "@/components/BookMemoryIcon";
+import { HeaderIcon } from "@/components/HeaderIcon";
 
 export function Header() {
   return (
@@ -15,7 +15,7 @@ export function Header() {
           className="flex items-center gap-2 font-semibold hover:opacity-90"
           aria-label="Go to Bookmarks Home"
         >
-          <BookMemoryIcon />
+          <HeaderIcon />
           <span>BookMemory</span>
         </Link>
 

@@ -52,7 +52,7 @@ async def stream_bookmark_summary(
             await session.commit()
 
             # stream the done message
-            yield json.dumps({"done": "true"}) + "\n"
+            yield json.dumps({"done": True}) + "\n"
 
         except asyncio.CancelledError:
             # there's no way to show an error message if the connection is closed

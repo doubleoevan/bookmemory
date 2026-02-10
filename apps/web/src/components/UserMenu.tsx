@@ -16,8 +16,8 @@ import {
   DropdownMenuTrigger,
 } from "@bookmemory/ui";
 import { CircleUserRoundIcon, LogOut } from "lucide-react";
-import { useCurrentUser } from "@/features/logins/hooks/useCurrentUser";
-import { useTheme } from "@/providers/theme";
+import { useCurrentUser } from "@/features/authentication/hooks/useCurrentUser";
+import { useTheme } from "@/app/theme";
 import { logoutApiV1AuthLogoutPost } from "@bookmemory/contracts";
 
 export default function UserMenu() {
