@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from typing import AsyncIterator
 from uuid import UUID
 
@@ -38,17 +39,20 @@ async def stream_bookmark_summary(
 
     # stream the summary to the client
     async def streamer() -> AsyncIterator[str]:
-        chunks: list[str] = []
         try:
+            chunks: list[str] = []  # store the chunks to save to the bookmark summary
             provider = get_ai_provider(settings.summary_provider)
             async for chunk in provider.stream_summary(bookmark=bookmark):
                 chunks.append(chunk)
-                yield chunk
+                yield json.dumps({"chunk": chunk}) + "\n"  # stream each chunk
 
             # save the summary to the bookmark
             summary = "".join(chunks).strip()
             bookmark.summary = summary
             await session.commit()
+
+            # stream the done message
+            yield json.dumps({"done": "true"}) + "\n"
 
         except asyncio.CancelledError:
             # there's no way to show an error message if the connection is closed
@@ -58,10 +62,22 @@ async def stream_bookmark_summary(
         except Exception as error:
             await session.rollback()
 
-            # show the error message for debugging
+            # show an error message for debugging
             error_type = type(error).__name__
             error_message = str(error).strip() or "(no message)"
-            yield f"\n\n[stream_bookmark_summary error] {error_type}: {error_message}\n"
+            yield (
+                json.dumps(
+                    {
+                        "error": {
+                            "error": error_type,
+                            "message": error_message,
+                        },
+                    }
+                )
+                + "\n"
+            )
             return
 
-    return StreamingResponse(streamer(), media_type="text/plain; charset=utf-8")
+    return StreamingResponse(
+        streamer(), media_type="application/x-ndjson; charset=utf-8"
+    )

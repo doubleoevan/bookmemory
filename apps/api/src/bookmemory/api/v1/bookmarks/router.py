@@ -1,6 +1,17 @@
 from fastapi import APIRouter
 
-from . import preview, create, detail, update, delete, list, load, related, search, summary
+from . import (
+    preview,
+    create,
+    detail,
+    update,
+    delete,
+    list,
+    load,
+    related,
+    search,
+    summary,
+)
 
 # register all bookmark subroutes
 router = APIRouter(prefix="/bookmarks", tags=["bookmarks"])
