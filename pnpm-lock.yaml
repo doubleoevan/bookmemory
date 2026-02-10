@@ -26,6 +26,9 @@ importers:
       '@bookmemory/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      can-ndjson-stream:
+        specifier: ^1.0.2
+        version: 1.0.2
       lucide-react:
         specifier: ^0.563.0
         version: 0.563.0(react@19.2.4)
@@ -1404,6 +1407,12 @@ packages:
   callsites@3.1.0:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
     engines: {node: '>=6'}
+
+  can-namespace@1.0.0:
+    resolution: {integrity: sha512-1sBY/SLwwcmxz3NhyVhLjt2uD/dZ7V1mII82/MIXSDn5QXnslnosJnjlP8+yTx2uTCRvw1jlFDElRs4pX7AG5w==}
+
+  can-ndjson-stream@1.0.2:
+    resolution: {integrity: sha512-//tM8wcTV42SyD1JGua7WMVftZEeTwapcHJTTe3vJwuVywXD01CJbdEkgwRYjy2evIByVJV21ZKBdSv5ygIw1w==}
 
   caniuse-lite@1.0.30001767:
     resolution: {integrity: sha512-34+zUAMhSH+r+9eKmYG+k2Rpt8XttfE4yXAjoZvkAPs15xcYQhyBYdalJ65BzivAvGRMViEjy6oKr/S91loekQ==}
@@ -3754,6 +3763,12 @@ snapshots:
   cac@6.7.14: {}
 
   callsites@3.1.0: {}
+
+  can-namespace@1.0.0: {}
+
+  can-ndjson-stream@1.0.2:
+    dependencies:
+      can-namespace: 1.0.0
 
   caniuse-lite@1.0.30001767: {}
 

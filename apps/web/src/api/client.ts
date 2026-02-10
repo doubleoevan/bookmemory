@@ -1,21 +1,27 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+import { client } from "@bookmemory/contracts";
 
-export async function httpRequest(path: string, init?: RequestInit): Promise<Response> {
-  const headers = new Headers(init?.headers);
-  headers.set("accept", "application/json");
-
-  const url = `${API_BASE_URL}${path}`;
-  return fetch(url, {
-    ...init,
-    headers,
+// initializes the contract-aware api client on app startup
+export function enableApi(): void {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
+  client.setConfig({
+    baseUrl: API_BASE_URL,
     credentials: "include",
+    headers: { accept: "application/json" },
+    responseStyle: "data",
+    throwOnError: true,
   });
 }
 
-export async function fetchJson<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await httpRequest(path, init);
-  if (!response.ok) {
-    throw response;
-  }
-  return (await response.json()) as T;
+// returns the typesafe result of an endpoint function from the api contract
+export async function apiRequest<T>(
+  // eslint-disable-next-line
+  endpoint: (options?: any) => Promise<any>,
+  // eslint-disable-next-line
+  options?: any,
+): Promise<T> {
+  return await endpoint({
+    responseStyle: "data",
+    throwOnError: true,
+    ...(options ?? {}),
+  });
 }

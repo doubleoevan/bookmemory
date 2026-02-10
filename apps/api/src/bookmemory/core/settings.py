@@ -33,6 +33,7 @@ class Settings(BaseSettings):
     google_redirect_uri: str = ""
 
     # session cookie settings
+    session_middleware_secret: str = "change_me"
     session_cookie_name: str = "bookmemory_session"
     session_ttl_days: int = 7
     cookie_secure: bool = False

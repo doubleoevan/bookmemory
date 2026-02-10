@@ -16,7 +16,7 @@
     "build": "tsc -b",
     "lint": "eslint .",
     "typecheck": "tsc -b --pretty false --noEmit",
-    "contracts:sync": "node ./scripts/sync-openapi.mjs && openapi-ts"
+    "contracts:sync": "node ./scripts/sync-openapi.mjs && openapi-ts && pnpm build"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",

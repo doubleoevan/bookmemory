@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview",
+    "preview": "vite preview --port 5174 --strictPort",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "clean": "rm -rf dist node_modules/.vite"
@@ -14,6 +14,7 @@
   "dependencies": {
     "@bookmemory/contracts": "workspace:*",
     "@bookmemory/ui": "workspace:*",
+    "can-ndjson-stream": "^1.0.2",
     "lucide-react": "^0.563.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

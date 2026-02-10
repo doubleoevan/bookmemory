@@ -1,66 +1,51 @@
 import { useEffect, useState } from "react";
-import type { paths } from "@bookmemory/contracts";
-import { httpRequest } from "@/api/client";
-
-type CurrentUserResponse =
-  paths["/api/v1/users/me"]["get"]["responses"]["200"]["content"]["application/json"];
+import type { CurrentUser } from "@bookmemory/contracts";
+import { getCurrentUser } from "@/api";
 
 type CurrentUserState =
-  | { status: "loading" }
-  | { status: "signed_out" }
-  | { status: "error"; message: string }
-  | { status: "signed_in"; user: CurrentUserResponse };
+  | { status: "loading"; user?: undefined; message?: undefined }
+  | { status: "signed_out"; user?: undefined; message?: undefined }
+  | { status: "error"; user?: undefined; message: string }
+  | { status: "signed_in"; user: CurrentUser; message?: undefined };
 
-export function useCurrentUser(): CurrentUserState & {
-  user?: CurrentUserResponse;
-  message?: string;
-} {
-  const [userState, setUserState] = useState<CurrentUserState>({ status: "loading" });
+export function useCurrentUser(): CurrentUserState {
+  const [state, setState] = useState<CurrentUserState>({ status: "loading" });
 
-  // load the current user when on mount
   useEffect(() => {
-    let isMounted = true; // a flag to prevent updating state if the component unmounts
+    let isMounted = true;
 
-    // load the current user and set the user state
     async function loadCurrentUser(): Promise<void> {
       try {
-        const response = await httpRequest("/api/v1/users/me");
+        const user = await getCurrentUser();
         if (!isMounted) {
           return;
         }
 
-        if (response.status === 401) {
-          setUserState({ status: "signed_out" });
-          return;
-        }
-
-        if (!response.ok) {
-          setUserState({ status: "error", message: `Request failed: ${response.status}` });
-          return;
-        }
-
-        const user = (await response.json()) as CurrentUserResponse;
-        setUserState({ status: "signed_in", user });
-      } catch {
-        // ignore if unmounted
+        setState({ status: "signed_in", user });
+      } catch (error) {
         if (!isMounted) {
           return;
         }
 
-        // set the network error state
-        setUserState({
-          status: "error",
-          message: "Network error",
-        });
+        if (error instanceof Response && error.status === 401) {
+          setState({ status: "signed_out" });
+          return;
+        }
+
+        if (error instanceof Response) {
+          setState({ status: "error", message: `Request failed: ${error.status}` });
+          return;
+        }
+
+        setState({ status: "error", message: "Network error" });
       }
     }
-    void loadCurrentUser();
 
-    // cancel a request when the component unmounts
+    void loadCurrentUser();
     return () => {
       isMounted = false;
     };
   }, []);
 
-  return userState;
+  return state;
 }

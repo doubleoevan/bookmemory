@@ -1,4 +1,4 @@
-import { httpRequest } from "@/api/client";
+import { apiRequest } from "@/api/client";
 
 import { Link } from "react-router-dom";
 import {
@@ -18,6 +18,7 @@ import {
 import { CircleUserRoundIcon, LogOut } from "lucide-react";
 import { useCurrentUser } from "@/features/logins/hooks/useCurrentUser";
 import { useTheme } from "@/providers/theme";
+import { logoutApiV1AuthLogoutPost } from "@bookmemory/contracts";
 
 export default function UserMenu() {
   const { theme, setTheme } = useTheme();
@@ -32,9 +33,7 @@ export default function UserMenu() {
 
   const onLogout = async () => {
     try {
-      await httpRequest("/api/v1/auth/logout", {
-        method: "POST",
-      });
+      await apiRequest(logoutApiV1AuthLogoutPost);
     } finally {
       // simplest + safest for cookie auth: force a clean reload
       window.location.href = "/login";

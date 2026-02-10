@@ -2,6 +2,9 @@ import { defineConfig } from "@hey-api/openapi-ts";
 
 export default defineConfig({
   input: "./openapi/bookmemory.openapi.json",
-  output: "./src",
+  output: {
+    path: "./src/gen",
+    entryFile: false,
+  },
   client: "fetch",
 });
