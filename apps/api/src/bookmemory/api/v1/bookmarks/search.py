@@ -52,7 +52,7 @@ async def search_bookmarks(
     # validate the search
     search_text = payload.search.strip()
     if search_text == "":
-        raise HTTPException(status_code=422, detail="query is required")
+        raise HTTPException(status_code=422, detail="search is required")
 
     # ignore any tag filtering if the user provided no tags
     normalized_tags = normalize_tags(payload.tags)
@@ -167,7 +167,8 @@ async def search_bookmarks(
 
         search_responses.append(
             BookmarkSearchResponse(
-                bookmark=to_bookmark_response(related_bookmark),
+                **to_bookmark_response(related_bookmark).model_dump(),
+                search_mode="search",
                 snippet=build_snippet(row.chunk_text),
                 score=similarity_score,
                 chunk_id=row.chunk_id,

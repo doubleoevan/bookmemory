@@ -51,13 +51,13 @@ export type BookmarkPreviewRequest = {
  */
 export type BookmarkPreviewResponse = {
     /**
-     * Type
+     * Id
      */
-    type: string;
+    id: string;
     /**
-     * Url
+     * User Id
      */
-    url: string;
+    user_id: string;
     /**
      * Title
      */
@@ -65,11 +65,39 @@ export type BookmarkPreviewResponse = {
     /**
      * Description
      */
-    description?: string | null;
+    description: string | null;
+    /**
+     * Summary
+     */
+    summary: string | null;
+    /**
+     * Type
+     */
+    type: string;
+    /**
+     * Url
+     */
+    url: string | null;
+    /**
+     * Status
+     */
+    status: string;
     /**
      * Load Method
      */
-    load_method?: string | null;
+    load_method: string | null;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+    /**
+     * Tags
+     */
+    tags: Array<TagResponse>;
     /**
      * Preview Method
      */
@@ -160,11 +188,62 @@ export type BookmarkSearchRequest = {
  * BookmarkSearchResponse
  */
 export type BookmarkSearchResponse = {
-    bookmark: BookmarkResponse;
+    /**
+     * Id
+     */
+    id: string;
+    /**
+     * User Id
+     */
+    user_id: string;
+    /**
+     * Title
+     */
+    title: string;
+    /**
+     * Description
+     */
+    description: string | null;
+    /**
+     * Summary
+     */
+    summary: string | null;
+    /**
+     * Type
+     */
+    type: string;
+    /**
+     * Url
+     */
+    url: string | null;
+    /**
+     * Status
+     */
+    status: string;
+    /**
+     * Load Method
+     */
+    load_method: string | null;
+    /**
+     * Created At
+     */
+    created_at: string;
+    /**
+     * Updated At
+     */
+    updated_at: string;
+    /**
+     * Tags
+     */
+    tags: Array<TagResponse>;
+    /**
+     * Search Mode
+     */
+    search_mode: 'search' | 'related';
     /**
      * Snippet
      */
-    snippet: string;
+    snippet?: string | null;
     /**
      * Score
      */

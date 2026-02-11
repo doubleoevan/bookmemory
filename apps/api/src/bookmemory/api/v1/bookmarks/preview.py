@@ -1,10 +1,17 @@
 from __future__ import annotations
 
+from datetime import datetime, timezone
+from uuid import uuid4
+
 import anyio
 from fastapi import APIRouter, Depends, HTTPException
 
 from bookmemory.core.settings import settings
-from bookmemory.db.models.bookmark import LoadMethod, PreviewMethod
+from bookmemory.db.models.bookmark import (
+    Bookmark,
+    LoadMethod,
+    PreviewMethod,
+)
 from bookmemory.schemas.bookmarks import BookmarkPreviewRequest, BookmarkPreviewResponse
 from bookmemory.schemas.users import CurrentUser
 from bookmemory.services.auth.users import get_current_user
@@ -12,8 +19,6 @@ from bookmemory.services.ai.providers import get_ai_provider
 from bookmemory.services.extraction.content_extract import extract_content
 from bookmemory.services.extraction.http_fetch import FetchError
 from bookmemory.services.extraction.playwright_fetch import PlaywrightFetchError
-
-from bookmemory.db.models import Bookmark
 
 router = APIRouter()
 
@@ -74,6 +79,13 @@ async def preview_bookmark(
     # return the bookmark preview with a snippet of content for debugging
     content_preview = content[:MAXIMUM_PREVIEW_CHARS] if content else None
     return BookmarkPreviewResponse(
+        id=uuid4(),
+        user_id=current_user.id,
+        summary=None,
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc),
+        status="preview",
+        tags=[],
         type=payload.type,
         url=url,
         title=title,

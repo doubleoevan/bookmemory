@@ -1005,13 +1005,15 @@
       },
       "BookmarkPreviewResponse": {
         "properties": {
-          "type": {
+          "id": {
             "type": "string",
-            "title": "Type"
+            "format": "uuid",
+            "title": "Id"
           },
-          "url": {
+          "user_id": {
             "type": "string",
-            "title": "Url"
+            "format": "uuid",
+            "title": "User Id"
           },
           "title": {
             "type": "string",
@@ -1028,6 +1030,36 @@
             ],
             "title": "Description"
           },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
           "load_method": {
             "anyOf": [
               {
@@ -1038,6 +1070,23 @@
               }
             ],
             "title": "Load Method"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagResponse"
+            },
+            "type": "array",
+            "title": "Tags"
           },
           "preview_method": {
             "anyOf": [
@@ -1064,9 +1113,18 @@
         },
         "type": "object",
         "required": [
+          "id",
+          "user_id",
+          "title",
+          "description",
+          "summary",
           "type",
           "url",
-          "title"
+          "status",
+          "load_method",
+          "created_at",
+          "updated_at",
+          "tags"
         ],
         "title": "BookmarkPreviewResponse"
       },
@@ -1220,11 +1278,106 @@
       },
       "BookmarkSearchResponse": {
         "properties": {
-          "bookmark": {
-            "$ref": "#/components/schemas/BookmarkResponse"
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "User Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Description"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "load_method": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Load Method"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Updated At"
+          },
+          "tags": {
+            "items": {
+              "$ref": "#/components/schemas/TagResponse"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "search_mode": {
+            "type": "string",
+            "enum": [
+              "search",
+              "related"
+            ],
+            "title": "Search Mode"
           },
           "snippet": {
-            "type": "string",
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Snippet"
           },
           "score": {
@@ -1253,8 +1406,19 @@
         },
         "type": "object",
         "required": [
-          "bookmark",
-          "snippet"
+          "id",
+          "user_id",
+          "title",
+          "description",
+          "summary",
+          "type",
+          "url",
+          "status",
+          "load_method",
+          "created_at",
+          "updated_at",
+          "tags",
+          "search_mode"
         ],
         "title": "BookmarkSearchResponse"
       },

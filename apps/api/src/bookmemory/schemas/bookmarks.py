@@ -70,9 +70,9 @@ class BookmarkResponse(BaseModel):
     tags: List[TagResponse]
 
 
-class BookmarkSearchResponse(BaseModel):
-    bookmark: BookmarkResponse
-    snippet: str
+class BookmarkSearchResponse(BookmarkResponse):
+    search_mode: Literal["search", "related"]
+    snippet: str | None = None
     score: float | None = None  # only for semantic
     chunk_id: UUID | None = (
         None  # optional for debugging: the chunk embedding that matched a semantic query
@@ -84,12 +84,7 @@ class BookmarkPreviewRequest(BaseModel):
     url: str
 
 
-class BookmarkPreviewResponse(BaseModel):
-    type: str
-    url: str
-    title: str
-    description: str | None = None
-    load_method: str | None = None
+class BookmarkPreviewResponse(BookmarkResponse):
     preview_method: str | None = None
     content_preview: str | None = None  # sample of extracted text for debugging
 

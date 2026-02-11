@@ -1,15 +1,22 @@
 import { ReactNode, useCallback, useMemo, useReducer, useRef } from "react";
 
-import type {
+import {
+  BookmarkCreateRequest,
+  BookmarkPreviewRequest,
   BookmarkResponse,
   BookmarkSearchResponse,
+  BookmarkUpdateRequest,
   LimitOffsetPageBookmarkResponse,
 } from "@bookmemory/contracts";
 import {
+  createBookmark,
+  deleteBookmark,
   getBookmarks,
   GetBookmarksQuery,
   getRelatedBookmarks,
   GetRelatedBookmarksQuery,
+  previewBookmark,
+  updateBookmark,
 } from "@/api";
 import { BookmarksContext } from "@/features/bookmarks/providers/bookmark/BookmarksContext";
 
@@ -18,7 +25,8 @@ export type BookmarkState = {
   bookmarks: BookmarkResponse[];
   relatedBookmarks: BookmarkSearchResponse[];
   isLoading: boolean;
-  total: number;
+  userHasBookmarks: boolean;
+  total: number; // total bookmarks for the current query
   limit: number;
   offset: number;
 };
@@ -27,6 +35,7 @@ type BookmarkAction =
   | {
       type: "ADD_BOOKMARKS_PAGE";
       bookmarksPage: LimitOffsetPageBookmarkResponse;
+      setHasBookmarks?: boolean;
     }
   | { type: "SET_RELATED_BOOKMARKS"; relatedBookmarks: BookmarkSearchResponse[] }
   | { type: "SET_BOOKMARK"; bookmark: BookmarkResponse };
@@ -35,6 +44,7 @@ const initialState: BookmarkState = {
   bookmarks: [],
   relatedBookmarks: [],
   isLoading: false,
+  userHasBookmarks: false,
   total: 0,
   limit: 10,
   offset: 0,
@@ -47,6 +57,22 @@ function toPageQuery(query: GetBookmarksQuery = {}): string {
   });
 }
 
+function isQueryFiltered(query: GetBookmarksQuery = {}): boolean {
+  // check if the query has a search filter
+  const search = query?.search?.trim() ?? "";
+  const hasSearchFilter = search.length > 0;
+
+  // check if the query has tags filter
+  const tags = query?.tag ?? [];
+  const tagMode = query?.tag_mode;
+  const hasTagsFilter = tags.length > 0 && tagMode !== "ignore";
+
+  // check if the query has an offset filter
+  const offset = query?.offset;
+  const hasOffsetFilter = offset !== undefined && offset > 0;
+  return hasSearchFilter || hasTagsFilter || hasOffsetFilter;
+}
+
 function bookmarkReducer(state: BookmarkState, action: BookmarkAction): BookmarkState {
   switch (action.type) {
     case "SET_IS_LOADING": {
@@ -54,12 +80,13 @@ function bookmarkReducer(state: BookmarkState, action: BookmarkAction): Bookmark
     }
 
     case "ADD_BOOKMARKS_PAGE": {
-      // add a new page to the list of bookmarks
+      // replace the first page or add a new page to the list of bookmarks
       const { items, total, limit, offset } = action.bookmarksPage;
-      const bookmarks = [...state.bookmarks, ...items];
+      const bookmarks = offset === 0 ? items : [...state.bookmarks, ...items];
       return {
         ...state,
         bookmarks,
+        userHasBookmarks: action.setHasBookmarks ? total > 0 : state.userHasBookmarks,
         total,
         limit,
         offset: offset + items.length,
@@ -90,6 +117,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       tag_mode?: "any" | "all" | "ignore";
       sort?: "alphabetical" | "recent";
       limit?: number;
+      offset?: number;
     }) => {
       // set the limit and offset for pagination
       const query = {
@@ -98,7 +126,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
         tag_mode: params?.tag_mode,
         sort: params?.sort,
         limit: params?.limit || state.limit,
-        offset: state.offset,
+        offset: params?.offset ?? state.offset,
       } satisfies GetBookmarksQuery;
 
       // prevent duplicate page requests
@@ -108,11 +136,14 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       }
       pageQueriesRef.current.add(pageQuery);
 
+      // update the has bookmarks flag if the query is not filtered
+      const setHasBookmarks = !isQueryFiltered(query);
+
       // add the bookmarks page
       try {
         dispatch({ type: "SET_IS_LOADING", isLoading: true });
         const bookmarksPage = await getBookmarks(query);
-        dispatch({ type: "ADD_BOOKMARKS_PAGE", bookmarksPage });
+        dispatch({ type: "ADD_BOOKMARKS_PAGE", bookmarksPage, setHasBookmarks });
       } finally {
         dispatch({ type: "SET_IS_LOADING", isLoading: false });
         pageQueriesRef.current.delete(pageQuery);
@@ -129,7 +160,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
         limit: params.limit,
       } satisfies GetRelatedBookmarksQuery;
 
-      // add the related bookmarks
+      // set the related bookmarks
       try {
         dispatch({ type: "SET_IS_LOADING", isLoading: true });
         const relatedBookmarks = await getRelatedBookmarks(params.bookmarkId, query);
@@ -141,6 +172,113 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const addBookmark = useCallback(
+    async (params: {
+      title: string;
+      description: string;
+      url?: string | null;
+      type?: "link" | "note" | "file";
+      tags?: string[];
+    }): Promise<BookmarkResponse> => {
+      // convert the params to a POST body
+      const body = {
+        title: params.title,
+        description: params.description,
+        url: params.url,
+        type: params.type,
+        tags: params.tags,
+      } satisfies BookmarkCreateRequest;
+
+      // add the new bookmark
+      try {
+        dispatch({ type: "SET_IS_LOADING", isLoading: true });
+        const bookmark = await createBookmark(body);
+        dispatch({ type: "SET_BOOKMARK", bookmark });
+        return bookmark;
+      } finally {
+        // clear the loading flag and refresh the bookmarks list
+        dispatch({ type: "SET_IS_LOADING", isLoading: false });
+        pageQueriesRef.current.clear();
+        void getBookmarksPage({ offset: 0 });
+      }
+    },
+    [getBookmarksPage],
+  );
+
+  const getBookmarkPreview = useCallback(
+    async (params: { url: string; type?: "link" | "note" | "file" }): Promise<BookmarkResponse> => {
+      // convert the params to a POST body
+      const body = {
+        url: params.url,
+        type: params.type,
+      } satisfies BookmarkPreviewRequest;
+
+      // add the new bookmark
+      try {
+        dispatch({ type: "SET_IS_LOADING", isLoading: true });
+        const bookmark = await previewBookmark(body);
+        dispatch({ type: "SET_BOOKMARK", bookmark });
+        return bookmark;
+      } finally {
+        // clear the loading flag
+        dispatch({ type: "SET_IS_LOADING", isLoading: false });
+      }
+    },
+    [],
+  );
+
+  const saveBookmark = useCallback(
+    async (
+      bookmarkId: string,
+      params: {
+        title?: string | null;
+        url?: string | null;
+        description?: string | null;
+        summary?: string | null;
+        tags?: string[] | null;
+      },
+    ): Promise<BookmarkResponse> => {
+      // convert the params to a PATCH body
+      const body = {
+        title: params.title,
+        url: params.url,
+        description: params.description,
+        summary: params.summary,
+        tags: params.tags,
+      } satisfies BookmarkUpdateRequest;
+
+      // update the bookmark
+      try {
+        dispatch({ type: "SET_IS_LOADING", isLoading: true });
+        const bookmark = await updateBookmark(bookmarkId, body);
+        dispatch({ type: "SET_BOOKMARK", bookmark });
+        return bookmark;
+      } finally {
+        // clear the loading flag and refresh the bookmarks list
+        dispatch({ type: "SET_IS_LOADING", isLoading: false });
+        pageQueriesRef.current.clear();
+        void getBookmarksPage({ offset: 0 });
+      }
+    },
+    [getBookmarksPage],
+  );
+
+  const removeBookmark = useCallback(
+    async (bookmarkId: string): Promise<BookmarkResponse> => {
+      // remove the bookmark
+      try {
+        dispatch({ type: "SET_IS_LOADING", isLoading: true });
+        return await deleteBookmark(bookmarkId);
+      } finally {
+        // clear the loading flag and refresh the bookmarks list
+        dispatch({ type: "SET_IS_LOADING", isLoading: false });
+        pageQueriesRef.current.clear();
+        void getBookmarksPage({ offset: 0 });
+      }
+    },
+    [getBookmarksPage],
+  );
+
   const setBookmark = useCallback((bookmark: BookmarkResponse) => {
     dispatch({ type: "SET_BOOKMARK", bookmark });
   }, []);
@@ -148,12 +286,25 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
   // memoize context to avoid rerendering consumers
   const value = useMemo(
     () => ({
+      previewBookmark: getBookmarkPreview,
+      addBookmark,
+      saveBookmark,
+      removeBookmark,
       getBookmarksPage,
       addRelatedBookmarks,
       setBookmark,
       ...state,
     }),
-    [getBookmarksPage, addRelatedBookmarks, setBookmark, state],
+    [
+      getBookmarkPreview,
+      addBookmark,
+      saveBookmark,
+      removeBookmark,
+      getBookmarksPage,
+      addRelatedBookmarks,
+      setBookmark,
+      state,
+    ],
   );
   return <BookmarksContext.Provider value={value}>{children}</BookmarksContext.Provider>;
 }

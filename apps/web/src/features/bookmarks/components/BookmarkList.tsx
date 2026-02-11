@@ -5,11 +5,12 @@ import { BookmarkResponse } from "@bookmemory/contracts";
 import { Loader } from "@/components/Loader";
 
 interface BookmarkListProps {
-  onBookmarkClick?: () => void;
+  onAddBookmarkClick: () => void;
+  onBookmarkClick: () => void;
 }
 
-export function BookmarkList({ onBookmarkClick }: BookmarkListProps) {
-  const { getBookmarksPage, isLoading, bookmarks, total } = useBookmarks();
+export function BookmarkList({ onAddBookmarkClick, onBookmarkClick }: BookmarkListProps) {
+  const { userHasBookmarks, getBookmarksPage, isLoading, bookmarks, total } = useBookmarks();
 
   // load initial bookmarks on mount
   useEffect(() => {
@@ -46,8 +47,25 @@ export function BookmarkList({ onBookmarkClick }: BookmarkListProps) {
   }, [getBookmarksPage, isLoading, hasMoreBookmarks]);
 
   // show the loader while loading initial bookmarks
-  if (isLoading && !bookmarks.length) {
+  if (isLoading && !userHasBookmarks) {
     return <Loader className="w-[10vh] h-[10vh]" />;
+  }
+
+  // show a prompt if the user has no bookmarks yet
+  if (!isLoading && !userHasBookmarks) {
+    return (
+      <h1
+        className="
+          flex flex-col
+          items-center justify-center
+          text-2xl text-muted-foreground
+          cursor-pointer
+        "
+        onClick={onAddBookmarkClick}
+      >
+        Add a bookmark to get started.
+      </h1>
+    );
   }
 
   // show the bookmarks list

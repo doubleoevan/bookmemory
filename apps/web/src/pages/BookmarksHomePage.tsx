@@ -19,12 +19,15 @@ export function BookmarksHomePage() {
   return (
     <div className="mx-auto w-full max-w-4xl p-4">
       <BookmarkSearch onAddBookmarkClick={openAddBookmarkModal} />
-      <BookmarkList onBookmarkClick={openViewBookmarkModal} />
+      <BookmarkList
+        onAddBookmarkClick={openAddBookmarkModal}
+        onBookmarkClick={openViewBookmarkModal}
+      />
 
       {/* Bookmark Modals */}
       <SummaryProvider>
         {modalType === "addBookmark" ? (
-          <AddBookmarkModal onClose={onCloseModal} />
+          <AddBookmarkModal onClose={onCloseModal} onEdit={openEditBookmarkModal} />
         ) : modalType === "editBookmark" ? (
           <EditBookmarkModal onClose={onCloseModal} onView={openViewBookmarkModal} />
         ) : modalType === "viewBookmark" ? (

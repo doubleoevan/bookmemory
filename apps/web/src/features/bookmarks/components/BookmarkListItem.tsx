@@ -22,7 +22,7 @@ export function BookmarkListItem({
       className="
         p-4
         rounded-md
-        hover:bg-accent/50 hover:border-input
+        hover:bg-accent hover:border-input
         cursor-pointer
         leading-relaxed
       "

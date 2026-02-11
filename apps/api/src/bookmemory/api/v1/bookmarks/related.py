@@ -161,7 +161,8 @@ async def get_related_bookmarks(
         # add the related bookmark to the search results
         related_bookmark_responses.append(
             BookmarkSearchResponse(
-                bookmark=to_bookmark_response(related_bookmark),
+                **to_bookmark_response(related_bookmark).model_dump(),
+                search_mode="related",
                 snippet=snippet,
                 score=similarity_score,
                 chunk_id=related_chunk.chunk_id,

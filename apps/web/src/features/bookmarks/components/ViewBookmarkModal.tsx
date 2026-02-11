@@ -14,7 +14,7 @@ import { Loader } from "@/components/Loader";
 import { useBookmarks } from "@/features/bookmarks/providers/bookmark";
 
 interface ViewBookmarkModalProps {
-  onClose?: () => void;
+  onClose: () => void;
   onEdit: () => void;
 }
 
@@ -52,7 +52,7 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
       open
       onOpenChange={(isOpening) => {
         if (!isOpening) {
-          onClose?.();
+          onClose();
         }
       }}
     >
@@ -111,11 +111,11 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
           <ul>
             {relatedBookmarks.map((relatedBookmark) => (
               <li
-                key={relatedBookmark.bookmark.id}
+                key={relatedBookmark.id}
                 className="underline cursor-pointer"
-                onClick={() => setBookmark(relatedBookmark.bookmark)}
+                onClick={() => setBookmark(relatedBookmark)}
               >
-                {relatedBookmark.bookmark.title}
+                {relatedBookmark.title}
               </li>
             ))}
           </ul>

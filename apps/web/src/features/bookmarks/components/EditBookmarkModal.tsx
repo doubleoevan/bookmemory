@@ -11,7 +11,7 @@ import { ExternalLink } from "@/components/ExternalLink";
 import { useBookmarks } from "@/features/bookmarks/providers/bookmark";
 
 interface EditBookmarkModalProps {
-  onClose?: () => void;
+  onClose: () => void;
   onView: () => void;
 }
 
@@ -23,7 +23,7 @@ export function EditBookmarkModal({ onClose, onView }: EditBookmarkModalProps) {
       open
       onOpenChange={(isOpening) => {
         if (!isOpening) {
-          onClose?.();
+          onClose();
         }
       }}
     >
