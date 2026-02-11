@@ -46,7 +46,12 @@ export default function UserMenu() {
         <Button variant="ghost" size="icon" aria-label="User Menu" className="rounded-full">
           {user?.picture_url ? (
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user.picture_url} alt={user.name ?? "User"} />
+              <AvatarImage
+                src={user.picture_url}
+                alt={user.name ?? "User"}
+                loading="lazy"
+                decoding="async"
+              />
               <AvatarFallback>
                 <CircleUserRoundIcon className="h-8 w-8" />
               </AvatarFallback>
