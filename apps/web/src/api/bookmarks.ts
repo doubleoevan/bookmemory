@@ -1,4 +1,4 @@
-import type {
+import {
   BookmarkCreateRequest,
   BookmarkPreviewRequest,
   BookmarkPreviewResponse,
@@ -6,14 +6,14 @@ import type {
   BookmarkSearchRequest,
   BookmarkSearchResponse,
   BookmarkUpdateRequest,
-  LimitOffsetPageBookmarkResponse,
-} from "@bookmemory/contracts";
-import {
   createBookmarkApiV1BookmarksPost,
   deleteBookmarkApiV1BookmarksBookmarkIdDelete,
   getBookmarkApiV1BookmarksBookmarkIdGet,
   getBookmarksApiV1BookmarksGet,
+  GetBookmarksApiV1BookmarksGetData,
   getRelatedBookmarksApiV1BookmarksBookmarkIdRelatedGet,
+  GetRelatedBookmarksApiV1BookmarksBookmarkIdRelatedGetData,
+  LimitOffsetPageBookmarkResponse,
   loadBookmarkApiV1BookmarksBookmarkIdLoadPost,
   previewBookmarkApiV1BookmarksPreviewPost,
   searchBookmarksApiV1BookmarksSearchPost,
@@ -45,21 +45,17 @@ export async function createBookmark(body: BookmarkCreateRequest): Promise<Bookm
  * GET /api/v1/bookmarks/
  *
  * Supports query params:
- * - query?: string | null
+ * - search?: string | null
  * - tag?: string[]
  * - tag_mode?: "any" | "all" | "ignore"
  * - sort?: "alphabetical" | "recent"
  * - limit?: number
  * - offset?: number
  */
-export async function getBookmarks(query?: {
-  query?: string | null;
-  tag?: Array<string>;
-  tag_mode?: "any" | "all" | "ignore";
-  sort?: "alphabetical" | "recent";
-  limit?: number;
-  offset?: number;
-}): Promise<LimitOffsetPageBookmarkResponse> {
+export type GetBookmarksQuery = GetBookmarksApiV1BookmarksGetData["query"];
+export async function getBookmarks(
+  query?: GetBookmarksQuery,
+): Promise<LimitOffsetPageBookmarkResponse> {
   return apiRequest<LimitOffsetPageBookmarkResponse>(getBookmarksApiV1BookmarksGet, {
     query,
   });
@@ -123,13 +119,16 @@ export async function loadBookmark(bookmarkId: string): Promise<BookmarkResponse
 
 /**
  * GET /api/v1/bookmarks/{bookmark_id}/related
+ *
+ * Supports query params:
+ * - tag_mode?: "any" | "all" | "ignore"
+ * - limit?: number
  */
+export type GetRelatedBookmarksQuery =
+  GetRelatedBookmarksApiV1BookmarksBookmarkIdRelatedGetData["query"];
 export async function getRelatedBookmarks(
   bookmarkId: string,
-  query?: {
-    tag_mode?: "any" | "all" | "ignore";
-    limit?: number;
-  },
+  query?: GetRelatedBookmarksQuery,
 ): Promise<Array<BookmarkSearchResponse>> {
   if (!bookmarkId) {
     throw new Error("bookmarkId is required");

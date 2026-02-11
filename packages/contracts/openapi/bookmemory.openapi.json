@@ -310,7 +310,7 @@
         "operationId": "get_bookmarks_api_v1_bookmarks__get",
         "parameters": [
           {
-            "name": "query",
+            "name": "search",
             "in": "query",
             "required": false,
             "schema": {
@@ -322,7 +322,7 @@
                   "type": "null"
                 }
               ],
-              "title": "Query"
+              "title": "Search"
             }
           },
           {
@@ -1175,10 +1175,10 @@
       },
       "BookmarkSearchRequest": {
         "properties": {
-          "query": {
+          "search": {
             "type": "string",
             "minLength": 1,
-            "title": "Query"
+            "title": "Search"
           },
           "limit": {
             "type": "integer",
@@ -1214,7 +1214,7 @@
         },
         "type": "object",
         "required": [
-          "query"
+          "search"
         ],
         "title": "BookmarkSearchRequest"
       },

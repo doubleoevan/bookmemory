@@ -139,9 +139,9 @@ export type BookmarkResponse = {
  */
 export type BookmarkSearchRequest = {
     /**
-     * Query
+     * Search
      */
-    query: string;
+    search: string;
     /**
      * Limit
      */
@@ -458,9 +458,9 @@ export type GetBookmarksApiV1BookmarksGetData = {
     path?: never;
     query?: {
         /**
-         * Query
+         * Search
          */
-        query?: string | null;
+        search?: string | null;
         /**
          * Tag
          */

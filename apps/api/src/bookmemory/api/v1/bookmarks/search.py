@@ -28,7 +28,7 @@ MINIMUM_SIMILARITY_SCORE = 0.25  # any similarity score lower than this will be 
 
 
 class BookmarkSearchRequest(BaseModel):
-    query: str = Field(min_length=1)
+    search: str = Field(min_length=1)
     limit: int = Field(default=20, ge=1, le=50)
 
     # v1: allow multi-tag request shape even if UI only uses 0–1 tags today
@@ -49,9 +49,9 @@ async def search_bookmarks(
     session: AsyncSession = Depends(get_db),
     current_user: CurrentUser = Depends(get_current_user),
 ) -> list[BookmarkSearchResponse]:
-    # validate the query
-    query_text = payload.query.strip()
-    if query_text == "":
+    # validate the search
+    search_text = payload.search.strip()
+    if search_text == "":
         raise HTTPException(status_code=422, detail="query is required")
 
     # ignore any tag filtering if the user provided no tags
@@ -62,7 +62,7 @@ async def search_bookmarks(
 
     # search bookmark chunks by distance to the query embedding
     user_id: UUID = current_user.id
-    query_embedding = (await embed_chunks([query_text]))[0]  # embed the query text
+    query_embedding = (await embed_chunks([search_text]))[0]  # embed the query text
     chunk_distance = BookmarkChunk.embedding.cosine_distance(query_embedding)
     select_related_chunks_statement = (
         select(

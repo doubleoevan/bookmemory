@@ -49,14 +49,14 @@ def _bookmark_search_vector() -> sa.ColumnElement[str]:
 async def get_bookmarks(
     session: AsyncSession = Depends(get_db),
     current_user: CurrentUser = Depends(get_current_user),
-    query: Optional[str] = Query(default=None),
+    search: Optional[str] = Query(default=None),
     tags: list[str] = Query(default_factory=list, alias="tag"),
     tag_mode: TagMode = Query(default="ignore"),
     sort: Literal["alphabetical", "recent"] = Query(default="recent"),
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
 ) -> LimitOffsetPage[BookmarkResponse]:
-    # query bookmarks by user
+    # filter bookmarks by user
     user_id: UUID = current_user.id
     select_bookmarks_statement = (
         select(Bookmark)
@@ -64,12 +64,12 @@ async def get_bookmarks(
         .options(selectinload(Bookmark.tags))
     )
 
-    # apply the text search
+    # apply the keyword text search
     rank_search_result_expression = None
-    query_text = query.strip() if query else ""
-    has_query = query_text != ""
+    search_text = search.strip() if search else ""
+    has_query = search_text != ""
     if has_query:
-        text_search_query = func.websearch_to_tsquery("english", query_text)
+        text_search_query = func.websearch_to_tsquery("english", search_text)
         text_search_vector = _bookmark_search_vector()
         rank_search_result_expression = func.ts_rank_cd(
             text_search_vector, text_search_query

@@ -1,3 +1,3 @@
-export type { BookmarkContextValue } from "./BookmarkContext";
-export { useBookmark } from "./useBookmark";
-export { BookmarkProvider } from "./BookmarkProvider";
+export type { BookmarkContextValue } from "./BookmarksContext";
+export { useBookmarks } from "./useBookmarks";
+export { BookmarksProvider } from "./BookmarksProvider";
