@@ -3,6 +3,7 @@ import { ReactNode, useCallback, useMemo, useReducer, useRef } from "react";
 import {
   BookmarkCreateRequest,
   BookmarkPreviewRequest,
+  BookmarkPreviewResponse,
   BookmarkResponse,
   BookmarkSearchResponse,
   BookmarkUpdateRequest,
@@ -21,7 +22,7 @@ import {
 import { BookmarksContext } from "@/features/bookmarks/providers/bookmark/BookmarksContext";
 
 export type BookmarkState = {
-  bookmark?: BookmarkResponse;
+  bookmark?: BookmarkPreviewResponse;
   bookmarks: BookmarkResponse[];
   relatedBookmarks: BookmarkSearchResponse[];
   isLoading: boolean;
@@ -210,7 +211,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       // convert the params to a POST body
       const body = {
         url: params.url,
-        type: params.type,
+        type: params.type ?? "link",
       } satisfies BookmarkPreviewRequest;
 
       // add the new bookmark

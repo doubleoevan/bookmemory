@@ -57,8 +57,12 @@ export function EditBookmarkModal({ onClose, onView }: EditBookmarkModalProps) {
         </h1>
         <h2 className="flex justify-center text-muted-foreground">Description</h2>
         <p>{bookmark?.description}</p>
-        <h2 className="flex justify-center text-muted-foreground">Summary</h2>
-        <p>{bookmark?.summary}</p>
+        {!bookmark?.preview_method && (
+          <>
+            <h2 className="flex justify-center text-muted-foreground">Summary</h2>
+            <p>{bookmark?.summary}</p>
+          </>
+        )}
         <div className="flex flex-wrap gap-2">
           <span className="text-muted-foreground">Tags:</span>
           {bookmark?.tags?.map((tag) => (
