@@ -1272,6 +1272,17 @@
             ],
             "title": "Title"
           },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Url"
+          },
           "description": {
             "anyOf": [
               {
@@ -1283,7 +1294,7 @@
             ],
             "title": "Description"
           },
-          "url": {
+          "summary": {
             "anyOf": [
               {
                 "type": "string"
@@ -1292,7 +1303,7 @@
                 "type": "null"
               }
             ],
-            "title": "Url"
+            "title": "Summary"
           },
           "tags": {
             "anyOf": [

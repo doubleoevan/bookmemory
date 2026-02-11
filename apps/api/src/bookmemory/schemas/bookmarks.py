@@ -96,6 +96,7 @@ class BookmarkPreviewResponse(BaseModel):
 
 class BookmarkUpdateRequest(BaseModel):
     title: Optional[str] = Field(default=None, max_length=512)
-    description: Optional[str] = None
     url: Optional[str] = None
+    description: Optional[str] = None
+    summary: Optional[str] = None
     tags: Optional[List[str]] = None

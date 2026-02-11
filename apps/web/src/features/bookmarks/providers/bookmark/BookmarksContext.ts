@@ -10,6 +10,13 @@ export type BookmarkContextValue = BookmarkState & {
     sort?: "alphabetical" | "recent";
     limit?: number;
   }) => Promise<void>;
+
+  addRelatedBookmarks: (params: {
+    bookmarkId: string;
+    tag_mode?: "any" | "all" | "ignore";
+    limit?: number;
+  }) => Promise<void>;
+
   setBookmark: (bookmark: BookmarkResponse) => void;
 };
 

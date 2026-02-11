@@ -61,6 +61,13 @@ async def update_bookmark(
             raise HTTPException(status_code=422, detail="description is required")
         bookmark.description = description
 
+    # update summary if provided
+    if "summary" in update_fields:
+        summary = (update_fields.pop("summary") or "").strip()
+        if summary == "":
+            raise HTTPException(status_code=422, detail="summary is required")
+        bookmark.summary = summary
+
     # update url if provided and enforce rules
     if "url" in update_fields:
         url = (update_fields.pop("url") or "").strip()

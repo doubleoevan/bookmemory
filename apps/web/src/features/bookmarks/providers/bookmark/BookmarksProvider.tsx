@@ -1,12 +1,22 @@
 import { ReactNode, useCallback, useMemo, useReducer, useRef } from "react";
 
-import type { BookmarkResponse, LimitOffsetPageBookmarkResponse } from "@bookmemory/contracts";
-import { getBookmarks, GetBookmarksQuery } from "@/api";
+import type {
+  BookmarkResponse,
+  BookmarkSearchResponse,
+  LimitOffsetPageBookmarkResponse,
+} from "@bookmemory/contracts";
+import {
+  getBookmarks,
+  GetBookmarksQuery,
+  getRelatedBookmarks,
+  GetRelatedBookmarksQuery,
+} from "@/api";
 import { BookmarksContext } from "@/features/bookmarks/providers/bookmark/BookmarksContext";
 
 export type BookmarkState = {
   bookmark?: BookmarkResponse;
   bookmarks: BookmarkResponse[];
+  relatedBookmarks: BookmarkSearchResponse[];
   isLoading: boolean;
   total: number;
   limit: number;
@@ -18,10 +28,12 @@ type BookmarkAction =
       type: "ADD_BOOKMARKS_PAGE";
       bookmarksPage: LimitOffsetPageBookmarkResponse;
     }
+  | { type: "SET_RELATED_BOOKMARKS"; relatedBookmarks: BookmarkSearchResponse[] }
   | { type: "SET_BOOKMARK"; bookmark: BookmarkResponse };
 
 const initialState: BookmarkState = {
   bookmarks: [],
+  relatedBookmarks: [],
   isLoading: false,
   total: 0,
   limit: 10,
@@ -52,6 +64,10 @@ function bookmarkReducer(state: BookmarkState, action: BookmarkAction): Bookmark
         limit,
         offset: offset + items.length,
       };
+    }
+
+    case "SET_RELATED_BOOKMARKS": {
+      return { ...state, relatedBookmarks: action.relatedBookmarks };
     }
 
     case "SET_BOOKMARK": {
@@ -105,6 +121,26 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     [state.limit, state.offset],
   );
 
+  const addRelatedBookmarks = useCallback(
+    async (params: { bookmarkId: string; tag_mode?: "any" | "all" | "ignore"; limit?: number }) => {
+      // convert the params to a query object
+      const query = {
+        tag_mode: params.tag_mode,
+        limit: params.limit,
+      } satisfies GetRelatedBookmarksQuery;
+
+      // add the related bookmarks
+      try {
+        dispatch({ type: "SET_IS_LOADING", isLoading: true });
+        const relatedBookmarks = await getRelatedBookmarks(params.bookmarkId, query);
+        dispatch({ type: "SET_RELATED_BOOKMARKS", relatedBookmarks });
+      } finally {
+        dispatch({ type: "SET_IS_LOADING", isLoading: false });
+      }
+    },
+    [],
+  );
+
   const setBookmark = useCallback((bookmark: BookmarkResponse) => {
     dispatch({ type: "SET_BOOKMARK", bookmark });
   }, []);
@@ -113,10 +149,11 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
   const value = useMemo(
     () => ({
       getBookmarksPage,
+      addRelatedBookmarks,
       setBookmark,
       ...state,
     }),
-    [getBookmarksPage, setBookmark, state],
+    [getBookmarksPage, addRelatedBookmarks, setBookmark, state],
   );
   return <BookmarksContext.Provider value={value}>{children}</BookmarksContext.Provider>;
 }

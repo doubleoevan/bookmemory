@@ -184,13 +184,17 @@ export type BookmarkUpdateRequest = {
      */
     title?: string | null;
     /**
+     * Url
+     */
+    url?: string | null;
+    /**
      * Description
      */
     description?: string | null;
     /**
-     * Url
+     * Summary
      */
-    url?: string | null;
+    summary?: string | null;
     /**
      * Tags
      */

@@ -2,10 +2,18 @@ import { ReactNode, useCallback, useMemo, useReducer } from "react";
 
 import { SummaryContext } from "@/features/bookmarks/providers/summary/SummaryContext";
 
-export type SummaryState = { summary: string };
-type SummaryAction = { type: "SET_SUMMARY"; summary: string };
+export type SummaryState = {
+  isLoading: boolean;
+  summary: string;
+};
+type SummaryAction =
+  | { type: "SET_IS_LOADING"; isLoading: boolean }
+  | { type: "SET_SUMMARY"; summary: string };
 
-const initialState: SummaryState = { summary: "" };
+const initialState: SummaryState = {
+  isLoading: false,
+  summary: "",
+};
 
 function summaryReducer(state: SummaryState, action: SummaryAction): SummaryState {
   switch (action.type) {
@@ -27,9 +35,14 @@ export function SummaryProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const startSummary = useCallback((bookmarkId: string) => {
-    // clear the bookmark summary before regenerating
-    console.log(`TODO: start summary for bookmark ${bookmarkId}`);
+    // clear the current summary before regenerating
     dispatch({ type: "SET_SUMMARY", summary: "" });
+    dispatch({ type: "SET_IS_LOADING", isLoading: true });
+    try {
+      console.log(`TODO: start summary for bookmark ${bookmarkId}`);
+    } finally {
+      dispatch({ type: "SET_IS_LOADING", isLoading: false });
+    }
   }, []);
 
   const stopSummary = useCallback(() => {}, []);

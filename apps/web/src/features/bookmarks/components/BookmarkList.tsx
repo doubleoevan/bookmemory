@@ -4,7 +4,11 @@ import { useEffect, useRef } from "react";
 import { BookmarkResponse } from "@bookmemory/contracts";
 import { Loader } from "@/components/Loader";
 
-export function BookmarkList() {
+interface BookmarkListProps {
+  onBookmarkClick?: () => void;
+}
+
+export function BookmarkList({ onBookmarkClick }: BookmarkListProps) {
   const { getBookmarksPage, isLoading, bookmarks, total } = useBookmarks();
 
   // load initial bookmarks on mount
@@ -48,11 +52,11 @@ export function BookmarkList() {
 
   // show the bookmarks list
   return (
-    <section ref={scrollAreaRef} aria-label="Saved bookmarks" className="h-[80vh] overflow-y-auto">
-      <ul className="divide-y divide-border">
+    <section ref={scrollAreaRef} aria-label="Saved bookmarks" className="h-[75vh] overflow-y-auto">
+      <ul className=" ">
         {bookmarks.map((bookmark: BookmarkResponse) => (
-          <li key={bookmark.id}>
-            <BookmarkListItem bookmark={bookmark} />
+          <li key={bookmark.id} className="py-2">
+            <BookmarkListItem bookmark={bookmark} onBookmarkClick={onBookmarkClick} />
           </li>
         ))}
 
