@@ -1,5 +1,5 @@
 import { createContext } from "react";
-import { BookmarkState } from "@/features/bookmarks/providers/bookmark/BookmarksProvider";
+import { BookmarkState, Sort } from "@/features/bookmarks/providers/bookmark/BookmarksProvider";
 import { BookmarkResponse } from "@bookmemory/contracts";
 
 export type BookmarkContextValue = BookmarkState & {
@@ -33,8 +33,9 @@ export type BookmarkContextValue = BookmarkState & {
     search?: string | null;
     tag?: string[];
     tag_mode?: "any" | "all" | "ignore";
-    sort?: "alphabetical" | "recent";
+    sort?: Sort;
     limit?: number;
+    offset?: number;
   }) => Promise<void>;
 
   addRelatedBookmarks: (params: {
@@ -44,6 +45,7 @@ export type BookmarkContextValue = BookmarkState & {
   }) => Promise<void>;
 
   setBookmark: (bookmark: BookmarkResponse) => void;
+  setSort: (sort: Sort) => void;
 };
 
 export const BookmarksContext = createContext<BookmarkContextValue | null>(null);

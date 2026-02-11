@@ -1,7 +1,16 @@
 import { useState } from "react";
 import { Search, X } from "lucide-react";
-import { Button, Textarea } from "@bookmemory/ui";
+import {
+  Button,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Textarea,
+} from "@bookmemory/ui";
 import { useBookmarks } from "@/features/bookmarks/providers/bookmark";
+import { Sort } from "@/features/bookmarks/providers/bookmark/BookmarksProvider";
 
 interface BookmarkSearchProps {
   onAddBookmarkClick: () => void;
@@ -9,7 +18,19 @@ interface BookmarkSearchProps {
 
 export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
   const [search, setSearch] = useState("");
-  const { userHasBookmarks, isLoading } = useBookmarks();
+  const { userHasBookmarks, isLoading, sort, setSort, getBookmarksPage } = useBookmarks();
+
+  // reload the list when the sort changes
+  const onSort = (sortValue: Sort) => {
+    setSort(sortValue);
+    void getBookmarksPage({
+      search,
+      sort: sortValue,
+      offset: 0,
+      // tag, tag_mode
+    });
+  };
+
   return (
     <div>
       {userHasBookmarks && (
@@ -73,8 +94,31 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
         </form>
       )}
       <div className="flex items-center justify-between p-4">
+        {/* tags multiselect */}
         {userHasBookmarks ? <div>Tags Multiselect</div> : <div />}
-        {userHasBookmarks ? <div>Sort Dropdown</div> : <div />}
+
+        {/* sort select */}
+        {userHasBookmarks && !search?.trim() ? (
+          <div className="flex items-center gap-2">
+            Sort by:
+            <Select value={sort} onValueChange={onSort}>
+              <SelectTrigger className="w-fit cursor-pointer">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem className="cursor-pointer" value="recent">
+                  Recent
+                </SelectItem>
+                <SelectItem className="cursor-pointer" value="alphabetical">
+                  Alphabetical
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        ) : (
+          <div />
+        )}
+        {/* add bookmark button */}
         <Button onClick={onAddBookmarkClick}>Add Bookmark</Button>
       </div>
     </div>

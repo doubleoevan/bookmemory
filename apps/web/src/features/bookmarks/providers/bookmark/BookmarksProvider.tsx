@@ -21,6 +21,7 @@ import {
 } from "@/api";
 import { BookmarksContext } from "@/features/bookmarks/providers/bookmark/BookmarksContext";
 
+export type Sort = "alphabetical" | "recent";
 export type BookmarkState = {
   bookmark?: BookmarkPreviewResponse;
   bookmarks: BookmarkResponse[];
@@ -30,9 +31,11 @@ export type BookmarkState = {
   total: number; // total bookmarks for the current query
   limit: number;
   offset: number;
+  sort: Sort;
 };
 type BookmarkAction =
   | { type: "SET_IS_LOADING"; isLoading: boolean }
+  | { type: "SET_SORT"; sort: Sort }
   | {
       type: "ADD_BOOKMARKS_PAGE";
       bookmarksPage: LimitOffsetPageBookmarkResponse;
@@ -49,6 +52,7 @@ const initialState: BookmarkState = {
   total: 0,
   limit: 10,
   offset: 0,
+  sort: "recent",
 };
 
 function toPageQuery(query: GetBookmarksQuery = {}): string {
@@ -102,6 +106,10 @@ function bookmarkReducer(state: BookmarkState, action: BookmarkAction): Bookmark
       return { ...state, bookmark: action.bookmark };
     }
 
+    case "SET_SORT": {
+      return { ...state, sort: action.sort };
+    }
+
     default:
       return state;
   }
@@ -116,7 +124,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       search?: string | null;
       tag?: string[];
       tag_mode?: "any" | "all" | "ignore";
-      sort?: "alphabetical" | "recent";
+      sort?: Sort;
       limit?: number;
       offset?: number;
     }) => {
@@ -125,7 +133,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
         search: params?.search,
         tag: params?.tag,
         tag_mode: params?.tag_mode,
-        sort: params?.sort,
+        sort: params?.sort ?? state.sort,
         limit: params?.limit || state.limit,
         offset: params?.offset ?? state.offset,
       } satisfies GetBookmarksQuery;
@@ -150,7 +158,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
         pageQueriesRef.current.delete(pageQuery);
       }
     },
-    [state.limit, state.offset],
+    [state.limit, state.offset, state.sort],
   );
 
   const addRelatedBookmarks = useCallback(
@@ -284,6 +292,11 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "SET_BOOKMARK", bookmark });
   }, []);
 
+  const setSort = useCallback((sort: Sort) => {
+    pageQueriesRef.current.clear();
+    dispatch({ type: "SET_SORT", sort });
+  }, []);
+
   // memoize context to avoid rerendering consumers
   const value = useMemo(
     () => ({
@@ -294,6 +307,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       getBookmarksPage,
       addRelatedBookmarks,
       setBookmark,
+      setSort,
       ...state,
     }),
     [
@@ -304,6 +318,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       getBookmarksPage,
       addRelatedBookmarks,
       setBookmark,
+      setSort,
       state,
     ],
   );
