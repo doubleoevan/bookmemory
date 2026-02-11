@@ -1,6 +1,7 @@
 import { ExternalLink as ExternalLinkIcon, Eye } from "lucide-react";
 import {
   Badge,
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -13,9 +14,10 @@ import { useBookmarks } from "@/features/bookmarks/providers/bookmark";
 interface EditBookmarkModalProps {
   onClose: () => void;
   onView: () => void;
+  onDelete: () => void;
 }
 
-export function EditBookmarkModal({ onClose, onView }: EditBookmarkModalProps) {
+export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkModalProps) {
   const { bookmark } = useBookmarks();
 
   return (
@@ -29,7 +31,7 @@ export function EditBookmarkModal({ onClose, onView }: EditBookmarkModalProps) {
     >
       <DialogContent
         className="
-          w-[80vw] h-[80vh] max-w-4xl
+          w-[80vw] max-w-4xl
           flex flex-col
           overflow-y-auto
         "
@@ -70,6 +72,13 @@ export function EditBookmarkModal({ onClose, onView }: EditBookmarkModalProps) {
               {tag.name}
             </Badge>
           ))}
+        </div>
+
+        <div className="flex justify-end gap-2">
+          <Button className="w-fit">Save</Button>
+          <Button className="w-fit" variant="destructive" onClick={onDelete}>
+            Delete
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

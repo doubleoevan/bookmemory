@@ -5,8 +5,9 @@ import { AddBookmarkModal } from "@/features/bookmarks/components/AddBookmarkMod
 import { EditBookmarkModal } from "@/features/bookmarks/components/EditBookmarkModal";
 import { ViewBookmarkModal } from "@/features/bookmarks/components/ViewBookmarkModal";
 import { SummaryProvider } from "@/features/bookmarks/providers/summary";
+import { RemoveBookmarkModal } from "@/features/bookmarks/components/RemoveBookmarkModal";
 
-type ModalType = "addBookmark" | "editBookmark" | "viewBookmark";
+type ModalType = "addBookmark" | "editBookmark" | "viewBookmark" | "deleteBookmark";
 
 export function BookmarksHomePage() {
   const [modalType, setModalType] = useState<ModalType | null>(null);
@@ -15,6 +16,7 @@ export function BookmarksHomePage() {
   const openAddBookmarkModal = () => setModalType("addBookmark");
   const openEditBookmarkModal = () => setModalType("editBookmark");
   const openViewBookmarkModal = () => setModalType("viewBookmark");
+  const openDeleteBookmarkModal = () => setModalType("deleteBookmark");
 
   return (
     <div className="mx-auto w-full max-w-4xl p-4">
@@ -29,9 +31,15 @@ export function BookmarksHomePage() {
         {modalType === "addBookmark" ? (
           <AddBookmarkModal onClose={onCloseModal} onEdit={openEditBookmarkModal} />
         ) : modalType === "editBookmark" ? (
-          <EditBookmarkModal onClose={onCloseModal} onView={openViewBookmarkModal} />
+          <EditBookmarkModal
+            onClose={onCloseModal}
+            onView={openViewBookmarkModal}
+            onDelete={openDeleteBookmarkModal}
+          />
         ) : modalType === "viewBookmark" ? (
           <ViewBookmarkModal onClose={onCloseModal} onEdit={openEditBookmarkModal} />
+        ) : modalType === "deleteBookmark" ? (
+          <RemoveBookmarkModal onClose={onCloseModal} onEdit={openEditBookmarkModal} />
         ) : null}
       </SummaryProvider>
     </div>
