@@ -104,7 +104,12 @@ function bookmarkReducer(state: BookmarkState, action: BookmarkAction): Bookmark
     }
 
     case "ADD_SEARCH_BOOKMARKS": {
-      return { ...state, bookmarks: action.bookmarks };
+      return {
+        ...state,
+        bookmarks: action.bookmarks,
+        total: action.bookmarks.length,
+        offset: action.bookmarks.length,
+      };
     }
 
     case "SET_RELATED_BOOKMARKS": {

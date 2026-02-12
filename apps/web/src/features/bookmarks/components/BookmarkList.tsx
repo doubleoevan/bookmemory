@@ -64,7 +64,7 @@ export function BookmarkList({ onAddBookmarkClick, onBookmarkClick }: BookmarkLi
         "
         onClick={onAddBookmarkClick}
       >
-        Add a bookmark to get started.
+        Add a bookmark to get started...
       </h1>
     );
   }
