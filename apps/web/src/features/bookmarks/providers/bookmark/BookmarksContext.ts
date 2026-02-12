@@ -14,6 +14,9 @@ export type BookmarkContextValue = BookmarkState & {
     url?: string | null;
     type?: "link" | "note" | "file";
     tags?: string[];
+
+    // allow extra fields to be passed
+    [key: string]: unknown;
   }) => Promise<BookmarkResponse>;
 
   saveBookmark: (
@@ -24,6 +27,9 @@ export type BookmarkContextValue = BookmarkState & {
       description?: string | null;
       summary?: string | null;
       tags?: string[] | null;
+
+      // allow extra fields to be passed
+      [key: string]: unknown;
     },
   ) => Promise<BookmarkResponse>;
 

@@ -17,7 +17,19 @@ interface RemoveBookmarkModalProps {
 }
 
 export function RemoveBookmarkModal({ onEdit, onClose }: RemoveBookmarkModalProps) {
-  const { bookmark, removeBookmark } = useBookmarks();
+  const { bookmark, removeBookmark, getBookmarksPage } = useBookmarks();
+
+  const onRemove = async () => {
+    // remove the bookmark from the database
+    const bookmarkId = bookmark?.id;
+    if (bookmarkId) {
+      await removeBookmark(bookmarkId);
+    }
+
+    // close the modal and refresh the bookmarks list
+    onClose();
+    void getBookmarksPage({ offset: 0 });
+  };
 
   return (
     <Dialog
@@ -60,17 +72,7 @@ export function RemoveBookmarkModal({ onEdit, onClose }: RemoveBookmarkModalProp
           <Button className="w-fit" onClick={onEdit}>
             Cancel
           </Button>
-          <Button
-            className="w-fit"
-            variant="destructive"
-            onClick={async () => {
-              const bookmarkId = bookmark?.id;
-              if (bookmarkId) {
-                await removeBookmark(bookmarkId);
-              }
-              onClose();
-            }}
-          >
+          <Button className="w-fit" variant="destructive" onClick={onRemove}>
             Remove
           </Button>
         </div>

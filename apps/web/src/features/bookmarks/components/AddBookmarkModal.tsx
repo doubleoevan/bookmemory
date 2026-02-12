@@ -14,7 +14,7 @@ import {
 import { useBookmarks } from "@/features/bookmarks/providers/bookmark";
 import { SubmitEventHandler, useState } from "react";
 import { Loader } from "@/components/Loader";
-import { isUrlValid } from "@/utils/url";
+import { isUrlValid, normalizeUrl } from "@/utils/url";
 
 interface AddBookmarkModalProps {
   onClose: () => void;
@@ -30,14 +30,15 @@ export function AddBookmarkModal({ onClose, onEdit }: AddBookmarkModalProps) {
   const onPreview: SubmitEventHandler = async (event) => {
     event.preventDefault();
 
-    // set the preview bookmark then forward to the edit view
-    if (!isUrlValid(url)) {
+    // normalize and validate the url
+    const normalizedUrl = normalizeUrl(url);
+    if (!isUrlValid(normalizedUrl)) {
       setError("Please paste a valid URL");
       return;
     }
 
-    // load the bookmark preview and forward to the edit view
-    await previewBookmark({ url, type: bookmarkType });
+    // load the bookmark preview then forward to the edit view
+    await previewBookmark({ url: normalizedUrl, type: bookmarkType });
     onEdit();
   };
 
@@ -68,6 +69,13 @@ export function AddBookmarkModal({ onClose, onEdit }: AddBookmarkModalProps) {
                 type="text"
                 placeholder="Paste your link here and press Enter"
                 value={url}
+                required
+                onInvalid={(event) => {
+                  event.currentTarget.setCustomValidity("Please provide a bookmark link.");
+                }}
+                onInput={(event) => {
+                  event.currentTarget.setCustomValidity("");
+                }}
                 onChange={(event) => setUrl(event.target.value)}
                 className={cn(error ? "focus-visible:ring-destructive" : "")}
               />
