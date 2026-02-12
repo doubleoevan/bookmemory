@@ -10,7 +10,8 @@ import {
   Textarea,
 } from "@bookmemory/ui";
 import { useBookmarks } from "@/features/bookmarks/providers/bookmark";
-import { Sort } from "@/features/bookmarks/providers/bookmark/BookmarksProvider";
+import { Sort, TagMode } from "@/features/bookmarks/providers/bookmark/BookmarksProvider";
+import { TagModeSelect } from "@/components/TagModeSelect";
 
 interface BookmarkSearchProps {
   onAddBookmarkClick: () => void;
@@ -26,6 +27,9 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
     getBookmarksSearchPage,
     search,
     setSearch,
+    selectedTags,
+    selectedTagMode,
+    setSelectedTagMode,
   } = useBookmarks();
 
   // reset the list page when the search gets cleared
@@ -34,10 +38,11 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
       void getBookmarksPage({
         sort,
         offset: 0,
-        // tag, tag_mode
+        tag_mode: selectedTagMode,
+        // TODO: tags
       });
     }
-  }, [search, sort, getBookmarksPage]);
+  }, [search, sort, getBookmarksPage, selectedTagMode]);
 
   const onSearch: SubmitEventHandler = (event) => {
     // search bookmarks on submitting
@@ -46,12 +51,33 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
       void getBookmarksPage({
         sort,
         offset: 0,
-        // tag, tag_mode
+        tag_mode: selectedTagMode,
+        // TODO: tags
       });
     } else {
       void getBookmarksSearchPage({
         search: search.trim(),
-        // tag, tag_mode
+        tag_mode: selectedTagMode,
+        // TODO: tags
+      });
+    }
+  };
+
+  const onTagModeChange = (value: string) => {
+    const tagMode = value as TagMode;
+    setSelectedTagMode(tagMode);
+    if (!search?.trim()) {
+      void getBookmarksPage({
+        sort,
+        offset: 0,
+        tag_mode: tagMode,
+        // TODO: tags
+      });
+    } else {
+      void getBookmarksSearchPage({
+        search: search.trim(),
+        tag_mode: tagMode,
+        // TODO: tags
       });
     }
   };
@@ -63,7 +89,8 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
       search,
       sort: sortValue,
       offset: 0,
-      // tag, tag_mode
+      tag_mode: selectedTagMode,
+      // TODO: tags
     });
   };
 
@@ -122,7 +149,9 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
       )}
       <div className="flex items-center justify-between p-4">
         {/* tags multiselect */}
-        {userHasBookmarks ? <div>Tags Multiselect</div> : <div />}
+        {selectedTags.length > 0 && (
+          <TagModeSelect tagMode={selectedTagMode} onChange={onTagModeChange} />
+        )}
 
         {/* sort select */}
         {userHasBookmarks && !search?.trim() ? (

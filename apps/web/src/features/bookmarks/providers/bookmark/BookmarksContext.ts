@@ -1,6 +1,10 @@
 import { createContext } from "react";
-import { BookmarkState, Sort } from "@/features/bookmarks/providers/bookmark/BookmarksProvider";
-import { BookmarkResponse } from "@bookmemory/contracts";
+import {
+  BookmarkState,
+  Sort,
+  TagMode,
+} from "@/features/bookmarks/providers/bookmark/BookmarksProvider";
+import { BookmarkResponse, TagCountResponse } from "@bookmemory/contracts";
 
 export type BookmarkContextValue = BookmarkState & {
   previewBookmark: (params: {
@@ -59,8 +63,11 @@ export type BookmarkContextValue = BookmarkState & {
   }) => Promise<void>;
 
   setBookmark: (bookmark: BookmarkResponse) => void;
-  setSort: (sort: Sort) => void;
   setSearch: (search: string) => void;
+  setSort: (sort: Sort) => void;
+  getUserTags: () => Promise<TagCountResponse[]>;
+  setSelectedTags: (selectedTags: string[]) => void;
+  setSelectedTagMode: (selectedTagMode: TagMode) => void;
 };
 
 export const BookmarksContext = createContext<BookmarkContextValue | null>(null);

@@ -9,6 +9,7 @@ import {
   BookmarkSearchResponse,
   BookmarkUpdateRequest,
   LimitOffsetPageBookmarkResponse,
+  TagCountResponse,
 } from "@bookmemory/contracts";
 import {
   createBookmark,
@@ -18,6 +19,7 @@ import {
   GetBookmarksQuery,
   getRelatedBookmarks,
   GetRelatedBookmarksQuery,
+  getTags,
   loadBookmark,
   previewBookmark,
   searchBookmarks,
@@ -26,6 +28,8 @@ import {
 import { BookmarksContext } from "@/features/bookmarks/providers/bookmark/BookmarksContext";
 
 export type Sort = "alphabetical" | "recent";
+export type TagMode = "any" | "all" | "ignore";
+
 export type BookmarkState = {
   bookmark?: BookmarkPreviewResponse;
   bookmarks: Array<BookmarkResponse | BookmarkPreviewResponse>;
@@ -37,6 +41,9 @@ export type BookmarkState = {
   offset: number;
   sort: Sort;
   search?: string;
+  userTags: TagCountResponse[];
+  selectedTags: string[];
+  selectedTagMode: TagMode;
 };
 type BookmarkAction =
   | { type: "SET_IS_LOADING"; isLoading: boolean }
@@ -49,7 +56,10 @@ type BookmarkAction =
   | { type: "ADD_SEARCH_BOOKMARKS"; bookmarks: BookmarkSearchResponse[] }
   | { type: "SET_RELATED_BOOKMARKS"; relatedBookmarks: BookmarkSearchResponse[] }
   | { type: "SET_BOOKMARK"; bookmark: BookmarkResponse }
-  | { type: "SET_SEARCH"; search: string };
+  | { type: "SET_SEARCH"; search: string }
+  | { type: "SET_USER_TAGS"; userTags: TagCountResponse[] }
+  | { type: "SET_SELECTED_TAGS"; selectedTags: string[] }
+  | { type: "SET_SELECTED_TAG_MODE"; selectedTagMode: TagMode };
 
 const initialState: BookmarkState = {
   bookmarks: [],
@@ -61,6 +71,9 @@ const initialState: BookmarkState = {
   offset: 0,
   sort: "recent",
   search: "",
+  userTags: [],
+  selectedTags: [],
+  selectedTagMode: "ignore",
 };
 
 function toPageQuery(query: GetBookmarksQuery = {}): string {
@@ -123,12 +136,24 @@ function bookmarkReducer(state: BookmarkState, action: BookmarkAction): Bookmark
       return { ...state, bookmark: action.bookmark };
     }
 
+    case "SET_SORT": {
+      return { ...state, sort: action.sort };
+    }
+
     case "SET_SEARCH": {
       return { ...state, search: action.search };
     }
 
-    case "SET_SORT": {
-      return { ...state, sort: action.sort };
+    case "SET_USER_TAGS": {
+      return { ...state, userTags: action.userTags };
+    }
+
+    case "SET_SELECTED_TAGS": {
+      return { ...state, selectedTags: action.selectedTags };
+    }
+
+    case "SET_SELECTED_TAG_MODE": {
+      return { ...state, selectedTagMode: action.selectedTagMode };
     }
 
     default:
@@ -150,7 +175,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     async (params?: {
       search?: string | null;
       tag?: string[];
-      tag_mode?: "any" | "all" | "ignore";
+      tag_mode?: TagMode;
       sort?: Sort;
       limit?: number;
       offset?: number;
@@ -189,12 +214,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
   );
 
   const getBookmarksSearchPage = useCallback(
-    async (params: {
-      search: string;
-      tag?: string[];
-      tag_mode?: "any" | "all" | "ignore";
-      limit?: number;
-    }) => {
+    async (params: { search: string; tag?: string[]; tag_mode?: TagMode; limit?: number }) => {
       // convert the params into a POST body
       const body = {
         search: params.search,
@@ -216,7 +236,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
   );
 
   const addRelatedBookmarks = useCallback(
-    async (params: { bookmarkId: string; tag_mode?: "any" | "all" | "ignore"; limit?: number }) => {
+    async (params: { bookmarkId: string; tag_mode?: TagMode; limit?: number }) => {
       // convert the params to a query object
       const query = {
         tag_mode: params.tag_mode,
@@ -353,12 +373,26 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "SET_BOOKMARK", bookmark });
   }, []);
 
+  const setSearch = useCallback((search: string) => {
+    dispatch({ type: "SET_SEARCH", search });
+  }, []);
+
   const setSort = useCallback((sort: Sort) => {
     dispatch({ type: "SET_SORT", sort });
   }, []);
 
-  const setSearch = useCallback((search: string) => {
-    dispatch({ type: "SET_SEARCH", search });
+  const getUserTags = useCallback(async () => {
+    const userTags = await getTags();
+    dispatch({ type: "SET_USER_TAGS", userTags });
+    return userTags;
+  }, []);
+
+  const setSelectedTags = useCallback((selectedTags: string[]) => {
+    dispatch({ type: "SET_SELECTED_TAGS", selectedTags });
+  }, []);
+
+  const setSelectedTagMode = useCallback((selectedTagMode: TagMode) => {
+    dispatch({ type: "SET_SELECTED_TAG_MODE", selectedTagMode });
   }, []);
 
   // memoize context to avoid rerendering consumers
@@ -375,6 +409,9 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       setBookmark,
       setSearch,
       setSort,
+      getUserTags,
+      setSelectedTags,
+      setSelectedTagMode,
       ...state,
     }),
     [
@@ -387,8 +424,11 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       addRelatedBookmarks,
       refreshBookmark,
       setBookmark,
-      setSort,
       setSearch,
+      setSort,
+      getUserTags,
+      setSelectedTags,
+      setSelectedTagMode,
       state,
     ],
   );
