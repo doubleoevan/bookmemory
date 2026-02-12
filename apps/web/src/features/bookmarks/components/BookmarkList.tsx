@@ -14,10 +14,8 @@ export function BookmarkList({ onAddBookmarkClick, onBookmarkClick }: BookmarkLi
 
   // load initial bookmarks on mount
   useEffect(() => {
-    if (bookmarks.length === 0) {
-      void getBookmarksPage();
-    }
-  }, [bookmarks.length, getBookmarksPage]);
+    void getBookmarksPage({ offset: 0 });
+  }, [getBookmarksPage]);
 
   // infinite scroll with a page bottom sentinel
   const hasMoreBookmarks = total > 0 && bookmarks.length < total;

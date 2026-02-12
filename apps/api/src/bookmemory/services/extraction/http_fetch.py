@@ -2,6 +2,7 @@ from __future__ import annotations
 
 
 from dataclasses import dataclass
+from types import MappingProxyType
 from typing import Optional
 
 import anyio
@@ -9,7 +10,20 @@ import httpx
 
 from bookmemory.core.settings import settings
 
-USER_AGENT = "BookMemoryBot/0.1 (+https://bookmemory.io)"
+USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/122.0.0.0 Safari/537.36"
+)
+DEFAULT_HEADERS = MappingProxyType(
+    {
+        "User-Agent": USER_AGENT,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.9",
+        "Cache-Control": "no-cache",
+        "Pragma": "no-cache",
+    }
+)
 
 SUPPORTED_CONTENT_TYPES = frozenset(
     {"text/html", "application/xhtml+xml", "text/plain"}
@@ -64,16 +78,12 @@ async def fetch_html(
     """Returns HTML fetched from a URL"""
     async with _HTTP_FETCH_SEMAPHORE:
         # initialize the http client
-        headers = {
-            "User-Agent": USER_AGENT,
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        }
         timeout = httpx.Timeout(
             timeout_seconds, connect=DEFAULT_CONNECT_TIMEOUT_SECONDS
         )
         async with httpx.AsyncClient(
             follow_redirects=True,
-            headers=headers,
+            headers=DEFAULT_HEADERS,
             timeout=timeout,
         ) as client:
             # fetch HTML from the url

@@ -5,6 +5,7 @@ import {
   BookmarkPreviewRequest,
   BookmarkPreviewResponse,
   BookmarkResponse,
+  BookmarkSearchRequest,
   BookmarkSearchResponse,
   BookmarkUpdateRequest,
   LimitOffsetPageBookmarkResponse,
@@ -16,7 +17,9 @@ import {
   GetBookmarksQuery,
   getRelatedBookmarks,
   GetRelatedBookmarksQuery,
+  loadBookmark,
   previewBookmark,
+  searchBookmarks,
   updateBookmark,
 } from "@/api";
 import { BookmarksContext } from "@/features/bookmarks/providers/bookmark/BookmarksContext";
@@ -24,7 +27,7 @@ import { BookmarksContext } from "@/features/bookmarks/providers/bookmark/Bookma
 export type Sort = "alphabetical" | "recent";
 export type BookmarkState = {
   bookmark?: BookmarkPreviewResponse;
-  bookmarks: BookmarkResponse[];
+  bookmarks: Array<BookmarkResponse | BookmarkPreviewResponse>;
   relatedBookmarks: BookmarkSearchResponse[];
   isLoading: boolean;
   userHasBookmarks: boolean;
@@ -41,6 +44,7 @@ type BookmarkAction =
       bookmarksPage: LimitOffsetPageBookmarkResponse;
       setHasBookmarks?: boolean;
     }
+  | { type: "ADD_SEARCH_BOOKMARKS"; bookmarks: BookmarkSearchResponse[] }
   | { type: "SET_RELATED_BOOKMARKS"; relatedBookmarks: BookmarkSearchResponse[] }
   | { type: "SET_BOOKMARK"; bookmark: BookmarkResponse };
 
@@ -98,6 +102,10 @@ function bookmarkReducer(state: BookmarkState, action: BookmarkAction): Bookmark
       };
     }
 
+    case "ADD_SEARCH_BOOKMARKS": {
+      return { ...state, bookmarks: action.bookmarks };
+    }
+
     case "SET_RELATED_BOOKMARKS": {
       return { ...state, relatedBookmarks: action.relatedBookmarks };
     }
@@ -117,6 +125,12 @@ function bookmarkReducer(state: BookmarkState, action: BookmarkAction): Bookmark
 
 export function BookmarksProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(bookmarkReducer, initialState);
+
+  // put state in a ref to keep callbacks stable
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  // keep track of active page queries to prevent duplicate concurrent requests
   const pageQueriesRef = useRef<Set<string>>(new Set());
 
   const getBookmarksPage = useCallback(
@@ -133,9 +147,9 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
         search: params?.search,
         tag: params?.tag,
         tag_mode: params?.tag_mode,
-        sort: params?.sort ?? state.sort,
-        limit: params?.limit || state.limit,
-        offset: params?.offset ?? state.offset,
+        sort: params?.sort ?? stateRef.current.sort,
+        limit: params?.limit || stateRef.current.limit,
+        offset: params?.offset ?? stateRef.current.offset,
       } satisfies GetBookmarksQuery;
 
       // prevent duplicate page requests
@@ -158,7 +172,34 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
         pageQueriesRef.current.delete(pageQuery);
       }
     },
-    [state.limit, state.offset, state.sort],
+    [],
+  );
+
+  const getBookmarksSearchPage = useCallback(
+    async (params: {
+      search: string;
+      tag?: string[];
+      tag_mode?: "any" | "all" | "ignore";
+      limit?: number;
+    }) => {
+      // convert the params into a POST body
+      const body = {
+        search: params.search,
+        tags: params.tag,
+        tag_mode: params.tag_mode,
+        limit: params.limit || stateRef.current.limit,
+      } satisfies BookmarkSearchRequest;
+
+      // add the bookmarks search page
+      try {
+        dispatch({ type: "SET_IS_LOADING", isLoading: true });
+        const bookmarks = await searchBookmarks(body);
+        dispatch({ type: "ADD_SEARCH_BOOKMARKS", bookmarks });
+      } finally {
+        dispatch({ type: "SET_IS_LOADING", isLoading: false });
+      }
+    },
+    [],
   );
 
   const addRelatedBookmarks = useCallback(
@@ -189,7 +230,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       type?: "link" | "note" | "file";
       tags?: string[];
     }): Promise<BookmarkResponse> => {
-      // convert the params to a POST body
+      // convert the params into a POST body
       const body = {
         title: params.title,
         description: params.description,
@@ -202,6 +243,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       try {
         dispatch({ type: "SET_IS_LOADING", isLoading: true });
         const bookmark = await createBookmark(body);
+        loadBookmark(bookmark.id); // load the bookmark embeddings
         dispatch({ type: "SET_BOOKMARK", bookmark });
         return bookmark;
       } finally {
@@ -216,7 +258,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
 
   const getBookmarkPreview = useCallback(
     async (params: { url: string; type?: "link" | "note" | "file" }): Promise<BookmarkResponse> => {
-      // convert the params to a POST body
+      // convert the params into a POST body
       const body = {
         url: params.url,
         type: params.type ?? "link",
@@ -293,7 +335,6 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const setSort = useCallback((sort: Sort) => {
-    pageQueriesRef.current.clear();
     dispatch({ type: "SET_SORT", sort });
   }, []);
 
@@ -305,6 +346,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       saveBookmark,
       removeBookmark,
       getBookmarksPage,
+      getBookmarksSearchPage,
       addRelatedBookmarks,
       setBookmark,
       setSort,
@@ -316,6 +358,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       saveBookmark,
       removeBookmark,
       getBookmarksPage,
+      getBookmarksSearchPage,
       addRelatedBookmarks,
       setBookmark,
       setSort,

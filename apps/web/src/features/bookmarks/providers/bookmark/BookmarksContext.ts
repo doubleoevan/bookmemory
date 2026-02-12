@@ -44,6 +44,13 @@ export type BookmarkContextValue = BookmarkState & {
     offset?: number;
   }) => Promise<void>;
 
+  getBookmarksSearchPage: (params: {
+    search: string;
+    tag?: string[];
+    tag_mode?: "any" | "all" | "ignore";
+    limit?: number;
+  }) => Promise<void>;
+
   addRelatedBookmarks: (params: {
     bookmarkId: string;
     tag_mode?: "any" | "all" | "ignore";

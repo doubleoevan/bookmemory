@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from bookmemory.db.models.bookmark import LoadMethod, ExtractedContent
-from bookmemory.services.extraction.http_fetch import FetchError, fetch_html
+from bookmemory.services.extraction.http_fetch import fetch_html
 from bookmemory.services.extraction.html_extract import extract_html
 from bookmemory.services.extraction.playwright_fetch import (
     fetch_rendered_html,
@@ -21,10 +21,6 @@ def _trim_extracted_text(text: str) -> str:
     return trimmed
 
 
-def _should_fallback_to_playwright(*, extracted_text: str) -> bool:
-    return len((extracted_text or "").strip()) < MINIMUM_HTTP_LENGTH
-
-
 async def extract_content(*, url: str) -> ExtractedContent:
     """
     Returns extracted HTML content from a URL.
@@ -37,34 +33,24 @@ async def extract_content(*, url: str) -> ExtractedContent:
         text = _trim_extracted_text(extracted_content.text)
         title = _trim_extracted_text(extracted_content.title)
 
-        if _should_fallback_to_playwright(extracted_text=text):
-            raise FetchError("extracted text too small; likely JS-heavy")
+        if len((text or "").strip()) >= MINIMUM_HTTP_LENGTH:
+            return ExtractedContent(
+                title=title,
+                content=text,
+                load_method=LoadMethod.http,
+            )
 
-        return ExtractedContent(
-            title=title,
-            content=text,
-            load_method=LoadMethod.http,
-        )
+    except Exception:
+        # swallow any HTTP/extraction error and fall back to Playwright
+        pass
 
-    except FetchError as http_error:
-        # retry the fetch with playwright if an error suggests that the site is JS-heavy or blocked
-        can_try_playwright_status = http_error.status_code in {401, 403, 429}
-        can_try_playwright_message = (
-            "content-type" in str(http_error).lower()
-            or "js-heavy" in str(http_error).lower()
-            or "too small" in str(http_error).lower()
-        )
-
-        if not (can_try_playwright_status or can_try_playwright_message):
-            raise
-
-        # fetch and return the extracted content with playwright
-        rendered_html = await fetch_rendered_html(url=url)
-        extracted_content = extract_html(html=rendered_html.html, url=rendered_html.url)
-        text = _trim_extracted_text(extracted_content.text)
-        title = _trim_extracted_text(extracted_content.title)
-        return ExtractedContent(
-            title=title,
-            content=text,
-            load_method=LoadMethod.playwright,
-        )
+    # try playwright if the HTTP extraction failed or the content was too short
+    rendered_html = await fetch_rendered_html(url=url)
+    extracted_content = extract_html(html=rendered_html.html, url=rendered_html.url)
+    text = _trim_extracted_text(extracted_content.text)
+    title = _trim_extracted_text(extracted_content.title)
+    return ExtractedContent(
+        title=title,
+        content=text,
+        load_method=LoadMethod.playwright,
+    )

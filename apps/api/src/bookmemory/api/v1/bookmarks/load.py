@@ -67,10 +67,9 @@ async def load_bookmark(
 
     # require the url for a link or file bookmark
     if bookmark.type in {BookmarkType.link, BookmarkType.file}:
-        if bookmark.url is None:
+        if not bookmark.url or not bookmark.url.strip():
             raise HTTPException(status_code=422, detail="bookmark url is missing")
-        if bookmark.url.strip() == "":
-            raise HTTPException(status_code=422, detail="bookmark url is missing")
+        bookmark.url = bookmark.url.strip()
 
     # delete existing chunks and update the bookmark status and initial load method
     await session.execute(
@@ -166,17 +165,17 @@ async def load_bookmark(
             detail=f"load timed out after {MAXIMUM_FETCH_SECONDS}s",
         ) from error
 
-    except PlaywrightFetchError as error:
+    except (PlaywrightFetchError, FetchError) as error:
         await session.rollback()
         bookmark.status = BookmarkStatus.failed
+        bookmark.load_method = (
+            LoadMethod.playwright
+            if isinstance(error, PlaywrightFetchError)
+            else LoadMethod.http
+        )
         await session.commit()
-        raise HTTPException(status_code=502, detail=f"load failed: {error}") from error
-
-    except FetchError as error:
-        await session.rollback()
-        bookmark.status = BookmarkStatus.failed
-        await session.commit()
-        raise HTTPException(status_code=502, detail=f"fetch failed: {error}") from error
+        await session.refresh(bookmark)
+        return to_bookmark_response(bookmark)
 
     except Exception as error:
         await session.rollback()

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { SubmitEventHandler, useState } from "react";
 import { Search, X } from "lucide-react";
 import {
   Button,
@@ -18,7 +18,25 @@ interface BookmarkSearchProps {
 
 export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
   const [search, setSearch] = useState("");
-  const { userHasBookmarks, isLoading, sort, setSort, getBookmarksPage } = useBookmarks();
+  const { userHasBookmarks, isLoading, sort, setSort, getBookmarksPage, getBookmarksSearchPage } =
+    useBookmarks();
+
+  const onSearch: SubmitEventHandler = (event) => {
+    // search bookmarks on submitting
+    event.preventDefault();
+    if (!search.trim()) {
+      void getBookmarksPage({
+        sort,
+        offset: 0,
+        // tag, tag_mode
+      });
+    } else {
+      void getBookmarksSearchPage({
+        search: search.trim(),
+        // tag, tag_mode
+      });
+    }
+  };
 
   // reload the list when the sort changes
   const onSort = (sortValue: Sort) => {
@@ -34,22 +52,13 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
   return (
     <div>
       {userHasBookmarks && (
-        <form
-          className="relative px-4"
-          onSubmit={(event) => {
-            // search bookmarks on submitting
-            event.preventDefault();
-            if (!search.trim()) {
-              return;
-            }
-          }}
-        >
+        <form className="relative px-4" onSubmit={onSearch}>
           <Textarea
             placeholder="Search your Bookmarks"
             disabled={isLoading}
             rows={1}
             className="
-              rounded-[20px] resize-none pt-2.5 pr-12
+              rounded-4xl resize-none pt-2.5 pr-12
               min-h-11 max-h-50
               overflow-hidden
               bg-accent/50
