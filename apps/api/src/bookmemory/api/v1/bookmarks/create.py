@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bookmemory.services.auth.users import get_current_user
@@ -71,7 +72,19 @@ async def create_bookmark(
         tags=tags,
     )
     session.add(bookmark)
-    await session.commit()
+
+    try:
+        await session.commit()
+    except IntegrityError as error:
+        await session.rollback()
+
+        # return a message to display if the url already exists
+        error_message = str(getattr(error, "orig", error))
+        if "ix_bookmarks_user_id_url_unique_not_null" in error_message:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT, detail="URL already exists"
+            )
+        raise
 
     # return the new bookmark from the database
     new_bookmark = await get_user_bookmark(
