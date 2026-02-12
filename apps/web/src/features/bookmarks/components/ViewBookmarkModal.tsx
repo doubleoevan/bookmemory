@@ -7,9 +7,14 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@bookmemory/ui";
 import { ExternalLink } from "@/components/ExternalLink";
-import { MouseEventHandler, useEffect, useRef } from "react";
+import { MouseEventHandler, useEffect, useRef, useState } from "react";
 import { useSummary } from "@/features/bookmarks/providers/summary";
 import { Loader } from "@/components/Loader";
 import { useBookmarks } from "@/features/bookmarks/providers/bookmark";
@@ -20,16 +25,18 @@ interface ViewBookmarkModalProps {
 }
 
 export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
+  const [tagMode, setTagMode] = useState<"any" | "all" | "ignore">("ignore");
   const { bookmark, addRelatedBookmarks, relatedBookmarks, setBookmark, isLoading } =
     useBookmarks();
   const { setSummary, summary, startSummary, isLoading: isLoadingSummary } = useSummary();
-  const contentRef = useRef<HTMLDivElement | null>(null);
+  const tags = bookmark?.tags ?? [];
 
+  const contentRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
     // add related bookmarks
     const bookmarkId = bookmark?.id;
     if (bookmarkId) {
-      void addRelatedBookmarks({ bookmarkId });
+      void addRelatedBookmarks({ bookmarkId, tag_mode: tagMode });
     }
 
     // update the summary when the bookmark changes
@@ -51,6 +58,14 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
     const bookmarkId = bookmark?.id;
     if (bookmarkId) {
       void startSummary(bookmarkId);
+    }
+  };
+
+  const onTagModeChange = (value: string) => {
+    setTagMode(value as "any" | "all" | "ignore");
+    const bookmarkId = bookmark?.id;
+    if (bookmarkId) {
+      void addRelatedBookmarks({ bookmarkId, tag_mode: tagMode });
     }
   };
 
@@ -128,7 +143,7 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
         {/* tags section */}
         <div className="flex flex-wrap gap-2">
           <span className="text-muted-foreground">Tags:</span>
-          {bookmark?.tags?.map((tag) => (
+          {tags.map((tag) => (
             <Badge key={tag.id} variant="secondary">
               {tag.name}
             </Badge>
@@ -136,17 +151,35 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
         </div>
 
         {/* related bookmarks section */}
-        {relatedBookmarks.length === 0 && (
-          <p className="text-muted-foreground">No related bookmarks found.</p>
-        )}
-        {relatedBookmarks.length > 0 && (
-          <p className="text-muted-foreground">
-            Related bookmarks are generated based on your bookmarks and the content of the website.
-          </p>
-        )}
-        <h2 className="flex justify-start text-muted-foreground">Related Bookmarks</h2>
+        <div className="flex items-center justify-between text-muted-foreground">
+          <h2>Related Bookmarks: </h2>
+          <span className="inline sm:hidden">Powered by semantic search ⚡</span>
+          {tags.length > 0 && (
+            <div className="flex items-center gap-2">
+              Match tags:
+              <Select value={tagMode} onValueChange={onTagModeChange}>
+                <SelectTrigger className="w-fit cursor-pointer">
+                  <SelectValue placeholder="Match tags" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem className="cursor-pointer" value="any">
+                    Any
+                  </SelectItem>
+                  <SelectItem className="cursor-not-allowed" value="all">
+                    All
+                  </SelectItem>
+                  <SelectItem className="cursor-not-allowed" value="ignore">
+                    None
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
         {isLoading ? (
           <Loader className="w-10 h-10" />
+        ) : relatedBookmarks.length === 0 ? (
+          <p className="text-muted-foreground">No related bookmarks found.</p>
         ) : (
           <ul>
             {relatedBookmarks.map((relatedBookmark) => (
