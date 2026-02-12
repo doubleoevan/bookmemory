@@ -26,8 +26,10 @@ export function isUrlValid(url: string): boolean {
 
   // verify protocol is present
   try {
-    const parsed = new URL(trimmedUrl);
-    return parsed.protocol === "http:" || parsed.protocol === "https:";
+    const parsedUrl = new URL(trimmedUrl);
+    const hasProtocol = parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+    const hasHostname = parsedUrl.hostname.length > 0;
+    return hasProtocol && hasHostname;
   } catch {
     return false;
   }

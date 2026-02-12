@@ -139,18 +139,20 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
           )}
 
           {/* title section */}
-          <h2 className="text-muted-foreground">Title: </h2>
-          <Input
-            required
-            onInvalid={(event) => {
-              event.currentTarget.setCustomValidity("Please provide a bookmark title.");
-            }}
-            onInput={(event) => {
-              event.currentTarget.setCustomValidity("");
-            }}
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-          />
+          <div className="flex gap-2 items-center">
+            <h2 className="text-muted-foreground">Title: </h2>
+            <Input
+              required
+              onInvalid={(event) => {
+                event.currentTarget.setCustomValidity("Please provide a bookmark title.");
+              }}
+              onInput={(event) => {
+                event.currentTarget.setCustomValidity("");
+              }}
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+            />
+          </div>
 
           {/* description section */}
           <h2 className="text-muted-foreground">Description: </h2>

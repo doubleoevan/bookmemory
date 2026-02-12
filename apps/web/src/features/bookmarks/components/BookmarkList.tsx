@@ -14,8 +14,11 @@ export function BookmarkList({ onAddBookmarkClick, onBookmarkClick }: BookmarkLi
 
   // load initial bookmarks on mount
   useEffect(() => {
-    void getBookmarksPage({ offset: 0 });
-  }, [getBookmarksPage]);
+    if (!userHasBookmarks) {
+      void getBookmarksPage({ offset: 0 });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // infinite scroll with a page bottom sentinel
   const hasMoreBookmarks = total > 0 && bookmarks.length < total;

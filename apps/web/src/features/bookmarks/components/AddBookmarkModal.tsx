@@ -66,7 +66,7 @@ export function AddBookmarkModal({ onClose, onEdit }: AddBookmarkModalProps) {
             <Loader className="w-10 h-10" />
           </div>
         ) : (
-          <form className="relative flex gap-2" onSubmit={onPreview}>
+          <form className="flex gap-2" onSubmit={onPreview}>
             {/* url input */}
             {bookmarkType === "link" && (
               <Input
