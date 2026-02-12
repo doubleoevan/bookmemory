@@ -40,7 +40,7 @@ export function BookmarkListItem({
       {bookmark.url && (
         <div className="text-xs text-muted-foreground">{getDomain(bookmark.url)}</div>
       )}
-      <p className="text-muted-foreground truncate">{bookmark.description}</p>
+      <p className="text-muted-foreground line-clamp-2">{bookmark.description}</p>
       <div className="flex flex-wrap gap-2">
         {bookmark?.tags?.map((tag) => (
           <Badge key={tag.id} variant="secondary">

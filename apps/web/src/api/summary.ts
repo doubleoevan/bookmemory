@@ -64,36 +64,32 @@ function toApiUrl(url: string): string {
 /**
  * POST /api/v1/bookmarks/{bookmark_id}/summary (stream)
  */
-export async function streamSummary(
-  bookmarkId: string,
-  request: RequestInit = {},
-  {
-    signal,
-    onChunk,
-    onComplete,
-    onError,
-    onEventError,
-  }: {
-    signal?: AbortSignal;
-    onChunk: (chunk: string) => void;
-    onComplete: () => void;
-    onError: (error: { code: string; message: string }) => void;
-    onEventError?: (error: { code: string; message: string }) => void;
-  },
-) {
+export async function streamSummary({
+  bookmarkId,
+  onChunk,
+  onComplete,
+  onError,
+  onEventError,
+  signal,
+}: {
+  bookmarkId: string;
+  onChunk: (chunk: string) => void;
+  onComplete: () => void;
+  onError: (error: { code: string; message: string }) => void;
+  onEventError?: (error: { code: string; message: string }) => void;
+  signal?: AbortSignal;
+}) {
   // fetch the response
   let response: Response;
   try {
     const url = toApiUrl(`/api/v1/bookmarks/${bookmarkId}/summary`);
     response = await fetch(url, {
-      ...request,
-      method: request.method ?? "POST",
+      method: "POST",
       credentials: "include",
       headers: new Headers({
         accept: "application/x-ndjson",
-        ...(request.headers ?? {}),
       }),
-      signal: signal ?? request.signal,
+      signal,
     });
   } catch (error) {
     if (isAbortError(error)) {

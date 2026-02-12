@@ -35,6 +35,8 @@ export type BookmarkContextValue = BookmarkState & {
 
   removeBookmark: (bookmarkId: string) => Promise<void>;
 
+  refreshBookmark: (bookmarkId: string) => Promise<void>;
+
   getBookmarksPage: (params?: {
     search?: string | null;
     tag?: string[];

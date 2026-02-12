@@ -13,6 +13,7 @@ import {
 import {
   createBookmark,
   deleteBookmark,
+  getBookmark,
   getBookmarks,
   GetBookmarksQuery,
   getRelatedBookmarks,
@@ -243,7 +244,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       try {
         dispatch({ type: "SET_IS_LOADING", isLoading: true });
         const bookmark = await createBookmark(body);
-        loadBookmark(bookmark.id); // load the bookmark embeddings
+        void loadBookmark(bookmark.id); // load the bookmark embeddings but don't wait to finish
         dispatch({ type: "SET_BOOKMARK", bookmark });
         return bookmark;
       } finally {
@@ -330,6 +331,12 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     [getBookmarksPage],
   );
 
+  const refreshBookmark = useCallback(async (bookmarkId: string) => {
+    // load an updated bookmark and set it in the context state
+    const bookmark = await getBookmark(bookmarkId);
+    dispatch({ type: "SET_BOOKMARK", bookmark });
+  }, []);
+
   const setBookmark = useCallback((bookmark: BookmarkResponse) => {
     dispatch({ type: "SET_BOOKMARK", bookmark });
   }, []);
@@ -348,6 +355,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       getBookmarksPage,
       getBookmarksSearchPage,
       addRelatedBookmarks,
+      refreshBookmark,
       setBookmark,
       setSort,
       ...state,
@@ -360,6 +368,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       getBookmarksPage,
       getBookmarksSearchPage,
       addRelatedBookmarks,
+      refreshBookmark,
       setBookmark,
       setSort,
       state,

@@ -12,7 +12,8 @@ import {
 } from "@bookmemory/ui";
 import { ExternalLink } from "@/components/ExternalLink";
 import { useBookmarks } from "@/features/bookmarks/providers/bookmark";
-import { SubmitEventHandler, useState } from "react";
+import { MouseEventHandler, SubmitEventHandler, useEffect, useState } from "react";
+import { useSummary } from "@/features/bookmarks/providers/summary";
 
 interface EditBookmarkModalProps {
   onClose: () => void;
@@ -22,9 +23,17 @@ interface EditBookmarkModalProps {
 
 export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkModalProps) {
   const { bookmark, addBookmark, saveBookmark, getBookmarksPage } = useBookmarks();
+  const { setSummary, summary, startSummary, isLoading: isLoadingSummary } = useSummary();
   const [title, setTitle] = useState<string>(bookmark?.title ?? "");
-  const [summary, setSummary] = useState<string>(bookmark?.summary ?? "");
   const [description, setDescription] = useState<string>(bookmark?.description ?? "");
+
+  const isBookmarkPreview = bookmark?.preview_method;
+  useEffect(() => {
+    // update the summary when the bookmark changes
+    if (bookmark?.summary) {
+      setSummary(bookmark.summary);
+    }
+  }, [bookmark, setSummary, isBookmarkPreview]);
 
   const onSave: SubmitEventHandler = async (event) => {
     event.preventDefault();
@@ -45,7 +54,6 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
 
     // validate the summary. should be unnecessary because the textarea is required.
     const bookmarkSummary = summary.trim();
-    const isBookmarkPreview = bookmark?.preview_method;
     if (!bookmarkSummary && !isBookmarkPreview) {
       alert("Please enter a summary");
       return;
@@ -53,7 +61,7 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
 
     // add a new bookmark if it is a preview
     if (isBookmarkPreview) {
-      await addBookmark({
+      const newBookmark = await addBookmark({
         ...bookmark,
         title: bookmarkTitle,
         description: bookmarkDescription,
@@ -61,9 +69,10 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
         tags: bookmark?.tags?.map((tag) => tag.name),
       });
 
-      // view the bookmark and refresh the bookmarks list
-      onView(); // this will populate the bookmark summary
+      // refresh the bookmarks list, start generating the summary, and go to the view
       void getBookmarksPage({ offset: 0 });
+      startSummary(newBookmark.id);
+      onView();
       return;
     }
 
@@ -85,6 +94,14 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
     void getBookmarksPage({ offset: 0 });
   };
 
+  const onGenerateSummary: MouseEventHandler = async (event) => {
+    event.preventDefault();
+    const bookmarkId = bookmark?.id;
+    if (bookmarkId) {
+      void startSummary(bookmarkId);
+    }
+  };
+
   return (
     <Dialog
       open
@@ -104,13 +121,14 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
         <DialogHeader>
           <DialogTitle className="flex items-center justify-center gap-1 text-muted-foreground">
             Edit Bookmark
-            <Eye className="w-4 h-4 cursor-pointer" onClick={onView} />
+            {!isBookmarkPreview && <Eye className="w-4 h-4 cursor-pointer" onClick={onView} />}
           </DialogTitle>
           {bookmark?.description && (
             <DialogDescription className="sr-only">{bookmark.description}</DialogDescription>
           )}
         </DialogHeader>
         <form onSubmit={onSave} className="flex flex-col flex-1 min-h-0 gap-4">
+          {/* url section */}
           {bookmark?.url && (
             <div>
               <span className="text-muted-foreground">URL: </span>
@@ -119,6 +137,8 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
               </ExternalLink>
             </div>
           )}
+
+          {/* title section */}
           <h2 className="text-muted-foreground">Title: </h2>
           <Input
             required
@@ -131,6 +151,8 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
             value={title}
             onChange={(event) => setTitle(event.target.value)}
           />
+
+          {/* description section */}
           <h2 className="text-muted-foreground">Description: </h2>
           <div className="flex flex-col flex-1 min-h-0">
             <Textarea
@@ -146,12 +168,31 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
               onChange={(event) => setDescription(event.target.value)}
             />
           </div>
-          {!bookmark?.preview_method && (
+
+          {/* summary section */}
+          {!isBookmarkPreview && (
             <>
-              <h2 className="text-muted-foreground">Summary: </h2>
+              <div className="flex items-center justify-between text-muted-foreground">
+                <span>Summary: </span>
+                {isLoadingSummary ? (
+                  <span>
+                    Generating summary with AI <span className="ml-1 animate-pulse">✨</span>
+                  </span>
+                ) : (
+                  <>Summary generated by AI ✨</>
+                )}
+                <Button
+                  variant="ghost"
+                  className="bg-accent/50 border"
+                  onClick={onGenerateSummary}
+                  disabled={isLoadingSummary}
+                >
+                  Regenerate
+                </Button>
+              </div>
               <div className="flex flex-col flex-1 min-h-0">
                 <Textarea
-                  value={summary}
+                  value={summary || (isLoadingSummary ? "Generating..." : "")}
                   className="flex-1 resize-none"
                   required
                   onInvalid={(event) => {
@@ -165,6 +206,8 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
               </div>
             </>
           )}
+
+          {/* tags section */}
           <div className="flex flex-wrap gap-2">
             <span className="text-muted-foreground">Tags:</span>
             {bookmark?.tags?.map((tag) => (
@@ -174,20 +217,23 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
             ))}
           </div>
 
+          {/* buttons section */}
           <div className="flex justify-end gap-2">
-            <Button className="w-fit" type="submit">
+            <Button className="w-fit" type="submit" disabled={isLoadingSummary}>
               Save
             </Button>
-            <Button
-              className="w-fit"
-              variant="destructive"
-              onClick={(event) => {
-                event.preventDefault();
-                onDelete();
-              }}
-            >
-              Delete
-            </Button>
+            {!isBookmarkPreview && (
+              <Button
+                className="w-fit"
+                variant="destructive"
+                onClick={(event) => {
+                  event.preventDefault();
+                  onDelete();
+                }}
+              >
+                Delete
+              </Button>
+            )}
           </div>
         </form>
       </DialogContent>

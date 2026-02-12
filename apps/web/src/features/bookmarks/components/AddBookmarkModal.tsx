@@ -2,6 +2,7 @@ import {
   cn,
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   Input,
@@ -56,6 +57,9 @@ export function AddBookmarkModal({ onClose, onEdit }: AddBookmarkModalProps) {
           <DialogTitle>
             {isLoading ? "Loading your bookmark..." : error ? error : "New Bookmark"}
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            {isLoading ? "Loading your bookmark..." : "Add New Bookmark"}
+          </DialogDescription>
         </DialogHeader>
         {isLoading ? (
           <div>
