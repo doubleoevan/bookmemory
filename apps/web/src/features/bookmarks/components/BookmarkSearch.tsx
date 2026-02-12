@@ -1,4 +1,4 @@
-import { SubmitEventHandler, useState } from "react";
+import { SubmitEventHandler, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import {
   Button,
@@ -17,14 +17,32 @@ interface BookmarkSearchProps {
 }
 
 export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
-  const [search, setSearch] = useState("");
-  const { userHasBookmarks, isLoading, sort, setSort, getBookmarksPage, getBookmarksSearchPage } =
-    useBookmarks();
+  const {
+    userHasBookmarks,
+    isLoading,
+    sort,
+    setSort,
+    getBookmarksPage,
+    getBookmarksSearchPage,
+    search,
+    setSearch,
+  } = useBookmarks();
+
+  // reset the list page when the search gets cleared
+  useEffect(() => {
+    if (!search?.trim()) {
+      void getBookmarksPage({
+        sort,
+        offset: 0,
+        // tag, tag_mode
+      });
+    }
+  }, [search, sort, getBookmarksPage]);
 
   const onSearch: SubmitEventHandler = (event) => {
     // search bookmarks on submitting
     event.preventDefault();
-    if (!search.trim()) {
+    if (!search?.trim()) {
       void getBookmarksPage({
         sort,
         offset: 0,
@@ -72,7 +90,7 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
             onKeyDown={(event) => {
               if (event.key === "Enter" && !event.shiftKey) {
                 event.preventDefault(); // submit on enter
-                if (!search.trim()) {
+                if (!search?.trim()) {
                   return;
                 }
                 event.currentTarget.form?.requestSubmit();
@@ -80,7 +98,7 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
             }}
           />
 
-          {search?.length > 0 && (
+          {search?.trim() && (
             <button
               type="button"
               className="absolute top-2.5 right-16 cursor-pointer"
@@ -95,7 +113,7 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
           <Button
             type="submit"
             size="icon"
-            disabled={!search.trim()}
+            disabled={!search?.trim()}
             className="absolute top-1 right-5 rounded-full cursor-pointer"
           >
             <Search />

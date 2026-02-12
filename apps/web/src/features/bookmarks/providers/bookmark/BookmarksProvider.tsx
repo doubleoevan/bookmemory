@@ -36,6 +36,7 @@ export type BookmarkState = {
   limit: number;
   offset: number;
   sort: Sort;
+  search?: string;
 };
 type BookmarkAction =
   | { type: "SET_IS_LOADING"; isLoading: boolean }
@@ -47,7 +48,8 @@ type BookmarkAction =
     }
   | { type: "ADD_SEARCH_BOOKMARKS"; bookmarks: BookmarkSearchResponse[] }
   | { type: "SET_RELATED_BOOKMARKS"; relatedBookmarks: BookmarkSearchResponse[] }
-  | { type: "SET_BOOKMARK"; bookmark: BookmarkResponse };
+  | { type: "SET_BOOKMARK"; bookmark: BookmarkResponse }
+  | { type: "SET_SEARCH"; search: string };
 
 const initialState: BookmarkState = {
   bookmarks: [],
@@ -58,6 +60,7 @@ const initialState: BookmarkState = {
   limit: 10,
   offset: 0,
   sort: "recent",
+  search: "",
 };
 
 function toPageQuery(query: GetBookmarksQuery = {}): string {
@@ -118,6 +121,10 @@ function bookmarkReducer(state: BookmarkState, action: BookmarkAction): Bookmark
 
     case "SET_BOOKMARK": {
       return { ...state, bookmark: action.bookmark };
+    }
+
+    case "SET_SEARCH": {
+      return { ...state, search: action.search };
     }
 
     case "SET_SORT": {
@@ -350,6 +357,10 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "SET_SORT", sort });
   }, []);
 
+  const setSearch = useCallback((search: string) => {
+    dispatch({ type: "SET_SEARCH", search });
+  }, []);
+
   // memoize context to avoid rerendering consumers
   const value = useMemo(
     () => ({
@@ -362,6 +373,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       addRelatedBookmarks,
       refreshBookmark,
       setBookmark,
+      setSearch,
       setSort,
       ...state,
     }),
@@ -376,6 +388,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       refreshBookmark,
       setBookmark,
       setSort,
+      setSearch,
       state,
     ],
   );

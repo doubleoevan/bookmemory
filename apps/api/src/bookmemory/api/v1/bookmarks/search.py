@@ -36,7 +36,7 @@ class BookmarkSearchRequest(BaseModel):
     tag_mode: TagMode = "ignore"
 
 
-def build_snippet(text: str, max_length: int = 240) -> str:
+def build_snippet(text: str, max_length: int = 320) -> str:
     snippet_text = (text or "").strip().replace("\n", " ")
     if len(snippet_text) <= max_length:
         return snippet_text

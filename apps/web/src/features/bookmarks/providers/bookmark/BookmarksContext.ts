@@ -34,7 +34,6 @@ export type BookmarkContextValue = BookmarkState & {
   ) => Promise<BookmarkResponse>;
 
   removeBookmark: (bookmarkId: string) => Promise<void>;
-
   refreshBookmark: (bookmarkId: string) => Promise<void>;
 
   getBookmarksPage: (params?: {
@@ -61,6 +60,7 @@ export type BookmarkContextValue = BookmarkState & {
 
   setBookmark: (bookmark: BookmarkResponse) => void;
   setSort: (sort: Sort) => void;
+  setSearch: (search: string) => void;
 };
 
 export const BookmarksContext = createContext<BookmarkContextValue | null>(null);

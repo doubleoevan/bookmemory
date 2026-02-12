@@ -229,8 +229,8 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
             </Button>
             {!isBookmarkPreview && (
               <Button
-                className="w-fit"
-                variant="destructive"
+                className="w-fit outine bg-muted hover:bg-destructive"
+                variant="ghost"
                 onClick={(event) => {
                   event.preventDefault();
                   onDelete();

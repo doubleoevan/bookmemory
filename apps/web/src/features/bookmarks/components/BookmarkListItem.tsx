@@ -1,22 +1,36 @@
+import Highlighter from "react-highlight-words";
 import { ExternalLink as ExternalLinkIcon } from "lucide-react";
 import { Badge } from "@bookmemory/ui";
-import { BookmarkResponse } from "@bookmemory/contracts";
+import { BookmarkResponse, BookmarkSearchResponse } from "@bookmemory/contracts";
 import { useBookmarks } from "@/features/bookmarks/providers/bookmark";
 import { ExternalLink } from "@/components/ExternalLink";
 import { getDomain } from "@/utils/url";
+
+function toSearchWords(search: string | undefined | null): string[] {
+  const trimmedSearch = search?.trim() ?? "";
+  if (!trimmedSearch) return [];
+
+  const searchWords = trimmedSearch.split(/\s+/).filter(Boolean);
+  return [trimmedSearch, ...searchWords];
+}
 
 export function BookmarkListItem({
   bookmark,
   onBookmarkClick,
 }: {
-  bookmark: BookmarkResponse;
+  bookmark: BookmarkResponse | BookmarkSearchResponse;
   onBookmarkClick: (() => void) | undefined;
 }) {
-  const { setBookmark } = useBookmarks();
-  const onClick = () => {
+  const { setBookmark, search } = useBookmarks();
+  const searchWords = toSearchWords(search);
+  const snippet = "snippet" in bookmark ? bookmark.snippet : null;
+
+  // show the selected bookmark on click
+  const onViewBookmark = () => {
     setBookmark(bookmark);
     onBookmarkClick?.();
   };
+
   return (
     <article
       className="
@@ -26,7 +40,7 @@ export function BookmarkListItem({
         cursor-pointer
         leading-relaxed
       "
-      onClick={onClick}
+      onClick={onViewBookmark}
     >
       <h2>
         {bookmark.url ? (
@@ -37,10 +51,23 @@ export function BookmarkListItem({
           bookmark.title
         )}
       </h2>
+
       {bookmark.url && (
         <div className="text-xs text-muted-foreground">{getDomain(bookmark.url)}</div>
       )}
-      <p className="text-muted-foreground line-clamp-2">{bookmark.description}</p>
+
+      {snippet ? (
+        <p className="text-muted-foreground line-clamp-4">
+          <Highlighter
+            searchWords={searchWords} // or split into keywords
+            textToHighlight={snippet}
+            highlightClassName="bg-yellow-200 dark:bg-yellow-700"
+          />
+        </p>
+      ) : (
+        <p className="text-muted-foreground line-clamp-2">{bookmark.description}</p>
+      )}
+
       <div className="flex flex-wrap gap-2">
         {bookmark?.tags?.map((tag) => (
           <Badge key={tag.id} variant="secondary">

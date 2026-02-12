@@ -72,7 +72,11 @@ export function RemoveBookmarkModal({ onEdit, onClose }: RemoveBookmarkModalProp
           <Button className="w-fit" onClick={onEdit}>
             Cancel
           </Button>
-          <Button className="w-fit" variant="destructive" onClick={onRemove}>
+          <Button
+            className="w-fit outline bg-muted hover:bg-destructive"
+            variant="ghost"
+            onClick={onRemove}
+          >
             Remove
           </Button>
         </div>
