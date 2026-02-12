@@ -273,11 +273,11 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
   );
 
   const removeBookmark = useCallback(
-    async (bookmarkId: string): Promise<BookmarkResponse> => {
+    async (bookmarkId: string): Promise<void> => {
       // remove the bookmark
       try {
         dispatch({ type: "SET_IS_LOADING", isLoading: true });
-        return await deleteBookmark(bookmarkId);
+        await deleteBookmark(bookmarkId);
       } finally {
         // clear the loading flag and refresh the bookmarks list
         dispatch({ type: "SET_IS_LOADING", isLoading: false });

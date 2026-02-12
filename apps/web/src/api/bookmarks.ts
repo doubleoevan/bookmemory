@@ -94,12 +94,12 @@ export async function updateBookmark(
 /**
  * DELETE /api/v1/bookmarks/{bookmark_id}
  */
-export async function deleteBookmark(bookmarkId: string): Promise<BookmarkResponse> {
+export async function deleteBookmark(bookmarkId: string): Promise<void> {
   if (!bookmarkId) {
     throw new Error("bookmarkId is required");
   }
 
-  return apiRequest<BookmarkResponse>(deleteBookmarkApiV1BookmarksBookmarkIdDelete, {
+  await apiRequest<void>(deleteBookmarkApiV1BookmarksBookmarkIdDelete, {
     path: { bookmark_id: bookmarkId },
   });
 }

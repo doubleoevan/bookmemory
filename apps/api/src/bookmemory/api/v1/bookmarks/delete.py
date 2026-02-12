@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import UUID
@@ -17,7 +17,7 @@ async def delete_bookmark(
     bookmark_id: UUID,
     session: AsyncSession = Depends(get_db),
     current_user: CurrentUser = Depends(get_current_user),
-) -> None:
+) -> Response:
     # find and return the bookmark or throw a 404 if not found
     try:
         user_id: UUID = current_user.id
@@ -31,4 +31,4 @@ async def delete_bookmark(
 
     await session.delete(bookmark)
     await session.commit()
-    return None
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

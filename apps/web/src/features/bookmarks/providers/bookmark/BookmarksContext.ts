@@ -33,7 +33,7 @@ export type BookmarkContextValue = BookmarkState & {
     },
   ) => Promise<BookmarkResponse>;
 
-  removeBookmark: (bookmarkId: string) => Promise<BookmarkResponse>;
+  removeBookmark: (bookmarkId: string) => Promise<void>;
 
   getBookmarksPage: (params?: {
     search?: string | null;
