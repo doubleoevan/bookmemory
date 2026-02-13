@@ -196,7 +196,7 @@ async def search_bookmarks(
         if search_result_score < MINIMUM_SCORE:
             continue
 
-        # choose a representative to chunk use for a snippet
+        # choose a representative chunk use for a snippet
         # prefer keyword chunks over semantic chunks for highlighting
         if keyword_chunk_id is not None and keyword_text is not None:
             chunk_id = keyword_chunk_id
