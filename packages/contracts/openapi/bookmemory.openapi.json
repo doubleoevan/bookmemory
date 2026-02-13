@@ -310,22 +310,6 @@
         "operationId": "get_bookmarks_api_v1_bookmarks__get",
         "parameters": [
           {
-            "name": "search",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "title": "Search"
-            }
-          },
-          {
             "name": "tag",
             "in": "query",
             "required": false,

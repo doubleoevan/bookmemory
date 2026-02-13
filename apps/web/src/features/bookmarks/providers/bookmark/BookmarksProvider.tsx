@@ -1,4 +1,4 @@
-import { ReactNode, useCallback, useMemo, useReducer, useRef } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 
 import {
   BookmarkCreateRequest,
@@ -84,10 +84,6 @@ function toPageQuery(query: GetBookmarksQuery = {}): string {
 }
 
 function isQueryFiltered(query: GetBookmarksQuery = {}): boolean {
-  // check if the query has a search filter
-  const search = query?.search?.trim() ?? "";
-  const hasSearchFilter = search.length > 0;
-
   // check if the query has tags filter
   const tags = query?.tag ?? [];
   const tagMode = query?.tag_mode;
@@ -96,7 +92,7 @@ function isQueryFiltered(query: GetBookmarksQuery = {}): boolean {
   // check if the query has an offset filter
   const offset = query?.offset;
   const hasOffsetFilter = offset !== undefined && offset > 0;
-  return hasSearchFilter || hasTagsFilter || hasOffsetFilter;
+  return hasTagsFilter || hasOffsetFilter;
 }
 
 function bookmarkReducer(state: BookmarkState, action: BookmarkAction): BookmarkState {
@@ -164,6 +160,14 @@ function bookmarkReducer(state: BookmarkState, action: BookmarkAction): Bookmark
 export function BookmarksProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(bookmarkReducer, initialState);
 
+  // load initial bookmarks and user tags on mount
+  useEffect(() => {
+    void getBookmarksPage({ offset: 0 });
+    void getUserTags();
+    // keep this hook stable
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // put state in a ref to keep callbacks stable
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -182,9 +186,8 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     }) => {
       // set the limit and offset for pagination
       const query = {
-        search: params?.search,
-        tag: params?.tag,
-        tag_mode: params?.tag_mode,
+        tag: params?.tag ?? stateRef.current.selectedTags,
+        tag_mode: params?.tag_mode ?? stateRef.current.selectedTagMode,
         sort: params?.sort ?? stateRef.current.sort,
         limit: params?.limit || stateRef.current.limit,
         offset: params?.offset ?? stateRef.current.offset,
@@ -217,9 +220,9 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     async (params: { search: string; tag?: string[]; tag_mode?: TagMode; limit?: number }) => {
       // convert the params into a POST body
       const body = {
-        search: params.search,
-        tags: params.tag,
-        tag_mode: params.tag_mode,
+        search: params.search ?? stateRef.current.search,
+        tags: params.tag ?? stateRef.current.selectedTags,
+        tag_mode: params.tag_mode ?? stateRef.current.selectedTagMode,
         limit: params.limit || stateRef.current.limit,
       } satisfies BookmarkSearchRequest;
 

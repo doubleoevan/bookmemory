@@ -10,15 +10,30 @@ interface BookmarkListProps {
 }
 
 export function BookmarkList({ onAddBookmarkClick, onBookmarkClick }: BookmarkListProps) {
-  const { userHasBookmarks, getBookmarksPage, isLoading, bookmarks, total } = useBookmarks();
+  const {
+    userHasBookmarks,
+    getBookmarksPage,
+    getBookmarksSearchPage,
+    isLoading,
+    bookmarks,
+    total,
+    sort,
+    search,
+    selectedTags,
+    selectedTagMode,
+  } = useBookmarks();
 
-  // load initial bookmarks on mount
+  // update the bookmarks when the tag or sort filters change
   useEffect(() => {
-    if (!userHasBookmarks) {
+    if (search?.trim()) {
+      void getBookmarksSearchPage({ search: search.trim() });
+    } else {
       void getBookmarksPage({ offset: 0 });
     }
+
+    // keep this hook stable
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectedTags, selectedTagMode, sort]);
 
   // infinite scroll with a page bottom sentinel
   const hasMoreBookmarks = total > 0 && bookmarks.length < total;

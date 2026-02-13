@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from typing import cast, Optional, Literal
+from typing import cast, Literal
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Query
 from fastapi_pagination import LimitOffsetPage
 from fastapi_pagination.ext.sqlalchemy import apaginate
 from fastapi_pagination.limit_offset import LimitOffsetParams
-import sqlalchemy as sa
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -24,32 +23,10 @@ from bookmemory.schemas.users import CurrentUser
 router = APIRouter()
 
 
-def _bookmark_search_vector() -> sa.ColumnElement[str]:
-    # return the weighted bookmark search fields vector
-    return (
-        func.setweight(
-            func.to_tsvector("english", func.coalesce(Bookmark.title, "")), "A"
-        )
-        + func.setweight(
-            func.to_tsvector("english", func.coalesce(Bookmark.description, "")), "B"
-        )
-        + func.setweight(
-            func.to_tsvector("english", func.coalesce(Bookmark.summary, "")), "B"
-        )
-        + func.setweight(
-            func.to_tsvector("english", func.coalesce(Bookmark.content, "")), "C"
-        )
-        + func.setweight(
-            func.to_tsvector("english", func.coalesce(Bookmark.url, "")), "D"
-        )
-    )
-
-
 @router.get("/", response_model=LimitOffsetPage[BookmarkResponse])
 async def get_bookmarks(
     session: AsyncSession = Depends(get_db),
     current_user: CurrentUser = Depends(get_current_user),
-    search: Optional[str] = Query(default=None),
     tags: list[str] = Query(default_factory=list, alias="tag"),
     tag_mode: TagMode = Query(default="ignore"),
     sort: Literal["alphabetical", "recent"] = Query(default="recent"),
@@ -63,20 +40,6 @@ async def get_bookmarks(
         .where(Bookmark.user_id == user_id)
         .options(selectinload(Bookmark.tags))
     )
-
-    # apply the keyword text search
-    rank_search_result_expression = None
-    search_text = search.strip() if search else ""
-    has_query = search_text != ""
-    if has_query:
-        text_search_query = func.websearch_to_tsquery("english", search_text)
-        text_search_vector = _bookmark_search_vector()
-        rank_search_result_expression = func.ts_rank_cd(
-            text_search_vector, text_search_query
-        )
-        select_bookmarks_statement = select_bookmarks_statement.where(
-            text_search_vector.op("@@")(text_search_query)
-        )
 
     # filter by tags
     normalized_tags = normalize_tags(tags)
@@ -118,26 +81,17 @@ async def get_bookmarks(
         )
 
     # apply sorting
-    if has_query and rank_search_result_expression is not None:
-        # always sort by relevance if searching
+    if sort == "alphabetical":
         select_bookmarks_statement = select_bookmarks_statement.order_by(
-            sa.desc(rank_search_result_expression),  # highest ranked results first
-            Bookmark.updated_at.desc(),
+            func.lower(Bookmark.title).asc(),
+            Bookmark.created_at.desc(),
             Bookmark.id.desc(),
         )
     else:
-        # or apply the provided sort order
-        if sort == "alphabetical":
-            select_bookmarks_statement = select_bookmarks_statement.order_by(
-                func.lower(Bookmark.title).asc(),
-                Bookmark.created_at.desc(),
-                Bookmark.id.desc(),
-            )
-        else:
-            select_bookmarks_statement = select_bookmarks_statement.order_by(
-                Bookmark.updated_at.desc(),
-                Bookmark.id.desc(),
-            )
+        select_bookmarks_statement = select_bookmarks_statement.order_by(
+            Bookmark.updated_at.desc(),
+            Bookmark.id.desc(),
+        )
 
     # return a paginated list of bookmarks
     return cast(

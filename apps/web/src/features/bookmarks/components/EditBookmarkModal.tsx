@@ -1,6 +1,5 @@
 import { ExternalLink as ExternalLinkIcon, Eye } from "lucide-react";
 import {
-  Badge,
   Button,
   Dialog,
   DialogContent,
@@ -14,6 +13,7 @@ import { ExternalLink } from "@/components/ExternalLink";
 import { useBookmarks } from "@/features/bookmarks/providers/bookmark";
 import { MouseEventHandler, SubmitEventHandler, useEffect, useState } from "react";
 import { useSummary } from "@/features/bookmarks/providers/summary";
+import { TagItems } from "@/components/TagItems";
 
 interface EditBookmarkModalProps {
   onClose: () => void;
@@ -26,6 +26,7 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
   const { setSummary, summary, startSummary, isLoading: isLoadingSummary } = useSummary();
   const [title, setTitle] = useState<string>(bookmark?.title ?? "");
   const [description, setDescription] = useState<string>(bookmark?.description ?? "");
+  const tags = bookmark?.tags?.map((tag) => tag.name) || [];
 
   const isBookmarkPreview = bookmark?.preview_method;
   useEffect(() => {
@@ -213,14 +214,9 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
           )}
 
           {/* tags section */}
-          <div className="flex flex-wrap gap-2">
-            <span className="text-muted-foreground">Tags:</span>
-            {bookmark?.tags?.map((tag) => (
-              <Badge key={tag.id} variant="secondary">
-                {tag.name}
-              </Badge>
-            ))}
-          </div>
+          {tags.length > 0 && (
+            <TagItems label={<span className="text-muted-foreground">Tags:</span>} tags={tags} />
+          )}
 
           {/* buttons section */}
           <div className="flex justify-end gap-2">

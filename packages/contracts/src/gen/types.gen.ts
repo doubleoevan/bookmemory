@@ -541,10 +541,6 @@ export type GetBookmarksApiV1BookmarksGetData = {
     path?: never;
     query?: {
         /**
-         * Search
-         */
-        search?: string | null;
-        /**
          * Tag
          */
         tag?: Array<string>;

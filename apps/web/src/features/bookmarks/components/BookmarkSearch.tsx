@@ -1,4 +1,4 @@
-import { SubmitEventHandler, useEffect } from "react";
+import { MouseEventHandler, SubmitEventHandler } from "react";
 import { Search, X } from "lucide-react";
 import {
   Button,
@@ -10,8 +10,9 @@ import {
   Textarea,
 } from "@bookmemory/ui";
 import { useBookmarks } from "@/features/bookmarks/providers/bookmark";
-import { Sort, TagMode } from "@/features/bookmarks/providers/bookmark/BookmarksProvider";
 import { TagModeSelect } from "@/components/TagModeSelect";
+import { TagMultiSelect } from "@/components/TagMultiSelect";
+import { TagItems } from "@/components/TagItems";
 
 interface BookmarkSearchProps {
   onAddBookmarkClick: () => void;
@@ -27,75 +28,30 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
     getBookmarksSearchPage,
     search,
     setSearch,
+    userTags,
     selectedTags,
+    setSelectedTags,
     selectedTagMode,
     setSelectedTagMode,
   } = useBookmarks();
 
-  // reset the list page when the search gets cleared
-  useEffect(() => {
-    if (!search?.trim()) {
-      void getBookmarksPage({
-        sort,
-        offset: 0,
-        tag_mode: selectedTagMode,
-        // TODO: tags
-      });
-    }
-  }, [search, sort, getBookmarksPage, selectedTagMode]);
-
   const onSearch: SubmitEventHandler = (event) => {
     // search bookmarks on submitting
     event.preventDefault();
-    if (!search?.trim()) {
-      void getBookmarksPage({
-        sort,
-        offset: 0,
-        tag_mode: selectedTagMode,
-        // TODO: tags
-      });
-    } else {
-      void getBookmarksSearchPage({
-        search: search.trim(),
-        tag_mode: selectedTagMode,
-        // TODO: tags
-      });
+    if (search?.trim()) {
+      void getBookmarksSearchPage({ search: search.trim() });
     }
   };
 
-  const onTagModeChange = (value: string) => {
-    const tagMode = value as TagMode;
-    setSelectedTagMode(tagMode);
-    if (!search?.trim()) {
-      void getBookmarksPage({
-        sort,
-        offset: 0,
-        tag_mode: tagMode,
-        // TODO: tags
-      });
-    } else {
-      void getBookmarksSearchPage({
-        search: search.trim(),
-        tag_mode: tagMode,
-        // TODO: tags
-      });
-    }
-  };
-
-  // reload the list when the sort changes
-  const onSort = (sortValue: Sort) => {
-    setSort(sortValue);
-    void getBookmarksPage({
-      search,
-      sort: sortValue,
-      offset: 0,
-      tag_mode: selectedTagMode,
-      // TODO: tags
-    });
+  const onClearSearch: MouseEventHandler = (event) => {
+    event.preventDefault();
+    setSearch("");
+    void getBookmarksPage({ offset: 0 });
   };
 
   return (
     <div>
+      {/* search form */}
       {userHasBookmarks && (
         <form className="relative px-4" onSubmit={onSearch}>
           <Textarea
@@ -129,10 +85,7 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
             <button
               type="button"
               className="absolute top-2.5 right-16 cursor-pointer"
-              onMouseDown={(event) => {
-                event.preventDefault();
-                setSearch("");
-              }}
+              onMouseDown={onClearSearch}
             >
               <X className="h-6 w-6 text-muted-foreground" />
             </button>
@@ -147,18 +100,32 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
           </Button>
         </form>
       )}
+
+      {/* selected tags */}
+      {selectedTags.length > 0 && (
+        <TagItems
+          tags={selectedTags}
+          onChange={setSelectedTags}
+          canSelect={true}
+          className="px-5 pt-4"
+        />
+      )}
+
       <div className="flex items-center justify-between p-4">
-        {/* tags multiselect */}
-        {selectedTags.length > 0 && (
-          <TagModeSelect tagMode={selectedTagMode} onChange={onTagModeChange} />
+        {/* tag select */}
+        {userTags.length > 0 && (
+          <div className="flex items-center gap-2">
+            <TagMultiSelect userTags={userTags} tags={selectedTags} onChange={setSelectedTags} />
+            <TagModeSelect tagMode={selectedTagMode} onChange={setSelectedTagMode} />
+          </div>
         )}
 
         {/* sort select */}
         {userHasBookmarks && !search?.trim() ? (
           <div className="flex items-center gap-2">
             Sort by:
-            <Select value={sort} onValueChange={onSort}>
-              <SelectTrigger className="w-fit cursor-pointer">
+            <Select value={sort} onValueChange={setSort}>
+              <SelectTrigger className="w-fit cursor-pointer bg-accent/50 hover:bg-accent">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -174,6 +141,7 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
         ) : (
           <div />
         )}
+
         {/* add bookmark button */}
         <Button onClick={onAddBookmarkClick}>Add Bookmark</Button>
       </div>

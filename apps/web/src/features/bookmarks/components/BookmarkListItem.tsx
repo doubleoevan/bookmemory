@@ -1,10 +1,10 @@
 import Highlighter from "react-highlight-words";
 import { ExternalLink as ExternalLinkIcon } from "lucide-react";
-import { Badge } from "@bookmemory/ui";
 import { BookmarkResponse, BookmarkSearchResponse } from "@bookmemory/contracts";
 import { useBookmarks } from "@/features/bookmarks/providers/bookmark";
 import { ExternalLink } from "@/components/ExternalLink";
 import { getDomain } from "@/utils/url";
+import { TagItems } from "@/components/TagItems";
 
 function toSearchWords(search: string | undefined | null): string[] {
   const trimmedSearch = search?.trim() ?? "";
@@ -24,6 +24,7 @@ export function BookmarkListItem({
   const { setBookmark, search } = useBookmarks();
   const searchWords = toSearchWords(search);
   const snippet = "snippet" in bookmark ? bookmark.snippet : null;
+  const tags = bookmark.tags?.map((tag) => tag.name) || [];
 
   // show the selected bookmark on click
   const onViewBookmark = () => {
@@ -67,14 +68,7 @@ export function BookmarkListItem({
       ) : (
         <p className="text-muted-foreground line-clamp-2">{bookmark.description}</p>
       )}
-
-      <div className="flex flex-wrap gap-2">
-        {bookmark?.tags?.map((tag) => (
-          <Badge key={tag.id} variant="secondary">
-            {tag.name}
-          </Badge>
-        ))}
-      </div>
+      {tags.length > 0 && <TagItems tags={tags} canSelect={true} />}
     </article>
   );
 }

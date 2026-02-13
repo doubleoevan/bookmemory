@@ -12,7 +12,7 @@ export function TagModeSelect({
     <div className="flex items-center gap-2">
       Match tags:
       <Select value={tagMode} onValueChange={onChange}>
-        <SelectTrigger className="w-fit cursor-pointer">
+        <SelectTrigger className="w-fit cursor-pointer bg-accent/50 hover:bg-accent">
           <SelectValue placeholder="Match tags" />
         </SelectTrigger>
         <SelectContent>
