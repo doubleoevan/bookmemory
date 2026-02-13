@@ -28,6 +28,7 @@ import {
 import { BookmarksContext } from "@/features/bookmarks/providers/bookmark/BookmarksContext";
 import { toast } from "@bookmemory/ui";
 import { getErrorMessage } from "@/utils/error";
+import { useCurrentUser } from "@/features/authentication/hooks/useCurrentUser";
 
 export type Sort = "alphabetical" | "recent";
 export type TagMode = "any" | "all" | "ignore";
@@ -420,10 +421,14 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // load the initial bookmarks and user tags on mount
+  const { user } = useCurrentUser();
   useEffect(() => {
+    if (!user?.id) {
+      return;
+    }
     void getBookmarksPage({ offset: 0 });
     void getUserTags();
-  }, [getBookmarksPage, getUserTags]);
+  }, [user?.id, getBookmarksPage, getUserTags]);
 
   // memoize context to avoid rerendering consumers
   const value = useMemo(

@@ -15,7 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@bookmemory/ui";
-import { CircleUserRoundIcon, LogOut } from "lucide-react";
+import { CircleUserRoundIcon, LogIn, LogOut } from "lucide-react";
 import { useCurrentUser } from "@/features/authentication/hooks/useCurrentUser";
 import { useTheme } from "@/app/theme";
 import { logoutApiV1AuthLogoutPost } from "@bookmemory/contracts";
@@ -23,6 +23,7 @@ import { logoutApiV1AuthLogoutPost } from "@bookmemory/contracts";
 export default function UserMenu() {
   const { theme, setTheme } = useTheme();
   const { user } = useCurrentUser();
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const onChangeTheme = (theme: string) => {
     if (theme !== "light" && theme !== "dark") {
@@ -38,6 +39,10 @@ export default function UserMenu() {
       // simplest + safest for cookie auth: force a clean reload
       window.location.href = "/login";
     }
+  };
+
+  const onLogin = () => {
+    window.location.href = `${API_BASE_URL}/api/v1/auth/google/start`;
   };
 
   return (
@@ -87,14 +92,17 @@ export default function UserMenu() {
           <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
 
-        {user && (
-          <>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer" onClick={onLogout}>
-              <LogOut className="h-4 w-4" />
-              <span>Log out</span>
-            </DropdownMenuItem>
-          </>
+        <DropdownMenuSeparator />
+        {user ? (
+          <DropdownMenuItem className="cursor-pointer" onClick={onLogout}>
+            <LogOut className="h-4 w-4" />
+            <span>Log out</span>
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem className="cursor-pointer" onClick={onLogin}>
+            <LogIn className="h-4 w-4" />
+            <span>Log in</span>
+          </DropdownMenuItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

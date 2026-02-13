@@ -124,6 +124,22 @@ export function TagMultiSelect({
               placeholder="Search tags..."
               value={tagSearch}
               onValueChange={setTagSearch}
+              onKeyDown={(event) => {
+                // try to add on Enter
+                if (event.key !== "Enter") {
+                  return;
+                }
+
+                // check if there are no other tags available
+                if (!canAddTag || searchTags.length > 0) {
+                  return;
+                }
+
+                // add the new tag
+                event.preventDefault();
+                event.stopPropagation();
+                onAddTag();
+              }}
             />
             {!canAddTag && <CommandEmpty>No tags</CommandEmpty>}
             <CommandGroup>

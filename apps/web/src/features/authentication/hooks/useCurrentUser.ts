@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import type { CurrentUser } from "@bookmemory/contracts";
 import { getCurrentUser } from "@/api";
+import { getErrorMessage } from "@/utils/error";
 
 type CurrentUserState =
   | { status: "loading"; user?: undefined; message?: undefined }
@@ -27,7 +28,14 @@ export function useCurrentUser(): CurrentUserState {
           return;
         }
 
-        if (error instanceof Response && error.status === 401) {
+        const errorMessage = getErrorMessage(error);
+        if (
+          errorMessage === "Not authenticated" ||
+          errorMessage === "Invalid token" ||
+          errorMessage === "Expired token" ||
+          errorMessage === "Invalid refresh token" ||
+          errorMessage === "Refresh token expired"
+        ) {
           setUserState({ status: "signed_out" });
           return;
         }
