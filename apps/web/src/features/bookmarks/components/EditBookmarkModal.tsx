@@ -13,6 +13,7 @@ import { ExternalLink } from "@/components/ExternalLink";
 import { useBookmarks } from "@/features/bookmarks/providers/bookmark";
 import { MouseEventHandler, SubmitEventHandler, useEffect, useState } from "react";
 import { useSummary } from "@/features/bookmarks/providers/summary";
+import { TagMultiSelect } from "@/components/TagMultiSelect";
 import { TagItems } from "@/components/TagItems";
 
 interface EditBookmarkModalProps {
@@ -22,11 +23,11 @@ interface EditBookmarkModalProps {
 }
 
 export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkModalProps) {
-  const { bookmark, addBookmark, saveBookmark, getBookmarksPage } = useBookmarks();
+  const { bookmark, addBookmark, saveBookmark, getBookmarksPage, userTags } = useBookmarks();
   const { setSummary, summary, startSummary, isLoading: isLoadingSummary } = useSummary();
   const [title, setTitle] = useState<string>(bookmark?.title ?? "");
   const [description, setDescription] = useState<string>(bookmark?.description ?? "");
-  const tags = bookmark?.tags?.map((tag) => tag.name) || [];
+  const [tags, setTags] = useState<Array<string>>(bookmark?.tags?.map((tag) => tag.name) ?? []);
 
   const isBookmarkPreview = bookmark?.preview_method;
   useEffect(() => {
@@ -67,7 +68,7 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
         title: bookmarkTitle,
         description: bookmarkDescription,
         type: bookmark?.type as "link" | "note" | "file" | undefined, // only if your update params include type
-        tags: bookmark?.tags?.map((tag) => tag.name),
+        tags,
       });
 
       // refresh the bookmarks list, start generating the summary, and go to the view
@@ -86,7 +87,7 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
         description: bookmarkDescription,
         summary: bookmarkSummary,
         type: bookmark?.type as "link" | "note" | "file" | undefined, // only if your update params include type
-        tags: bookmark?.tags?.map((tag) => tag.name),
+        tags,
       });
     }
 
@@ -214,9 +215,11 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
           )}
 
           {/* tags section */}
-          {tags.length > 0 && (
-            <TagItems label={<span className="text-muted-foreground">Tags:</span>} tags={tags} />
-          )}
+          <div className="flex gap-2 items-center">
+            <span className="text-muted-foreground">Tags: </span>
+            <TagItems tags={tags} onChange={setTags} />
+          </div>
+          <TagMultiSelect tags={tags} onChange={setTags} userTags={userTags} canCreate={true} />
 
           {/* buttons section */}
           <div className="flex justify-end gap-2">

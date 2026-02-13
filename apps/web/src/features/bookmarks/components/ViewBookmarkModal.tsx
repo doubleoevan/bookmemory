@@ -30,12 +30,14 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
 
   const contentRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    // add related bookmarks
+    // update related bookmarks when the bookmark or tag mode changes
     const bookmarkId = bookmark?.id;
     if (bookmarkId) {
       void addRelatedBookmarks({ bookmarkId, tag_mode: tagMode });
     }
+  }, [addRelatedBookmarks, bookmark, tagMode]);
 
+  useEffect(() => {
     // update the summary when the bookmark changes
     if (bookmark?.summary) {
       setSummary(bookmark.summary);
@@ -48,7 +50,7 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
         behavior: "smooth", // or "auto" if you prefer instant
       });
     }
-  }, [bookmark, contentRef, addRelatedBookmarks, setSummary, tagMode]);
+  }, [setSummary, bookmark, contentRef]);
 
   const onGenerateSummary: MouseEventHandler = async (event) => {
     event.preventDefault();

@@ -10,7 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@bookmemory/ui";
-import { Check } from "lucide-react";
+import { Check, Plus } from "lucide-react";
 import { TagCountResponse } from "@bookmemory/contracts";
 
 export function TagMultiSelect({
@@ -27,12 +27,11 @@ export function TagMultiSelect({
   children?: ReactNode;
   className?: string;
 }) {
-  console.log("TODO: implement", { canCreate });
   const [tagSearch, setTagSearch] = useState("");
   const [openSearchMenu, setOpenSearchMenu] = useState(false);
 
   // show all options that match the tag search
-  const searchTagOptions = useMemo(() => {
+  const searchTags = useMemo(() => {
     // show all tags if the search is empty
     const search = tagSearch.toLowerCase();
     if (!search) {
@@ -52,10 +51,57 @@ export function TagMultiSelect({
     }
   };
 
+  // determine if a tag can be added
+  const searchTag = tagSearch.trim();
+  const canAddTag = useMemo(() => {
+    // check if the select is in create mode
+    if (!canCreate) {
+      return false;
+    }
+
+    // check if the tag name is valid
+    if (!searchTag) {
+      return false;
+    }
+
+    // check if the tag was already created
+    const isTagExisting = userTags.some(
+      (tag) => tag.name.toLowerCase() === searchTag.toLowerCase(),
+    );
+    if (isTagExisting) {
+      return false;
+    }
+
+    // check if the tag was already selected
+    return !tags.some((tag) => tag.toLowerCase() === searchTag.toLowerCase());
+  }, [canCreate, searchTag, userTags, tags]);
+
+  // add a new tag
+  const onAddTag = () => {
+    // check if the tag can be added
+    if (!canAddTag) {
+      return;
+    }
+
+    // add the new tag, clear the search, and close the menu
+    onChange([...tags, searchTag]);
+    setTagSearch("");
+    setOpenSearchMenu(false);
+  };
+
   return (
     <div className={className}>
       {/* tag selector */}
-      <Popover open={openSearchMenu} onOpenChange={setOpenSearchMenu}>
+      <Popover
+        open={openSearchMenu}
+        onOpenChange={(open) => {
+          // clear the search when the menu is closed
+          setOpenSearchMenu(open);
+          if (!open) {
+            setTagSearch("");
+          }
+        }}
+      >
         {/* select tags button */}
         <PopoverTrigger asChild>
           <button
@@ -79,9 +125,22 @@ export function TagMultiSelect({
               value={tagSearch}
               onValueChange={setTagSearch}
             />
-            <CommandEmpty>No tags yet.</CommandEmpty>
+            {!canAddTag && <CommandEmpty>No tags</CommandEmpty>}
             <CommandGroup>
-              {searchTagOptions.map((tag) => {
+              {canAddTag && (
+                <CommandItem
+                  value={`create:${searchTag.toLowerCase()}`}
+                  onSelect={onAddTag}
+                  className="cursor-pointer"
+                >
+                  <div className="flex w-full items-center gap-2">
+                    <Plus className="h-4 w-4" />
+                    <span>Create "{searchTag}"</span>
+                  </div>
+                </CommandItem>
+              )}
+
+              {searchTags.map((tag) => {
                 const isTagSelected = tags.includes(tag.name);
                 return (
                   <CommandItem
