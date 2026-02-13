@@ -160,14 +160,6 @@ function bookmarkReducer(state: BookmarkState, action: BookmarkAction): Bookmark
 export function BookmarksProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(bookmarkReducer, initialState);
 
-  // load initial bookmarks and user tags on mount
-  useEffect(() => {
-    void getBookmarksPage({ offset: 0 });
-    void getUserTags();
-    // keep this hook stable
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // put state in a ref to keep callbacks stable
   const stateRef = useRef(state);
   stateRef.current = state;
@@ -397,6 +389,12 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
   const setSelectedTagMode = useCallback((selectedTagMode: TagMode) => {
     dispatch({ type: "SET_SELECTED_TAG_MODE", selectedTagMode });
   }, []);
+
+  // load initial bookmarks and user tags on mount
+  useEffect(() => {
+    void getBookmarksPage({ offset: 0 });
+    void getUserTags();
+  }, [getBookmarksPage, getUserTags]);
 
   // memoize context to avoid rerendering consumers
   const value = useMemo(
