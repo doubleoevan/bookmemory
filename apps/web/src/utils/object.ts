@@ -20,3 +20,7 @@ export function typedKeys<T extends Record<PropertyKey, unknown>>(object: T): Ar
 export function typedValues<T extends Record<PropertyKey, unknown>>(object: T): Array<T[keyof T]> {
   return Object.values(object) as Array<T[keyof T]>;
 }
+
+export function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}

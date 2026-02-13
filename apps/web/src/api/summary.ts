@@ -1,5 +1,5 @@
-// apps/web/src/api/summary.ts
 import ndjsonStream from "can-ndjson-stream";
+import { getErrorMessage } from "@/utils/error";
 
 type StreamEvent =
   | { chunk: string }
@@ -97,7 +97,7 @@ export async function streamSummary({
     }
     onError({
       code: "INTERNAL",
-      message: error instanceof Error ? error.message : "Network error",
+      message: getErrorMessage(error),
     });
     return;
   }

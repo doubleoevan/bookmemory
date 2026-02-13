@@ -1,7 +1,9 @@
 "use client";
 
-import { Toaster as SonnerToaster } from "sonner";
+import { toast, Toaster as SonnerToaster, type ToasterProps } from "sonner";
 
-export function Toaster() {
-  return <SonnerToaster richColors closeButton position="top-right" />;
+export { toast };
+
+export function Toaster(props: ToasterProps) {
+  return <SonnerToaster richColors closeButton position="top-right" {...props} />;
 }

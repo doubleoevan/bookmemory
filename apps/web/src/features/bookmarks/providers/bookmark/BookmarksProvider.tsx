@@ -26,6 +26,8 @@ import {
   updateBookmark,
 } from "@/api";
 import { BookmarksContext } from "@/features/bookmarks/providers/bookmark/BookmarksContext";
+import { toast } from "@bookmemory/ui";
+import { getErrorMessage } from "@/utils/error";
 
 export type Sort = "alphabetical" | "recent";
 export type TagMode = "any" | "all" | "ignore";
@@ -182,6 +184,8 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
         dispatch({ type: "SET_IS_LOADING", isLoading: true });
         const bookmarks = await searchBookmarks(body);
         dispatch({ type: "ADD_SEARCH_BOOKMARKS", bookmarks });
+      } catch (error) {
+        toast.error(getErrorMessage(error) ?? "Error searching bookmarks.");
       } finally {
         dispatch({ type: "SET_IS_LOADING", isLoading: false });
       }
@@ -232,6 +236,8 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
         dispatch({ type: "SET_IS_LOADING", isLoading: true });
         const bookmarksPage = await getBookmarks(query);
         dispatch({ type: "ADD_BOOKMARKS_PAGE", bookmarksPage, setHasBookmarks });
+      } catch (error) {
+        toast.error(getErrorMessage(error) ?? "Error getting bookmarks.");
       } finally {
         dispatch({ type: "SET_IS_LOADING", isLoading: false });
         pageQueriesRef.current.delete(pageQuery);
@@ -253,6 +259,8 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
         dispatch({ type: "SET_IS_LOADING", isLoading: true });
         const relatedBookmarks = await getRelatedBookmarks(params.bookmarkId, query);
         dispatch({ type: "SET_RELATED_BOOKMARKS", relatedBookmarks });
+      } catch (error) {
+        toast.error(getErrorMessage(error) ?? "Error getting related bookmarks.");
       } finally {
         dispatch({ type: "SET_IS_LOADING", isLoading: false });
       }
@@ -284,6 +292,9 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
         void loadBookmark(bookmark.id); // load the bookmark embeddings but don't wait to finish
         dispatch({ type: "SET_BOOKMARK", bookmark });
         return bookmark;
+      } catch (error) {
+        toast.error(getErrorMessage(error) ?? "Error adding bookmark.");
+        throw error;
       } finally {
         // clear the loading flag and refresh the bookmarks list
         dispatch({ type: "SET_IS_LOADING", isLoading: false });
@@ -308,6 +319,9 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
         const bookmark = await previewBookmark(body);
         dispatch({ type: "SET_BOOKMARK", bookmark });
         return bookmark;
+      } catch (error) {
+        toast.error(getErrorMessage(error) ?? "Error previewing bookmark.");
+        throw error;
       } finally {
         // clear the loading flag
         dispatch({ type: "SET_IS_LOADING", isLoading: false });
@@ -342,6 +356,9 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
         const bookmark = await updateBookmark(bookmarkId, body);
         dispatch({ type: "SET_BOOKMARK", bookmark });
         return bookmark;
+      } catch (error) {
+        toast.error(getErrorMessage(error) ?? "Error saving bookmark.");
+        throw error;
       } finally {
         // clear the loading flag and refresh the bookmarks list
         dispatch({ type: "SET_IS_LOADING", isLoading: false });
@@ -358,6 +375,8 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       try {
         dispatch({ type: "SET_IS_LOADING", isLoading: true });
         await deleteBookmark(bookmarkId);
+      } catch (error) {
+        toast.error(getErrorMessage(error) ?? "Error removing bookmark.");
       } finally {
         // clear the loading flag and refresh the bookmarks list
         dispatch({ type: "SET_IS_LOADING", isLoading: false });
