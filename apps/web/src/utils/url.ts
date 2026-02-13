@@ -20,7 +20,5 @@ export function normalizeUrl(input: string): string {
 }
 
 export function isUrlValid(url: string): boolean {
-  console.log(url.trim());
-  return false;
   return isUrlHttp(url.trim());
 }
