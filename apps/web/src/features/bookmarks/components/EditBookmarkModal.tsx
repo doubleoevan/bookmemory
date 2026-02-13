@@ -23,7 +23,7 @@ interface EditBookmarkModalProps {
 }
 
 export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkModalProps) {
-  const { bookmark, addBookmark, saveBookmark, getBookmarksPage, userTags } = useBookmarks();
+  const { bookmark, addBookmark, saveBookmark, userTags } = useBookmarks();
   const { setSummary, summary, startSummary, isLoading: isLoadingSummary } = useSummary();
   const [title, setTitle] = useState<string>(bookmark?.title ?? "");
   const [description, setDescription] = useState<string>(bookmark?.description ?? "");
@@ -71,14 +71,13 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
         tags,
       });
 
-      // refresh the bookmarks list, start generating the summary, and go to the view
-      void getBookmarksPage({ offset: 0 });
+      // start generating the summary and go to the view
       startSummary(newBookmark.id);
       onView();
       return;
     }
 
-    // update a bookmark if it already exists
+    // update a bookmark if it already exists and close the modal
     const bookmarkId = bookmark?.id;
     if (bookmarkId) {
       await saveBookmark(bookmarkId, {
@@ -90,10 +89,7 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
         tags,
       });
     }
-
-    // close the modal and refresh the bookmarks list
     onClose();
-    void getBookmarksPage({ offset: 0 });
   };
 
   const onGenerateSummary: MouseEventHandler = async (event) => {

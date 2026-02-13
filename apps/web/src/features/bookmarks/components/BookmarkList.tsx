@@ -13,23 +13,17 @@ export function BookmarkList({ onAddBookmarkClick, onBookmarkClick }: BookmarkLi
   const {
     userHasBookmarks,
     getBookmarksPage,
-    getBookmarksSearchPage,
     isLoading,
     bookmarks,
     total,
     sort,
-    search,
     selectedTags,
     selectedTagMode,
   } = useBookmarks();
 
   // update the bookmarks when the tag or sort filters change
   useEffect(() => {
-    if (search?.trim()) {
-      void getBookmarksSearchPage({ search: search.trim() });
-    } else {
-      void getBookmarksPage({ offset: 0 });
-    }
+    void getBookmarksPage({ offset: 0 });
 
     // keep this hook stable
     // eslint-disable-next-line react-hooks/exhaustive-deps

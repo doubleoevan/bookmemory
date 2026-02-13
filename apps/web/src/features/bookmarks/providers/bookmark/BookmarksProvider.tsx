@@ -167,6 +167,28 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
   // keep track of active page queries to prevent duplicate concurrent requests
   const pageQueriesRef = useRef<Set<string>>(new Set());
 
+  const getBookmarksSearchPage = useCallback(
+    async (params: { search: string; tag?: string[]; tag_mode?: TagMode; limit?: number }) => {
+      // convert the params into a POST body
+      const body = {
+        search: params.search ?? stateRef.current.search,
+        tags: params.tag ?? stateRef.current.selectedTags,
+        tag_mode: params.tag_mode ?? stateRef.current.selectedTagMode,
+        limit: params.limit || stateRef.current.limit,
+      } satisfies BookmarkSearchRequest;
+
+      // add the bookmarks search page
+      try {
+        dispatch({ type: "SET_IS_LOADING", isLoading: true });
+        const bookmarks = await searchBookmarks(body);
+        dispatch({ type: "ADD_SEARCH_BOOKMARKS", bookmarks });
+      } finally {
+        dispatch({ type: "SET_IS_LOADING", isLoading: false });
+      }
+    },
+    [],
+  );
+
   const getBookmarksPage = useCallback(
     async (params?: {
       search?: string | null;
@@ -176,6 +198,16 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       limit?: number;
       offset?: number;
     }) => {
+      const search = params?.search ?? stateRef.current.search;
+      if (search) {
+        return getBookmarksSearchPage({
+          search,
+          tag: params?.tag,
+          tag_mode: params?.tag_mode,
+          limit: params?.limit,
+        });
+      }
+
       // set the limit and offset for pagination
       const query = {
         tag: params?.tag ?? stateRef.current.selectedTags,
@@ -205,29 +237,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
         pageQueriesRef.current.delete(pageQuery);
       }
     },
-    [],
-  );
-
-  const getBookmarksSearchPage = useCallback(
-    async (params: { search: string; tag?: string[]; tag_mode?: TagMode; limit?: number }) => {
-      // convert the params into a POST body
-      const body = {
-        search: params.search ?? stateRef.current.search,
-        tags: params.tag ?? stateRef.current.selectedTags,
-        tag_mode: params.tag_mode ?? stateRef.current.selectedTagMode,
-        limit: params.limit || stateRef.current.limit,
-      } satisfies BookmarkSearchRequest;
-
-      // add the bookmarks search page
-      try {
-        dispatch({ type: "SET_IS_LOADING", isLoading: true });
-        const bookmarks = await searchBookmarks(body);
-        dispatch({ type: "ADD_SEARCH_BOOKMARKS", bookmarks });
-      } finally {
-        dispatch({ type: "SET_IS_LOADING", isLoading: false });
-      }
-    },
-    [],
+    [getBookmarksSearchPage],
   );
 
   const addRelatedBookmarks = useCallback(
@@ -390,7 +400,7 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "SET_SELECTED_TAG_MODE", selectedTagMode });
   }, []);
 
-  // load initial bookmarks and user tags on mount
+  // load the initial bookmarks and user tags on mount
   useEffect(() => {
     void getBookmarksPage({ offset: 0 });
     void getUserTags();
@@ -404,7 +414,6 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       saveBookmark,
       removeBookmark,
       getBookmarksPage,
-      getBookmarksSearchPage,
       addRelatedBookmarks,
       refreshBookmark,
       setBookmark,
@@ -421,7 +430,6 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       saveBookmark,
       removeBookmark,
       getBookmarksPage,
-      getBookmarksSearchPage,
       addRelatedBookmarks,
       refreshBookmark,
       setBookmark,

@@ -25,7 +25,6 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
     sort,
     setSort,
     getBookmarksPage,
-    getBookmarksSearchPage,
     search,
     setSearch,
     userTags,
@@ -35,18 +34,19 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
     setSelectedTagMode,
   } = useBookmarks();
 
+  // search bookmarks on submitting
   const onSearch: SubmitEventHandler = (event) => {
-    // search bookmarks on submitting
     event.preventDefault();
     if (search?.trim()) {
-      void getBookmarksSearchPage({ search: search.trim() });
+      void getBookmarksPage({ search: search.trim(), offset: 0 });
     }
   };
 
+  // search bookmarks on clearing
   const onClearSearch: MouseEventHandler = (event) => {
     event.preventDefault();
     setSearch("");
-    void getBookmarksPage({ offset: 0 });
+    void getBookmarksPage({ search: "", offset: 0 });
   };
 
   return (

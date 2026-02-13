@@ -17,18 +17,15 @@ interface RemoveBookmarkModalProps {
 }
 
 export function RemoveBookmarkModal({ onEdit, onClose }: RemoveBookmarkModalProps) {
-  const { bookmark, removeBookmark, getBookmarksPage } = useBookmarks();
+  const { bookmark, removeBookmark } = useBookmarks();
 
   const onRemove = async () => {
-    // remove the bookmark from the database
+    // remove the bookmark from the database and close the modal
     const bookmarkId = bookmark?.id;
     if (bookmarkId) {
       await removeBookmark(bookmarkId);
     }
-
-    // close the modal and refresh the bookmarks list
     onClose();
-    void getBookmarksPage({ offset: 0 });
   };
 
   return (
