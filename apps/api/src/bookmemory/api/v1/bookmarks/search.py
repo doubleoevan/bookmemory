@@ -93,7 +93,7 @@ async def search_bookmarks(
     if tag_mode != "ignore" and len(normalized_tags) == 0:
         tag_mode = "ignore"
 
-    # run a semantic search and map rthe esults to bookmark ids
+    # run a semantic search and map the esults to bookmark ids
     user_id: UUID = current_user.id
     query_embedding = (await embed_chunks([search_text]))[0]
     semantic_results: list[SemanticSearchResult] = await semantic_search(
@@ -121,7 +121,7 @@ async def search_bookmarks(
     }
 
     # combine semantic and keyword search result bookmark ids
-    # and return an empty list if there are no results
+    # or return an empty list if there are no results
     search_result_bookmark_ids = set(semantic_result_by_bookmark.keys()) | set(
         keyword_result_by_bookmark.keys()
     )
