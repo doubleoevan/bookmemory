@@ -81,7 +81,8 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
       <DialogContent
         ref={contentRef}
         className="
-          w-[80vw] h-[80vh] max-w-4xl
+          w-[95vw] h-[95vh]
+          max-w-[95vw] sm:max-w-4xl!
           flex flex-col
           overflow-y-auto
         "

@@ -1,4 +1,4 @@
-import isUrlHttp from "is-url-http";
+import validator from "validator";
 
 export function getDomain(url: string) {
   return new URL(url).hostname.replace("www.", "");
@@ -20,5 +20,8 @@ export function normalizeUrl(input: string): string {
 }
 
 export function isUrlValid(url: string): boolean {
-  return isUrlHttp(url.trim());
+  return validator.isURL(url, {
+    protocols: ["http", "https"], // only allow these
+    require_protocol: true, // must include protocol
+  });
 }

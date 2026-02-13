@@ -1,4 +1,5 @@
 import {
+  Button,
   cn,
   Dialog,
   DialogContent,
@@ -16,6 +17,7 @@ import { useBookmarks } from "@/features/bookmarks/providers/bookmark";
 import { SubmitEventHandler, useState } from "react";
 import { Loader } from "@/components/Loader";
 import { isUrlValid, normalizeUrl } from "@/utils/url";
+import { Plus } from "lucide-react";
 
 interface AddBookmarkModalProps {
   onClose: () => void;
@@ -52,7 +54,12 @@ export function AddBookmarkModal({ onClose, onEdit }: AddBookmarkModalProps) {
         }
       }}
     >
-      <DialogContent>
+      <DialogContent
+        className="
+          top-[20%] left-1/2 -translate-x-1/2 translate-y-0
+          max-w-[95vw] sm:max-w-4xl!
+        "
+      >
         <DialogHeader>
           <DialogTitle>
             {isLoading ? "Loading your bookmark..." : error ? error : "New Bookmark"}
@@ -66,7 +73,7 @@ export function AddBookmarkModal({ onClose, onEdit }: AddBookmarkModalProps) {
             <Loader className="w-10 h-10" />
           </div>
         ) : (
-          <form className="flex gap-2" onSubmit={onPreview}>
+          <form className="flex gap-2 relative" onSubmit={onPreview}>
             {/* url input */}
             {bookmarkType === "link" && (
               <Input
@@ -81,30 +88,47 @@ export function AddBookmarkModal({ onClose, onEdit }: AddBookmarkModalProps) {
                   event.currentTarget.setCustomValidity("");
                 }}
                 onChange={(event) => setUrl(event.target.value)}
-                className={cn(error ? "focus-visible:ring-destructive" : "")}
+                className={cn("rounded-md", error ? "focus-visible:ring-destructive" : "")}
               />
             )}
 
-            {/* bookmark type select */}
-            <Select
-              value={bookmarkType}
-              onValueChange={(value) => setBookmarkType(value as "link" | "note" | "file")}
+            <Button
+              type="submit"
+              size="icon"
+              disabled={!url?.trim()}
+              className="
+                absolute top-1
+                right-1 sm:right-20!
+                rounded-sm
+                w-7 h-7
+                cursor-pointer
+              "
             >
-              <SelectTrigger className="w-fit cursor-pointer">
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem className="cursor-pointer" value="link">
-                  Link
-                </SelectItem>
-                <SelectItem className="cursor-not-allowed" disabled value="file">
-                  File
-                </SelectItem>
-                <SelectItem className="cursor-not-allowed" disabled value="note">
-                  Note
-                </SelectItem>
-              </SelectContent>
-            </Select>
+              <Plus />
+            </Button>
+
+            {/* bookmark type select */}
+            <div className="hidden sm:inline!">
+              <Select
+                value={bookmarkType}
+                onValueChange={(value) => setBookmarkType(value as "link" | "note" | "file")}
+              >
+                <SelectTrigger className="w-fit cursor-pointer">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem className="cursor-pointer" value="link">
+                    Link
+                  </SelectItem>
+                  <SelectItem className="cursor-not-allowed" disabled value="file">
+                    File
+                  </SelectItem>
+                  <SelectItem className="cursor-not-allowed" disabled value="note">
+                    Note
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </form>
         )}
       </DialogContent>
