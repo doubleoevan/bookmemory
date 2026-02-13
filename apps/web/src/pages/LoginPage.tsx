@@ -20,7 +20,7 @@ export function LoginPage() {
       "
     >
       {status === "loading" ? (
-        <Loader className="w-[10vh] h-[10vh]" />
+        <Loader className="w-[10vw] h-[10dvh]" />
       ) : (
         <section aria-labelledby="page-heading">
           <header className="text-center">

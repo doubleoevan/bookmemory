@@ -58,7 +58,7 @@ export function BookmarkList({ onAddBookmarkClick, onBookmarkClick }: BookmarkLi
 
   // show the loader while loading initial bookmarks
   if (isLoading && !userHasBookmarks) {
-    return <Loader className="w-[10vh] h-[10vh]" />;
+    return <Loader className="w-[10vw] h-[10dvh]" />;
   }
 
   // show a prompt if the user has no bookmarks yet
@@ -80,7 +80,7 @@ export function BookmarkList({ onAddBookmarkClick, onBookmarkClick }: BookmarkLi
 
   // show the bookmarks list
   return (
-    <section ref={scrollAreaRef} aria-label="Saved bookmarks" className="h-[75vh] overflow-y-auto">
+    <section ref={scrollAreaRef} aria-label="Saved bookmarks" className="h-[75dvh] overflow-y-auto">
       <ul className=" ">
         {bookmarks.map((bookmark: BookmarkResponse) => (
           <li key={bookmark.id} className="py-2">

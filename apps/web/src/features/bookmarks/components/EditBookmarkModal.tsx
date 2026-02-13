@@ -111,7 +111,7 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
     >
       <DialogContent
         className="
-          w-[95vw] h-[95vh]
+          w-[95vw] h-[95dvh]
           max-w-[95vw] sm:max-w-4xl!
           flex flex-col
           overflow-y-auto
