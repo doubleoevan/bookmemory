@@ -20,7 +20,7 @@ export function Header() {
         </Link>
 
         {/* tagline */}
-        <span className="text-sm">
+        <span className="text-sm hidden sm:inline!">
           A search engine for bookmarks. <span className="inline-block text-base">🧠✨</span>
         </span>
 
