@@ -1,6 +1,7 @@
 import { ExternalLink as ExternalLinkIcon, SquarePen } from "lucide-react";
 import {
   Button,
+  cn,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -140,6 +141,9 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
               disabled={isLoadingSummary}
             >
               Regenerate
+              <span className={cn("inline sm:hidden!", isLoadingSummary && "animate-pulse")}>
+                ✨
+              </span>
             </Button>
           </div>
           <p>{summary || (isLoadingSummary ? "Generating..." : "")}</p>

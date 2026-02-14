@@ -1,6 +1,7 @@
 import { ExternalLink as ExternalLinkIcon, Eye } from "lucide-react";
 import {
   Button,
+  cn,
   Dialog,
   DialogContent,
   DialogDescription,
@@ -182,7 +183,7 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
                 <div className="flex items-center justify-between text-muted-foreground">
                   <h2>Summary: </h2>
                   {isLoadingSummary ? (
-                    <span>
+                    <span className="hidden sm:inline!">
                       Generating with AI <span className="ml-1 animate-pulse">✨</span>
                     </span>
                   ) : (
@@ -195,6 +196,9 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
                     disabled={isLoadingSummary}
                   >
                     Regenerate
+                    <span className={cn("inline sm:hidden!", isLoadingSummary && "animate-pulse")}>
+                      ✨
+                    </span>
                   </Button>
                 </div>
                 <div className="flex flex-col flex-1 min-h-0">
