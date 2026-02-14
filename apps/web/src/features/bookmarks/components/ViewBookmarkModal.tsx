@@ -105,7 +105,10 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
           {bookmark?.url && (
             <div>
               <span className="text-muted-foreground">URL: </span>
-              <ExternalLink href={bookmark.url} className="inline-flex items-center gap-1">
+              <ExternalLink
+                href={bookmark.url}
+                className="inline-flex items-center gap-1 break-word"
+              >
                 {bookmark.url} <ExternalLinkIcon className="w-4 h-4" />
               </ExternalLink>
             </div>
@@ -113,7 +116,7 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
 
           {/* title section */}
           <h1>
-            <span className="text-muted-foreground">Title: </span>
+            <span className="text-muted-foreground break-word">Title: </span>
             {bookmark?.title}
           </h1>
 
