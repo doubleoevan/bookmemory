@@ -10,7 +10,11 @@ import anyio
 
 from bookmemory.core.settings import settings
 
-USER_AGENT = "BookMemoryBot/0.1 (+https://bookmemory.io)"
+USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/122.0.0.0 Safari/537.36"
+)
 
 DEFAULT_PLAYWRIGHT_TIMEOUT_SECONDS = 25.0
 DEFAULT_MAXIMUM_HTML_LENGTH = 2_000_000
@@ -57,8 +61,11 @@ async def fetch_rendered_html(
                 timeout_ms = int(timeout_seconds * 1000)
                 await page.goto(url, wait_until="networkidle", timeout=timeout_ms)
 
-                # wait for the page to settle before loading the rendered content
-                await page.wait_for_timeout(500)
+                # wait for the page to render a title before extracting the HTML
+                await page.wait_for_function(
+                    "() => document.title && document.title.trim().length > 0",
+                    timeout=2000,
+                )
                 html = (await page.content()) or ""
 
                 # extract visible text from the rendered DOM

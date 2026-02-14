@@ -27,6 +27,7 @@ async def extract_content(*, url: str) -> ExtractedContent:
     Use playwright if the site is JS-heavy or blocked and content was too small.
     """
     # try to fetch the extracted content with HTTP
+    title = None
     try:
         fetched_html = await fetch_html(url=url)
         extracted_content = extract_html(html=fetched_html.html, url=url)
@@ -48,7 +49,8 @@ async def extract_content(*, url: str) -> ExtractedContent:
     rendered_html = await fetch_rendered_html(url=url)
     extracted_content = extract_html(html=rendered_html.html, url=rendered_html.url)
     text = _trim_extracted_text(extracted_content.text)
-    title = _trim_extracted_text(extracted_content.title)
+    if not title:
+        title = _trim_extracted_text(extracted_content.title)
     return ExtractedContent(
         title=title,
         content=text,
