@@ -135,10 +135,7 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
             {bookmark?.url && (
               <div>
                 <span className="text-muted-foreground">URL: </span>
-                <ExternalLink
-                  href={bookmark.url}
-                  className="inline-flex items-center gap-1 break-word"
-                >
+                <ExternalLink href={bookmark.url} className="inline-flex items-center gap-1">
                   {bookmark.url} <ExternalLinkIcon className="w-4 h-4" />
                 </ExternalLink>
               </div>

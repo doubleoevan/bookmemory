@@ -55,7 +55,7 @@ export function RemoveBookmarkModal({ onEdit, onClose }: RemoveBookmarkModalProp
         </DialogHeader>
         <h2>
           {bookmark?.url ? (
-            <ExternalLink href={bookmark.url} className="inline-flex items-center gap-1 break-word">
+            <ExternalLink href={bookmark.url} className="inline-flex items-center gap-1">
               {bookmark.title} <ExternalLinkIcon className="w-4 h-4" />
             </ExternalLink>
           ) : (
