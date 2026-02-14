@@ -43,7 +43,7 @@ export function BookmarkListItem({
       "
       onClick={onViewBookmark}
     >
-      <h2 className="break-word">
+      <h2 className="break-word wrap-anywhere">
         {bookmark.url ? (
           <ExternalLink href={bookmark.url} className="inline-flex items-center gap-1">
             {bookmark.title} <ExternalLinkIcon className="w-4 h-4" />
