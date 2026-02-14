@@ -11,7 +11,12 @@ export function ExternalLink({
   className?: string;
 }) {
   return (
-    <a href={href} target="_blank" rel="noopener noreferrer" className={cn("underline", className)}>
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cn("underline wrap-anywhere", className)}
+    >
       {children}
     </a>
   );
