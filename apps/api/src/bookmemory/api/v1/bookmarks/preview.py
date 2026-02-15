@@ -41,6 +41,7 @@ async def preview_bookmark(
     title = ""
     load_method = LoadMethod.http
     preview_method = PreviewMethod.content
+    fetch_error = ""
 
     # extract the content from a bookmark url
     try:
@@ -54,8 +55,8 @@ async def preview_bookmark(
             status_code=504,
             detail=f"preview timed out after {MAXIMUM_FETCH_SECONDS}s",
         ) from error
-    except (FetchError, PlaywrightFetchError):
-        pass
+    except (FetchError, PlaywrightFetchError) as error:
+        fetch_error = f"{type(error).__name__}: {error}"
 
     # provide an AI description of the bookmark's content
     provider = get_ai_provider(settings.description_provider)
@@ -77,7 +78,7 @@ async def preview_bookmark(
         description = None
 
     # return the bookmark preview with a snippet of content for debugging
-    content_preview = content[:MAXIMUM_PREVIEW_CHARS] if content else None
+    content_preview = content[:MAXIMUM_PREVIEW_CHARS] if content else fetch_error or None
     return BookmarkPreviewResponse(
         id=uuid4(),
         user_id=current_user.id,
