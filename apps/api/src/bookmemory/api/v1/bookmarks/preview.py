@@ -78,7 +78,9 @@ async def preview_bookmark(
         description = None
 
     # return the bookmark preview with a snippet of content for debugging
-    content_preview = content[:MAXIMUM_PREVIEW_CHARS] if content else fetch_error or None
+    content_preview = (
+        content[:MAXIMUM_PREVIEW_CHARS] if content else fetch_error or None
+    )
     return BookmarkPreviewResponse(
         id=uuid4(),
         user_id=current_user.id,
