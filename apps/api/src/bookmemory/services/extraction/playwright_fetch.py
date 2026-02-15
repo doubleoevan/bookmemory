@@ -16,6 +16,7 @@ USER_AGENT = (
     "Chrome/122.0.0.0 Safari/537.36"
 )
 
+TITLE_TIMEOUT_SECONDS = 2.0
 DEFAULT_PLAYWRIGHT_TIMEOUT_SECONDS = 25.0
 DEFAULT_MAXIMUM_HTML_LENGTH = 2_000_000
 DEFAULT_MAXIMUM_TEXT_LENGTH = 250_000
@@ -56,16 +57,25 @@ async def fetch_rendered_html(
                         "--disable-dev-shm-usage",
                     ],
                 )
-                browser_session = await browser.new_context(user_agent=USER_AGENT)
+                browser_session = await browser.new_context(
+                    user_agent=USER_AGENT,
+                    locale="en-US",
+                    extra_http_headers={
+                        "Accept-Language": "en-US,en;q=0.9",
+                    },
+                )
                 page = await browser_session.new_page()
                 timeout_ms = int(timeout_seconds * 1000)
                 await page.goto(url, wait_until="networkidle", timeout=timeout_ms)
 
                 # wait for the page to render a title before extracting the HTML
-                await page.wait_for_function(
-                    "() => document.title && document.title.trim().length > 0",
-                    timeout=2000,
-                )
+                try:
+                    await page.wait_for_function(
+                        "() => document.title && document.title.trim().length > 0",
+                        timeout=TITLE_TIMEOUT_SECONDS * 1000,
+                    )
+                except PlaywrightTimeoutError:
+                    pass
                 html = (await page.content()) or ""
 
                 # extract visible text from the rendered DOM
