@@ -32,12 +32,7 @@ export function LoginPage() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-  // try to open in an external browser if necessary
-  const inAppBrowser = isInAppBrowser();
-  const openInBrowser = () => {
-    window.open(window.location.href, "_blank", "noopener,noreferrer");
-  };
+  const inAppBrowser = isInAppBrowser(); // try to open an in-app browser in an external browser if necessary
 
   // open the Google login page
   const onGoogleLogin = () => {
@@ -105,20 +100,22 @@ export function LoginPage() {
 
           {/* open in browser button */}
           <div className="flex flex-col gap-3 items-center">
-            <Button
-              onClick={openInBrowser}
+            <a
+              href={typeof window !== "undefined" ? window.location.href : "https://bookmemory.io"}
+              target="_blank"
+              rel="noopener noreferrer"
               className="
                 flex items-center justify-center
                 w-full
                 mx-auto gap-2
-                p-6
+                p-4
                 border rounded-lg
                 bg-primary text-primary-foreground
                 font-semibold
               "
             >
               Open in Browser
-            </Button>
+            </a>
 
             {/* open in browser instructions */}
             <p className="text-sm text-muted-foreground">
