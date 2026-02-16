@@ -24,7 +24,7 @@ interface EditBookmarkModalProps {
 }
 
 export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkModalProps) {
-  const { bookmark, addBookmark, saveBookmark, userTags } = useBookmarks();
+  const { bookmark, addBookmark, saveBookmark, getUserTags, userTags } = useBookmarks();
   const { setSummary, summary, startSummary, isLoading: isLoadingSummary } = useSummary();
   const [title, setTitle] = useState<string>(bookmark?.title ?? "");
   const [description, setDescription] = useState<string>(bookmark?.description ?? "");
@@ -72,8 +72,9 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
         tags,
       });
 
-      // start generating the summary and go to the view
-      startSummary(newBookmark.id);
+      // start generating the summary, add new user tags, and go to the view
+      void startSummary(newBookmark.id);
+      void getUserTags();
       onView();
       return;
     }
@@ -90,6 +91,9 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
         tags,
       });
     }
+
+    // update user tags with any newly created tags and close the modal
+    void getUserTags();
     onClose();
   };
 
