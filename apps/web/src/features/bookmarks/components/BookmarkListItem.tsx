@@ -49,7 +49,11 @@ export function BookmarkListItem({
             {bookmark.title} <ExternalLinkIcon className="w-4 h-4" />
           </ExternalLink>
         ) : (
-          bookmark.title
+          <Highlighter
+            searchWords={searchWords} // or split into keywords
+            textToHighlight={bookmark.title}
+            highlightClassName="bg-yellow-200 dark:bg-yellow-700"
+          />
         )}
       </h2>
 
@@ -66,7 +70,13 @@ export function BookmarkListItem({
           />
         </p>
       ) : (
-        <p className="text-muted-foreground line-clamp-2">{bookmark.description}</p>
+        <p className="text-muted-foreground line-clamp-2">
+          <Highlighter
+            searchWords={searchWords} // or split into keywords
+            textToHighlight={bookmark.description ?? ""}
+            highlightClassName="bg-yellow-200 dark:bg-yellow-700"
+          />
+        </p>
       )}
       {tags.length > 0 && <TagItems tags={tags} canSelect={true} />}
     </article>

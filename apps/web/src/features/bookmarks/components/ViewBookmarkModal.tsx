@@ -167,7 +167,7 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
               <span className="hidden sm:inline!">Powered by semantic search ⚡</span>
             )}
           </div>
-          {isLoading ? (
+          {isLoading || isLoadingSummary ? (
             <Loader className="w-10 h-10" />
           ) : relatedBookmarks.length === 0 ? (
             <p className="text-muted-foreground">No related bookmarks found.</p>

@@ -27,6 +27,47 @@ router = APIRouter()
 
 MINIMUM_SIMILARITY_SCORE = 0.30  # any related score lower than this will be ignored
 MINIMUM_QUERY_CHUNK_LEN = 200  # prefer a chunk with more content as the query
+# boost score for title, description, and summary field matches
+MAXIMUM_FIELD_BOOST = 0.25
+# ignore noise from common English stopwords
+STOPWORDS = {
+    "the",
+    "and",
+    "for",
+    "with",
+    "from",
+    "that",
+    "this",
+    "are",
+    "was",
+    "were",
+    "into",
+    "onto",
+    "over",
+    "under",
+    "your",
+    "you",
+    "our",
+    "their",
+    "they",
+    "a",
+    "an",
+    "to",
+    "of",
+    "in",
+    "on",
+    "at",
+    "as",
+    "by",
+    "or",
+    "it",
+    "is",
+}
+
+
+# strip punctuation for accuracy
+def _clean_token(token: str) -> str:
+    return token.strip(".,:;!?()[]{}\"'`")
 
 
 @router.get("/{bookmark_id}/related", response_model=list[BookmarkSearchResponse])
@@ -47,6 +88,15 @@ async def get_related_bookmarks(
         )
     except NoResultFound:
         raise HTTPException(status_code=404, detail="bookmark not found")
+
+    # add title description and summary to the query
+    query_text = " ".join(
+        [
+            (bookmark.title or ""),
+            (getattr(bookmark, "description", None) or ""),
+            (getattr(bookmark, "summary", None) or ""),
+        ]
+    ).lower()
 
     # load the embedding for a bookmark chunk with more content. fallback to any embedded chunk
     select_bookmark_chunk_statement = (
@@ -98,7 +148,7 @@ async def get_related_bookmarks(
                 Bookmark.id != bookmark.id,
                 Bookmark.status == BookmarkStatus.ready,
                 BookmarkChunk.embedding.isnot(None),
-                chunk_distance <= max_distance,  # ✅ ignore low-similarity rows in SQL
+                chunk_distance <= max_distance,  # ignore low-similarity rows in SQL
             )
         )
     )
@@ -115,7 +165,9 @@ async def get_related_bookmarks(
         )
         .where(sorted_bookmark_chunks_query.c.rn == 1)
         .order_by(sorted_bookmark_chunks_query.c.distance.asc())
-        .limit(limit * 10)  # ✅ small buffer so tag filtering doesn't zero you out
+        .limit(
+            limit * 10
+        )  # small buffer so tag filtering doesn't eliminate all results
     )
 
     # return no results if no relevant bookmark chunks were found
@@ -157,6 +209,40 @@ async def get_related_bookmarks(
         similarity_score = 1.0 - distance
         if similarity_score < MINIMUM_SIMILARITY_SCORE:
             continue
+
+        # add title description and summary to the related bookmarks query
+        related_bookmark_text = " ".join(
+            [
+                (related_bookmark.title or ""),
+                (getattr(related_bookmark, "description", None) or ""),
+                (getattr(related_bookmark, "summary", None) or ""),
+            ]
+        ).lower()
+
+        # boost title description and summary similarity scores
+        if query_text and related_bookmark_text:
+            query_tokens = {
+                filtered_token
+                for token in query_text.split()
+                if len(token) >= 3
+                for filtered_token in [_clean_token(token)]
+                if filtered_token and filtered_token not in STOPWORDS
+            }
+            related_bookmark_tokens = {
+                filtered_token
+                for token in related_bookmark_text.split()
+                if len(token) >= 3
+                for filtered_token in [_clean_token(token)]
+                if filtered_token and filtered_token not in STOPWORDS
+            }
+            if query_tokens and related_bookmark_tokens:
+                overlap_percent = len(
+                    query_tokens.intersection(related_bookmark_tokens)
+                ) / float(len(query_tokens.union(related_bookmark_tokens)))
+                similarity_score += min(
+                    MAXIMUM_FIELD_BOOST, MAXIMUM_FIELD_BOOST * overlap_percent
+                )
+
         similarity_score = max(0.0, min(1.0, similarity_score))
 
         # filter related bookmarks out based on the tag mode
