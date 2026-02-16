@@ -19,11 +19,13 @@ import { CircleUserRoundIcon, LogIn, LogOut } from "lucide-react";
 import { useCurrentUser } from "@/features/authentication/hooks/useCurrentUser";
 import { useTheme } from "@/app/theme";
 import { logoutApiV1AuthLogoutPost } from "@bookmemory/contracts";
+import { isInAppBrowser } from "@/utils/isInAppBrowser";
 
 export default function UserMenu() {
   const { theme, setTheme } = useTheme();
   const { user } = useCurrentUser();
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const inAppBrowser = isInAppBrowser(); // OAuth login will fail in an in-app browser
 
   const onChangeTheme = (theme: string) => {
     if (theme !== "light" && theme !== "dark") {
@@ -92,13 +94,13 @@ export default function UserMenu() {
           <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
 
-        <DropdownMenuSeparator />
+        {user || !inAppBrowser ? <DropdownMenuSeparator /> : null}
         {user ? (
           <DropdownMenuItem className="cursor-pointer" onClick={onLogout}>
             <LogOut className="h-4 w-4" />
             <span>Log out</span>
           </DropdownMenuItem>
-        ) : (
+        ) : inAppBrowser ? null : (
           <DropdownMenuItem className="cursor-pointer" onClick={onLogin}>
             <LogIn className="h-4 w-4" />
             <span>Log in</span>
