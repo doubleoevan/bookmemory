@@ -46,7 +46,14 @@ export function BookmarkListItem({
       <h2 className="break-word wrap-anywhere">
         {bookmark.url ? (
           <ExternalLink href={bookmark.url} className="inline-flex items-center gap-1">
-            {bookmark.title} <ExternalLinkIcon className="w-4 h-4" />
+            <>
+              <Highlighter
+                searchWords={searchWords} // or split into keywords
+                textToHighlight={bookmark.title}
+                highlightClassName="bg-yellow-200 dark:bg-yellow-700"
+              />
+              <ExternalLinkIcon className="w-4 h-4" />
+            </>
           </ExternalLink>
         ) : (
           <Highlighter

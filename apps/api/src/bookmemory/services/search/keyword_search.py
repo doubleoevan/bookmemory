@@ -1,13 +1,37 @@
 from __future__ import annotations
 
+import re
+
 from dataclasses import dataclass
 from uuid import UUID
 
-from sqlalchemy import and_, func, select
+from sqlalchemy import and_, func, select, literal_column
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bookmemory.db.models.bookmark import Bookmark, BookmarkStatus
 from bookmemory.db.models.bookmark_chunk import BookmarkChunk
+
+from bookmemory.services.search.stopwords import STOP_WORDS
+
+
+def _to_search_terms(search: str) -> list[str]:
+    """Converts a search query to a list of search terms"""
+    if not search:
+        return []
+
+    # lowercase and remove punctuation
+    search = search.lower()
+    search = re.sub(r"[^\w\s-]", " ", search)
+
+    # remove stopwords and empty strings
+    terms: list[str] = []
+    for raw in search.split():
+        term = re.sub(r"[^\w-]", "", raw)  # extra safety for tsquery
+        if len(term) > 1 and term not in STOP_WORDS:
+            terms.append(term)
+
+    # dedupe and cap terms to protect against paragraph search
+    return list(dict.fromkeys(terms))[:12]
 
 
 @dataclass(frozen=True)
@@ -28,11 +52,55 @@ async def keyword_search(
     language: str = "english",
 ) -> list[KeywordSearchResult]:
     """Returns the best bookmark chunks ranked by Postgres full-text score."""
-    search_query = func.plainto_tsquery(language, search)
-    search_vector = func.to_tsvector(language, BookmarkChunk.text)
-    search_rank = func.ts_rank_cd(search_vector, search_query)
+    # build the search vector across relevant bookmark fields and the best chunk
+    search_vector = func.to_tsvector(
+        language,
+        func.concat_ws(
+            " ",
+            func.coalesce(Bookmark.title, ""),
+            func.coalesce(Bookmark.description, ""),
+            func.coalesce(Bookmark.summary, ""),
+            func.coalesce(BookmarkChunk.text, ""),
+        ),
+    )
+
+    # build the rank vector to assign weights to each field
+    search_rank_vector = (
+        func.setweight(
+            func.to_tsvector(language, func.coalesce(Bookmark.title, "")),
+            literal_column("'A'"),
+        )
+        .op("||")(
+            func.setweight(
+                func.to_tsvector(language, func.coalesce(Bookmark.description, "")),
+                literal_column("'B'"),
+            )
+        )
+        .op("||")(
+            func.setweight(
+                func.to_tsvector(language, func.coalesce(Bookmark.summary, "")),
+                literal_column("'B'"),
+            )
+        )
+        .op("||")(
+            func.setweight(
+                func.to_tsvector(language, func.coalesce(BookmarkChunk.text, "")),
+                literal_column("'C'"),
+            )
+        )
+    )
+
+    # filter out stop words and punctuation
+    search_terms = _to_search_terms(search)
+    if not search_terms:
+        return []
+
+    # build the prefix query to match partial terms
+    prefix_query_str = " & ".join(f"{term}:*" for term in search_terms)
+    search_query = func.to_tsquery(language, prefix_query_str)
 
     # select matching bookmark chunks and rank them by keyword score
+    search_rank = func.ts_rank_cd(search_rank_vector, search_query)
     search_chunks_statement = (
         select(
             BookmarkChunk.id.label("chunk_id"),
