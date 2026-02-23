@@ -37,8 +37,8 @@ export type BookmarkContextValue = BookmarkState & {
     },
   ) => Promise<BookmarkResponse>;
 
+  setBookmark: (bookmarkId: string) => Promise<void>;
   removeBookmark: (bookmarkId: string) => Promise<void>;
-  refreshBookmark: (bookmarkId: string) => Promise<void>;
 
   getBookmarksPage: (params?: {
     search?: string | null;
@@ -55,7 +55,6 @@ export type BookmarkContextValue = BookmarkState & {
     limit?: number;
   }) => Promise<void>;
 
-  setBookmark: (bookmark: BookmarkResponse) => void;
   setSearch: (search: string) => void;
   setSort: (sort: Sort) => void;
   getUserTags: () => Promise<TagCountResponse[]>;

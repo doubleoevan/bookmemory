@@ -28,7 +28,7 @@ export function BookmarkListItem({
 
   // show the selected bookmark on click
   const onViewBookmark = () => {
-    setBookmark(bookmark);
+    void setBookmark(bookmark.id);
     onBookmarkClick?.();
   };
 

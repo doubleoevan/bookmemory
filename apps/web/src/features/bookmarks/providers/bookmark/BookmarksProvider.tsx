@@ -388,13 +388,9 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
     [getBookmarksPage],
   );
 
-  const refreshBookmark = useCallback(async (bookmarkId: string) => {
+  const setBookmark = useCallback(async (bookmarkId: string) => {
     // load an updated bookmark and set it in the context state
     const bookmark = await getBookmark(bookmarkId);
-    dispatch({ type: "SET_BOOKMARK", bookmark });
-  }, []);
-
-  const setBookmark = useCallback((bookmark: BookmarkResponse) => {
     dispatch({ type: "SET_BOOKMARK", bookmark });
   }, []);
 
@@ -439,7 +435,6 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       removeBookmark,
       getBookmarksPage,
       addRelatedBookmarks,
-      refreshBookmark,
       setBookmark,
       setSearch,
       setSort,
@@ -455,7 +450,6 @@ export function BookmarksProvider({ children }: { children: ReactNode }) {
       removeBookmark,
       getBookmarksPage,
       addRelatedBookmarks,
-      refreshBookmark,
       setBookmark,
       setSearch,
       setSort,

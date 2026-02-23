@@ -177,7 +177,7 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
                 <li
                   key={relatedBookmark.id}
                   className="underline cursor-pointer"
-                  onClick={() => setBookmark(relatedBookmark)}
+                  onClick={() => setBookmark(relatedBookmark.id)}
                 >
                   {relatedBookmark.title}
                 </li>

@@ -39,7 +39,7 @@ function summaryReducer(state: SummaryState, action: SummaryAction): SummaryStat
 }
 
 export function SummaryProvider({ children }: { children: ReactNode }) {
-  const { refreshBookmark } = useBookmarks();
+  const { setBookmark } = useBookmarks();
   const [state, dispatch] = useReducer(summaryReducer, initialState);
 
   const setSummary = useCallback((summary: string) => {
@@ -59,7 +59,7 @@ export function SummaryProvider({ children }: { children: ReactNode }) {
         },
         onComplete: () => {
           // update the bookmark in the context state with the new summary
-          void refreshBookmark(bookmarkId);
+          void setBookmark(bookmarkId);
           dispatch({ type: "SET_IS_LOADING", isLoading: false });
         },
         onError: () => {
@@ -67,7 +67,7 @@ export function SummaryProvider({ children }: { children: ReactNode }) {
         },
       });
     },
-    [refreshBookmark],
+    [setBookmark],
   );
 
   const stopSummary = useCallback(() => {}, []);
