@@ -4,12 +4,16 @@ const REPO_URL = "https://github.com/doubleoevan/bookmemory";
 
 export function Footer() {
   return (
-    <footer className="border-t">
+    <footer>
       <div className="mx-auto max-w-7xl px-4 py-6 text-center text-sm text-muted-foreground">
         <p>BookMemory is a selfish project for the author’s own personal growth.</p>
         <p>It uses semantic vector embeddings to search by meaning as well as keyword.</p>
         <p>
-          The code can be found <ExternalLink href={REPO_URL}>here</ExternalLink>.
+          <span>The code can be found </span>
+          <ExternalLink className="text-primary" href={REPO_URL}>
+            here
+          </ExternalLink>
+          .
         </p>
       </div>
     </footer>

@@ -2,6 +2,7 @@ import { apiRequest } from "@/api/client";
 
 import { Link } from "react-router-dom";
 import {
+  cn,
   Avatar,
   AvatarFallback,
   AvatarImage,
@@ -10,12 +11,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@bookmemory/ui";
-import { CircleUserRoundIcon, LogIn, LogOut } from "lucide-react";
+import { CircleUserRoundIcon, LogIn, LogOut, Sun, Moon } from "lucide-react";
 import { useCurrentUser } from "@/features/authentication/hooks/useCurrentUser";
 import { useTheme } from "@/app/theme";
 import { logoutApiV1AuthLogoutPost } from "@bookmemory/contracts";
@@ -70,7 +69,7 @@ export default function UserMenu() {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-56 space-y-1">
         {user?.picture_url && (
           <>
             <DropdownMenuItem>
@@ -89,10 +88,30 @@ export default function UserMenu() {
         )}
 
         <DropdownMenuLabel>Theme</DropdownMenuLabel>
-        <DropdownMenuRadioGroup value={theme} onValueChange={onChangeTheme}>
-          <DropdownMenuRadioItem value="light">Light</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
+        <DropdownMenuItem
+          onClick={() => onChangeTheme("light")}
+          className={cn(
+            "flex items-center gap-2 cursor-pointer",
+            theme === "light" && "bg-accent text-accent-foreground font-medium",
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Sun className="h-4 w-4" />
+            Light
+          </div>
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => onChangeTheme("dark")}
+          className={cn(
+            "flex items-center gap-2 cursor-pointer",
+            theme === "dark" && "bg-accent text-accent-foreground font-medium",
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Moon className="h-4 w-4" />
+            Dark
+          </div>
+        </DropdownMenuItem>
 
         {user || !inAppBrowser ? <DropdownMenuSeparator /> : null}
         {user ? (
