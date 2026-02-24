@@ -31,12 +31,10 @@ export function BookmarkList({ onAddBookmarkClick, onBookmarkClick }: BookmarkLi
 
   // infinite scroll with a page bottom sentinel
   const hasMoreBookmarks = total > 0 && bookmarks.length < total;
-  const scrollAreaRef = useRef<HTMLElement | null>(null);
   const scrollBottomRef = useRef<HTMLLIElement | null>(null);
   useEffect(() => {
-    const scrollAreaElement = scrollAreaRef.current;
     const scrollBottomElement = scrollBottomRef.current;
-    if (!scrollAreaElement || !scrollBottomElement || !hasMoreBookmarks || isLoading) {
+    if (!scrollBottomElement || !hasMoreBookmarks || isLoading) {
       return;
     }
 
@@ -48,7 +46,7 @@ export function BookmarkList({ onAddBookmarkClick, onBookmarkClick }: BookmarkLi
           void getBookmarksPage();
         }
       },
-      { root: scrollAreaElement, rootMargin: "250px 0px", threshold: 0 },
+      { root: null, rootMargin: "250px 0px", threshold: 0 },
     );
     pageBottomObserver.observe(scrollBottomElement);
 
@@ -80,7 +78,7 @@ export function BookmarkList({ onAddBookmarkClick, onBookmarkClick }: BookmarkLi
 
   // show the bookmarks list
   return (
-    <section ref={scrollAreaRef} aria-label="Saved bookmarks" className="h-[75dvh] overflow-y-auto">
+    <section aria-label="Saved bookmarks">
       <ul className=" ">
         {bookmarks.map((bookmark: BookmarkResponse) => (
           <li key={bookmark.id} className="py-2">
