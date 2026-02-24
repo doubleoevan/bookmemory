@@ -126,9 +126,11 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
       >
         <div className="flex-1 overflow-y-auto overscroll-contain px-px">
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-center gap-4 text-muted-foreground">
+            <DialogTitle className="flex items-center justify-center gap-2 text-muted-foreground">
               Edit Bookmark
-              {!isBookmarkPreview && <Eye className="w-4 h-4 cursor-pointer" onClick={onView} />}
+              {!isBookmarkPreview && (
+                <Eye className="w-4 h-4 text-primary cursor-pointer" onClick={onView} />
+              )}
             </DialogTitle>
             {bookmark?.description && (
               <DialogDescription className="sr-only">{bookmark.description}</DialogDescription>

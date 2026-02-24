@@ -50,8 +50,6 @@
   --sidebar-accent-foreground: oklch(32% 0.08 350);
   --sidebar-border: oklch(92% 0.006 260);
   --sidebar-ring: oklch(67% 0.18 350);
-
-  --radius: 0.625rem;
 }
 
 .dark {

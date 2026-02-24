@@ -92,9 +92,9 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
       >
         <div className="flex-1 overflow-y-auto overscroll-contain px-px">
           <DialogHeader>
-            <DialogTitle className="flex items-center justify-center gap-4 text-muted-foreground">
+            <DialogTitle className="flex items-center justify-center gap-2 text-muted-foreground">
               Bookmark
-              <SquarePen className="w-4 h-4 cursor-pointer" onClick={onEdit} />
+              <SquarePen className="w-4 h-4 text-primary cursor-pointer" onClick={onEdit} />
             </DialogTitle>
 
             {bookmark?.description && (
@@ -179,7 +179,7 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
               {relatedBookmarks.map((relatedBookmark) => (
                 <li
                   key={relatedBookmark.id}
-                  className="underline cursor-pointer"
+                  className="underline text-primary cursor-pointer"
                   onClick={() => setBookmark(relatedBookmark.id)}
                 >
                   {relatedBookmark.title}
