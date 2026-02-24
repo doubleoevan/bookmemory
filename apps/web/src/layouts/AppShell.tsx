@@ -9,13 +9,13 @@ export function AppShell() {
   const { theme } = useTheme();
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header className="fixed inset-x-0 top-0 z-50" />
 
       <main className="flex-1">
         <Outlet /> {/* routed page content */}
       </main>
 
-      <Footer />
+      <Footer className="fixed inset-x-0 bottom-0 z-50" />
       <Toaster theme={theme} position="top-center" richColors={false} />
     </div>
   );

@@ -15,11 +15,13 @@ import { TagModeSelect } from "@/components/TagModeSelect";
 import { TagMultiSelect } from "@/components/TagMultiSelect";
 import { TagItems } from "@/components/TagItems";
 
-interface BookmarkSearchProps {
+export function BookmarkSearch({
+  className,
+  onAddBookmarkClick,
+}: {
+  className?: string;
   onAddBookmarkClick: () => void;
-}
-
-export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
+}) {
   const {
     userHasBookmarks,
     isLoading,
@@ -51,7 +53,7 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
   };
 
   return (
-    <div>
+    <div className={cn("bg-background", className)}>
       {/* search form */}
       {userHasBookmarks && (
         <form className="relative px-4" onSubmit={onSearch}>

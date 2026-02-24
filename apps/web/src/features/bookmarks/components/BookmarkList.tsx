@@ -4,12 +4,15 @@ import { useEffect, useRef } from "react";
 import { BookmarkResponse } from "@bookmemory/contracts";
 import { Loader } from "@/components/Loader";
 
-interface BookmarkListProps {
+export function BookmarkList({
+  className,
+  onAddBookmarkClick,
+  onBookmarkClick,
+}: {
+  className?: string;
   onAddBookmarkClick: () => void;
   onBookmarkClick: () => void;
-}
-
-export function BookmarkList({ onAddBookmarkClick, onBookmarkClick }: BookmarkListProps) {
+}) {
   const {
     userHasBookmarks,
     getBookmarksPage,
@@ -78,8 +81,8 @@ export function BookmarkList({ onAddBookmarkClick, onBookmarkClick }: BookmarkLi
 
   // show the bookmarks list
   return (
-    <section aria-label="Saved bookmarks">
-      <ul className=" ">
+    <section className={className} aria-label="Saved bookmarks">
+      <ul>
         {bookmarks.map((bookmark: BookmarkResponse) => (
           <li key={bookmark.id} className="py-2">
             <BookmarkListItem bookmark={bookmark} onBookmarkClick={onBookmarkClick} />
