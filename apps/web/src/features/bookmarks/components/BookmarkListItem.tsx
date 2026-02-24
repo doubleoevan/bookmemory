@@ -81,7 +81,7 @@ export function BookmarkListItem({
       )}
 
       {snippet ? (
-        <p className="text-muted-foreground line-clamp-4">
+        <p className="text-muted-foreground line-clamp-4 leading-6">
           <Highlighter
             searchWords={searchWords} // or split into keywords
             textToHighlight={snippet}
@@ -92,7 +92,7 @@ export function BookmarkListItem({
           />
         </p>
       ) : (
-        <p className="text-muted-foreground line-clamp-2">
+        <p className="text-muted-foreground line-clamp-2 leading-6">
           <Highlighter
             searchWords={searchWords} // or split into keywords
             textToHighlight={bookmark.description ?? ""}
