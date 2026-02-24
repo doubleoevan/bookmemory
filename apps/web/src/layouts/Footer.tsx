@@ -10,7 +10,7 @@ export function Footer() {
         <p>It uses semantic vector embeddings to search by meaning as well as keyword.</p>
         <p>
           <span>The code can be found </span>
-          <ExternalLink className="text-primary" href={REPO_URL}>
+          <ExternalLink className="text-primary font-semibold dark:text-primary/70" href={REPO_URL}>
             here
           </ExternalLink>
           .
