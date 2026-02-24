@@ -90,7 +90,7 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
            overscroll-contain
         "
       >
-        <div className="flex-1 overflow-y-auto overscroll-contain">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-px">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-center gap-4 text-muted-foreground">
               Bookmark
@@ -105,7 +105,10 @@ export function ViewBookmarkModal({ onClose, onEdit }: ViewBookmarkModalProps) {
           {bookmark?.url && (
             <div>
               <span className="text-muted-foreground">URL: </span>
-              <ExternalLink href={bookmark.url} className="inline-flex items-center gap-1">
+              <ExternalLink
+                href={bookmark.url}
+                className="inline-flex items-center gap-1 text-primary no-underline"
+              >
                 {bookmark.url} <ExternalLinkIcon className="w-4 h-4" />
               </ExternalLink>
             </div>

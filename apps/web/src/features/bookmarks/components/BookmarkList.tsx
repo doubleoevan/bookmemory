@@ -48,7 +48,7 @@ export function BookmarkList({ onAddBookmarkClick, onBookmarkClick }: BookmarkLi
           void getBookmarksPage();
         }
       },
-      { root: scrollAreaElement, rootMargin: "0px", threshold: 0 },
+      { root: scrollAreaElement, rootMargin: "250px 0", threshold: 0 },
     );
     pageBottomObserver.observe(scrollBottomElement);
 

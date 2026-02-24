@@ -12,7 +12,11 @@ export function Header() {
         {/* logo */}
         <Link
           to="/"
-          className="flex items-center gap-2 font-semibold hover:opacity-90"
+          className="
+            flex items-center gap-2
+            font-semibold text-primary
+            hover:opacity-90
+          "
           aria-label="Go to Bookmarks Home"
         >
           <HeaderIcon />
@@ -20,7 +24,7 @@ export function Header() {
         </Link>
 
         {/* tagline */}
-        <span className="text-sm hidden sm:inline!">
+        <span className="hidden sm:inline! text-sm text-muted-foreground">
           A search engine for bookmarks. <span className="inline-block text-base">🧠✨</span>
         </span>
 

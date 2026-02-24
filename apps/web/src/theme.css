@@ -1,0 +1,102 @@
+:root {
+  /* ===== Base layout ===== */
+  --background: oklch(99% 0.003 260);
+  --foreground: oklch(22% 0.015 260);
+
+  --card: oklch(100% 0 0);
+  --card-foreground: oklch(22% 0.015 260);
+
+  --popover: oklch(100% 0 0);
+  --popover-foreground: oklch(22% 0.015 260);
+
+  /* ===== Brain Pink Primary ===== */
+  --primary: oklch(67% 0.18 350); /* soft vibrant pink */
+  --primary-foreground: oklch(99% 0.002 350);
+
+  /* ===== Soft Surfaces ===== */
+  --secondary: oklch(95% 0.03 350);
+  --secondary-foreground: oklch(32% 0.08 350);
+
+  --accent: oklch(92% 0.05 350);
+  --accent-foreground: oklch(32% 0.08 350);
+
+  /* ===== Muted UI ===== */
+  --muted: oklch(97% 0.005 260);
+  --muted-foreground: oklch(52% 0.02 260);
+
+  /* ===== Destructive ===== */
+  --destructive: oklch(62% 0.23 25);
+
+  /* ===== Borders & Inputs ===== */
+  --border: oklch(90% 0.01 260);
+  --input: oklch(90% 0.01 260);
+
+  /* ===== Focus Ring ===== */
+  --ring: oklch(67% 0.18 350);
+
+  /* ===== Charts (intellectual palette) ===== */
+  --chart-1: oklch(67% 0.18 350); /* pink */
+  --chart-2: oklch(62% 0.15 280); /* purple */
+  --chart-3: oklch(64% 0.14 220); /* blue */
+  --chart-4: oklch(75% 0.17 90); /* amber */
+  --chart-5: oklch(60% 0.18 150); /* green */
+
+  /* ===== Sidebar ===== */
+  --sidebar: oklch(99% 0.003 260);
+  --sidebar-foreground: oklch(22% 0.015 260);
+  --sidebar-primary: oklch(67% 0.18 350);
+  --sidebar-primary-foreground: oklch(99% 0.002 350);
+  --sidebar-accent: oklch(95% 0.03 350);
+  --sidebar-accent-foreground: oklch(32% 0.08 350);
+  --sidebar-border: oklch(92% 0.006 260);
+  --sidebar-ring: oklch(67% 0.18 350);
+
+  --radius: 0.625rem;
+}
+
+.dark {
+  /* ===== Base layout ===== */
+  --background: oklch(15% 0.01 270);
+  --foreground: oklch(96% 0.01 260);
+
+  --card: oklch(18% 0.015 270);
+  --card-foreground: oklch(96% 0.01 260);
+
+  --popover: oklch(18% 0.015 270);
+  --popover-foreground: oklch(96% 0.01 260);
+
+  /* ===== Brain Pink Primary ===== */
+  --primary: oklch(72% 0.17 350);
+  --primary-foreground: oklch(20% 0.02 350);
+
+  /* ===== Subtle Surfaces ===== */
+  --secondary: oklch(24% 0.02 270);
+  --secondary-foreground: oklch(96% 0.01 260);
+
+  --accent: oklch(28% 0.03 330);
+  --accent-foreground: oklch(96% 0.01 260);
+
+  /* ===== Muted ===== */
+  --muted: oklch(22% 0.015 270);
+  --muted-foreground: oklch(72% 0.03 260);
+
+  /* ===== Destructive ===== */
+  --destructive: oklch(65% 0.22 25);
+
+  /* ===== Borders ===== */
+  --border: oklch(28% 0.02 270);
+  --input: oklch(28% 0.02 270);
+
+  /* ===== Focus Ring ===== */
+  --ring: oklch(72% 0.17 350);
+
+  /* ===== Sidebar ===== */
+  --sidebar: oklch(17% 0.01 270);
+  --sidebar-foreground: oklch(96% 0.01 260);
+  --sidebar-primary: oklch(72% 0.17 350);
+  --sidebar-primary-foreground: oklch(20% 0.02 350);
+  --sidebar-accent: oklch(26% 0.03 330);
+  --sidebar-accent-foreground: oklch(96% 0.01 260);
+  --sidebar-border: oklch(28% 0.02 270);
+  --sidebar-ring: oklch(72% 0.17 350);
+}

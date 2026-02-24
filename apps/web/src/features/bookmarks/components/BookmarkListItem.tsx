@@ -45,12 +45,21 @@ export function BookmarkListItem({
     >
       <h2 className="break-word wrap-anywhere">
         {bookmark.url ? (
-          <ExternalLink href={bookmark.url} className="inline-flex items-center gap-1">
+          <ExternalLink
+            href={bookmark.url}
+            className="
+              inline-flex items-center gap-1
+              text-primary no-underline
+            "
+          >
             <>
               <Highlighter
                 searchWords={searchWords} // or split into keywords
                 textToHighlight={bookmark.title}
-                highlightClassName="bg-yellow-200 dark:bg-yellow-700"
+                highlightClassName="
+                  bg-primary
+                  text-foreground
+                "
               />
               <ExternalLinkIcon className="w-4 h-4" />
             </>
@@ -59,7 +68,10 @@ export function BookmarkListItem({
           <Highlighter
             searchWords={searchWords} // or split into keywords
             textToHighlight={bookmark.title}
-            highlightClassName="bg-yellow-200 dark:bg-yellow-700"
+            highlightClassName="
+              bg-primary
+              text-foreground
+            "
           />
         )}
       </h2>
@@ -73,7 +85,10 @@ export function BookmarkListItem({
           <Highlighter
             searchWords={searchWords} // or split into keywords
             textToHighlight={snippet}
-            highlightClassName="bg-yellow-200 dark:bg-yellow-700"
+            highlightClassName="
+              bg-primary
+              text-foreground
+            "
           />
         </p>
       ) : (
@@ -81,7 +96,10 @@ export function BookmarkListItem({
           <Highlighter
             searchWords={searchWords} // or split into keywords
             textToHighlight={bookmark.description ?? ""}
-            highlightClassName="bg-yellow-200 dark:bg-yellow-700"
+            highlightClassName="
+              bg-primary
+              text-foreground
+            "
           />
         </p>
       )}

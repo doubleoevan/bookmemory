@@ -124,7 +124,7 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
            overscroll-contain
         "
       >
-        <div className="flex-1 overflow-y-auto overscroll-contain">
+        <div className="flex-1 overflow-y-auto overscroll-contain px-px">
           <DialogHeader>
             <DialogTitle className="flex items-center justify-center gap-4 text-muted-foreground">
               Edit Bookmark
@@ -139,7 +139,10 @@ export function EditBookmarkModal({ onClose, onView, onDelete }: EditBookmarkMod
             {bookmark?.url && (
               <div>
                 <span className="text-muted-foreground">URL: </span>
-                <ExternalLink href={bookmark.url} className="inline-flex items-center gap-1">
+                <ExternalLink
+                  href={bookmark.url}
+                  className="inline-flex items-center gap-1 text-primary no-underline"
+                >
                   {bookmark.url} <ExternalLinkIcon className="w-4 h-4" />
                 </ExternalLink>
               </div>

@@ -4,6 +4,7 @@ import { AppProviders } from "@/app/Providers";
 import App from "@/app/App";
 import { enableMocks } from "@/mocks";
 import "@/index.css";
+import "@/theme.css";
 import "@bookmemory/ui/styles.css";
 import { enableApi } from "@/api/client";
 
