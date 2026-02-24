@@ -2,6 +2,7 @@ import { MouseEventHandler, SubmitEventHandler } from "react";
 import { Search, X } from "lucide-react";
 import {
   Button,
+  cn,
   Select,
   SelectContent,
   SelectItem,
@@ -128,28 +129,39 @@ export function BookmarkSearch({ onAddBookmarkClick }: BookmarkSearchProps) {
 
         {/* sort select */}
         {userHasBookmarks && !search?.trim() ? (
-          <div className="flex items-center gap-2">
-            Sort by:
-            <Select value={sort} onValueChange={setSort}>
-              <SelectTrigger className="w-fit cursor-pointer bg-accent/50 hover:bg-accent">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem className="cursor-pointer" value="recent">
-                  Recent
-                </SelectItem>
-                <SelectItem className="cursor-pointer" value="alphabetical">
-                  Alphabetical
-                </SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="flex items-center gap-2 justify-between">
+            <div className="flex items-center gap-2">
+              Sort by:
+              <Select value={sort} onValueChange={setSort}>
+                <SelectTrigger className="w-fit cursor-pointer bg-accent/50 hover:bg-accent">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem className="cursor-pointer" value="recent">
+                    Recent
+                  </SelectItem>
+                  <SelectItem className="cursor-pointer" value="alphabetical">
+                    Alphabetical
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {/* add bookmark button */}
+            <Button className="w-fit sm:hidden!" onClick={onAddBookmarkClick}>
+              Add Bookmark
+            </Button>
           </div>
         ) : (
           <div />
         )}
 
         {/* add bookmark button */}
-        <Button onClick={onAddBookmarkClick}>Add Bookmark</Button>
+        <Button
+          className={cn("sm:inline!", userHasBookmarks && "w-fit hidden")}
+          onClick={onAddBookmarkClick}
+        >
+          Add Bookmark
+        </Button>
       </div>
     </div>
   );

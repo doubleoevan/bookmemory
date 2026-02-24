@@ -125,7 +125,8 @@ export function LoginPage() {
         <section aria-labelledby="page-heading">
           <header className="text-center">
             <h1 id="page-heading" className="text-4xl pb-8">
-              Save bookmarks. Search intelligently.
+              <span>Save bookmarks. </span>
+              <span className="text-primary whitespace-nowrap">Search intelligently.</span>
             </h1>
           </header>
 
