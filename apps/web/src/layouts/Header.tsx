@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
+import { cn } from "@bookmemory/ui";
 import UserMenu from "@/components/UserMenu";
 import { HeaderIcon } from "@/components/HeaderIcon";
 
 export function Header({ className }: { className?: string }) {
   return (
-    <header className={className}>
+    <header className={cn("bg-background", className)}>
       <nav
         className="mx-auto flex h-14 items-center justify-between px-4 pr-2 bg-background"
         aria-label="Primary navigation"
