@@ -166,8 +166,9 @@ export function LoginPage() {
               mx-auto gap-2
               p-6
               border rounded-lg
-              bg-primary text-primary-foreground
               font-semibold
+              bg-black hover:bg-white hover:text-black
+              dark:bg-white dark:hover:bg-black dark:hover:text-white
             "
           >
             <GoogleLoginIcon className="w-5 h-5" aria-hidden="true" focusable="false" />

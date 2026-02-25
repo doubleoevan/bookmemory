@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { cn } from "@bookmemory/ui";
 import { BookmarkSearch } from "@/features/bookmarks/components/BookmarkSearch";
 import { BookmarkList } from "@/features/bookmarks/components/BookmarkList";
 import { AddBookmarkModal } from "@/features/bookmarks/components/AddBookmarkModal";
@@ -6,23 +7,27 @@ import { EditBookmarkModal } from "@/features/bookmarks/components/EditBookmarkM
 import { ViewBookmarkModal } from "@/features/bookmarks/components/ViewBookmarkModal";
 import { SummaryProvider } from "@/features/bookmarks/providers/summary";
 import { RemoveBookmarkModal } from "@/features/bookmarks/components/RemoveBookmarkModal";
+import { useBookmarks } from "@/features/bookmarks/providers/bookmark";
 
 type ModalType = "addBookmark" | "editBookmark" | "viewBookmark" | "deleteBookmark";
 
 export function BookmarksHomePage() {
   const [modalType, setModalType] = useState<ModalType | null>(null);
-  const onCloseModal = () => setModalType(null);
+  const { userHasBookmarks } = useBookmarks();
 
+  const onCloseModal = () => setModalType(null);
   const openAddBookmarkModal = () => setModalType("addBookmark");
   const openEditBookmarkModal = () => setModalType("editBookmark");
   const openViewBookmarkModal = () => setModalType("viewBookmark");
   const openDeleteBookmarkModal = () => setModalType("deleteBookmark");
 
   return (
-    <div className="mx-auto w-full max-w-4xl pt-9 pb-35 sm:pb-25!">
-      <BookmarkSearch className="sticky top-14 z-40" onAddBookmarkClick={openAddBookmarkModal} />
+    <div className={cn(userHasBookmarks && "mx-auto w-full max-w-4xl pt-14 sm:pb-25!")}>
+      <BookmarkSearch
+        className={cn("pt-px", userHasBookmarks && "sticky top-14 z-40")}
+        onAddBookmarkClick={openAddBookmarkModal}
+      />
       <BookmarkList
-        className="pt-3"
         onAddBookmarkClick={openAddBookmarkModal}
         onBookmarkClick={openViewBookmarkModal}
       />
