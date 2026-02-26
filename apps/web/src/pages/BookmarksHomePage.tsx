@@ -22,7 +22,7 @@ export function BookmarksHomePage() {
   const openDeleteBookmarkModal = () => setModalType("deleteBookmark");
 
   return (
-    <div className={cn(userHasBookmarks && "mx-auto w-full max-w-4xl pt-14 sm:pb-25!")}>
+    <div className={cn(userHasBookmarks && "mx-auto w-full max-w-4xl pt-14 pb-35 sm:pb-25!")}>
       <BookmarkSearch
         className={cn("pt-px", userHasBookmarks && "sticky top-14 z-40")}
         onAddBookmarkClick={openAddBookmarkModal}
