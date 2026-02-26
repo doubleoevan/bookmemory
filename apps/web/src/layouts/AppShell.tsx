@@ -10,7 +10,7 @@ export function AppShell() {
   const { theme } = useTheme();
   const { userHasBookmarks } = useBookmarks();
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-[100dvh] flex flex-col">
       <Header className={cn(userHasBookmarks && "fixed inset-x-0 top-0 z-50")} />
 
       <main className="flex-1">
